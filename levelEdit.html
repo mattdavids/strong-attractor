@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        
+        <title>Level Editor</title>
+        <script
+            src="https://code.jquery.com/jquery-3.1.1.slim.min.js"
+            integrity="sha256-/SIrNqv8h6QGKDuNoLGA4iret+kyesCkHGzVUUV0shc="
+            crossorigin="anonymous"></script>
+        <script src="editor.js"></script>
+        <script type="application/javascript">
+            $(document).ready(function(){
+                appStart();               
+            })
+        </script>
+        
+    </head>
+    
+    
+    <body>
+        
+        <div class="firstSection">
+            <label>Width?</label>
+            <input id="w" type="number" autofocus value="36">
+            <br>
+            <label>Height?</label>
+            <input id="h" type="number" value="16">
+            <br>
+            <input id="s" type="button" value="Submit">
+            <div class="content">
+                <table>
+
+
+
+                </table>
+            <br>
+            <input type="button" id="display" style="display: none;" value="Get String">
+            </div>
+        </div>
+            
+        <p id="response" style="white-space: pre-wrap"></p>
+        
+    </body>
+    
+</html>
