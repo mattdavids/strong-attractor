@@ -4,6 +4,7 @@ function preload() {
     game.load.image('gravObj_off', 'assets/gravObj_off.png');
     game.load.image('gravObj_on', 'assets/gravObj_on.png');
     game.load.image('enemy', 'assets/enemy.png');
+    game.load.text('levelsExternal', 'assets/levels.txt');
 }
 
 function create() {
@@ -21,110 +22,15 @@ function create() {
     walls = game.add.group();
     gravObjects = game.add.group();
     enemies = game.add.group();
-
-    var levels = [[
-        'xxxxxxxxxxxxxxxxxxxxxx',
-        '!                    x',
-        '!                    x',
-        '!                    x',
-        '!                    x',
-        '!          o         x',
-        '!                    x',
-        '!                    x',
-        '!                    x',
-        '!                    x',
-        '!                    x',
-        '!                    x',
-        '!                    x',
-        '!                    x',
-        'xxxxxxxx!!!!!!!xxxxxxx',
-    ], [
-        'xxxxxxxxxxxxxxxxxxxxxx',
-        '!                    x',
-        '!                    x',
-        '!                    x',
-        '!                    x',
-        '!                    x',
-        '!                    x',
-        '!                    x',
-        '!                    x',
-        '!                    x',
-        '!                    x',
-        '!                    x',
-        '!                    x',
-        '!                    x',
-        'xxxxxxxx!!!!!!!xxxxxxx',
-    ], [
-        'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
-        'x                                  x',
-        'x                                  x',
-        'x                                  x',
-        'x                                  x',
-        'x                                  x',
-        'x                  o               x',
-        'x                                  x',
-        'x                                  x',
-        'x                                  x',
-        'x                                  x',
-        'x                                  x',
-        'x                                  x',
-        'x                                  x',
-        'x                                  x',
-        'xxxxxxxxxxxxxxx!!!!!!!!xxxxxxxxxxxxx',
-       ], [
-        'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
-        'x                                  x',
-        'x                                  x',
-        'x                                  x',
-        'x                                  x',
-        'x                                  x',
-        'x                                  x',
-        'x                                  x',
-        'x                                  x',
-        'x                                  x',
-        'x                                  x',
-        'x                                  x',
-        'x                                  x',
-        'x                                  x',
-        'x                                  x',
-        'xxxxxxxxxxxxxxx!!!!!!!!xxxxxxxxxxxxx',
-       ], [
-        'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
-        'x                                  x',
-        'x                                  x',
-        'x                                  x',
-        'x                  o               x',
-        'x                                  x',
-        'x                                  x',
-        'x                                  x',
-        'x                                  x',
-        'x                                  x',
-        'x                                  x',
-        'x                                  x',
-        'x                                  x',
-        'x           xxx         xxx        x',
-        'x          xxxx         xxxx       x',
-        'xxxxxxxxxxxxxxx!!!!!!!!!xxxxxxxxxxxx',
-       ], [
-        'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
-        'x                                  x',
-        'x                                  x',
-        'x                                  x',
-        'x                                  x',
-        'x                                  x',
-        'x                                  x',
-        'x                                  x',
-        'x                                  x',
-        'x                                  x',
-        'x                                  x',
-        'x                                  x',
-        'x                                  x',
-        'x           xxx         xxx        x',
-        'x          xxxx         xxxx       x',
-        'xxxxxxxxxxxxxxx!!!!!!!!!xxxxxxxxxxxx',
-       ]];
-
-    var level = levels[4];
+    
+    var levelsAll = game.cache.getText('levelsExternal').split(',');
+    var levels = [levelsAll.length];
+    for (var i = 0; i < levelsAll.length; i++){
+        levels[i] = levelsAll[i].split('\n');
+    }
+    
+    var level = levels[5];
+    
 
     for (let i = 0; i < level.length; i++) {
         for (let j = 0; j < level[i].length; j++) {
