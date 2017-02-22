@@ -1,7 +1,8 @@
 function preload() {
     game.load.image('player', 'assets/player.png');
     game.load.image('wall', 'assets/wall.png');
-    game.load.image('gravObj', 'assets/gravObj.png');
+    game.load.image('gravObj_off', 'assets/gravObj_off.png');
+    game.load.image('gravObj_on', 'assets/gravObj_on.png');
     game.load.image('enemy', 'assets/enemy.png');
 }
 
@@ -11,6 +12,8 @@ function create() {
     game.world.enableBody = true;
 
     cursor = game.input.keyboard.createCursorKeys();
+    gravToggleBtn = game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
+    gravToggleBtn.onDown.add(toggleGravity, this);
 
     player = game.add.sprite(70, 100, 'player');
     player.body.gravity.y = 2500;
@@ -123,23 +126,24 @@ function create() {
 
     var level = levels[4];
 
-    for (var i = 0; i< level.length; i++) {
-        for (var j = 0; j < level[i].length; j++) {
+    for (let i = 0; i < level.length; i++) {
+        for (let j = 0; j < level[i].length; j++) {
 
             if (level[i][j] =='x') {
-                var wall = game.add.sprite(30 + 20*j, 30 + 20*i, 'wall');
+                let wall = game.add.sprite(30 + 20*j, 30 + 20*i, 'wall');
                 walls.add(wall);
                 wall.body.immovable = true;
             }
 
             if (level[i][j] =='o') {
-                var gravObj = game.add.sprite(30 + 20*j, 30 + 20*i, 'gravObj');
+                let gravObj = game.add.sprite(30 + 20*j, 30 + 20*i, 'gravObj_off');
+                gravObj.gravOn = false;
                 gravObjects.add(gravObj);
                 gravObj.body.immovable = true;
             }
 
             if (level[i][j] =='!') {
-                var enemy = game.add.sprite(30 + 20*j, 30 + 20*i, 'enemy');
+                let enemy = game.add.sprite(30 + 20*j, 30 + 20*i, 'enemy');
                 enemies.add(enemy);
             }
         }
@@ -180,21 +184,19 @@ function update() {
     var yGravCoef = 0;
 
     // Gravity object changes
-    for(var i = 0, len = gravObjects.children.length; i < len; i++) {
-        var obj = gravObjects.children[i];
-        var diff = Phaser.Point.subtract(player.position, obj.position);
-        var r = diff.getMagnitude();
-        diff.normalize();
+    for (let i = 0;  i < gravObjects.children.length; i++) {
+        let obj = gravObjects.children[i];
+        if (obj.gravOn) {
+            var diff = Phaser.Point.subtract(player.position, obj.position);
+            var r = diff.getMagnitude();
+            diff.normalize();
 
-        var xGrav = gravCoef * diff.x / Math.pow(r, 1);
-        var yGrav = gravCoef * diff.y / Math.pow(r, 1);
-
-        xGravCoef += xGrav;
-        yGravCoef += yGrav;
-
+            xGravCoef += gravCoef * diff.x / Math.pow(r, 1);
+            yGravCoef += gravCoef * diff.y / Math.pow(r, 1);
+        }
     }
-    player.body.acceleration.x = - xGravCoef;
-    player.body.acceleration.y = - yGravCoef;
+    player.body.acceleration.x = -xGravCoef;
+    player.body.acceleration.y = -yGravCoef;
 }
 
 function takeCoin(player, coin) {
@@ -203,6 +205,16 @@ function takeCoin(player, coin) {
 
 function restart() {
     game.state.start('main');
+}
+
+function toggleGravity() {
+    for (let i = 0;  i < gravObjects.children.length; i++) {
+        let sprite = gravObjects.children[i];
+        sprite.gravOn = !sprite.gravOn;
+        sprite.gravOn
+            ? sprite.loadTexture('gravObj_on')
+            : sprite.loadTexture('gravObj_off')
+    }
 }
 
 var game = new Phaser.Game(800, 400);
