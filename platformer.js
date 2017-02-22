@@ -29,7 +29,7 @@ function create() {
         levels[i] = levelsAll[i].split('\n');
     }
     
-    var level = levels[5];
+    var level = levels[6];
     
 
     for (let i = 0; i < level.length; i++) {
@@ -44,6 +44,13 @@ function create() {
             if (level[i][j] =='o') {
                 let gravObj = game.add.sprite(30 + 20*j, 30 + 20*i, 'gravObj_off');
                 gravObj.gravOn = false;
+                gravObjects.add(gravObj);
+                gravObj.body.immovable = true;
+            }
+
+            if (level[i][j] =='g') {
+                let gravObj = game.add.sprite(30 + 20*j, 30 + 20*i, 'gravObj_on');
+                gravObj.gravOn = true;
                 gravObjects.add(gravObj);
                 gravObj.body.immovable = true;
             }
