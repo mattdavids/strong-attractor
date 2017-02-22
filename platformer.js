@@ -182,10 +182,12 @@ function update() {
     // Gravity object changes
     for(var i = 0, len = gravObjects.children.length; i < len; i++) {
         var obj = gravObjects.children[i];
-        var radius = Phaser.Math.distance(obj.position.x, obj.position.y, player.position.x, player.position.y);
-        var theta = Phaser.Math.angleBetween(obj.position.x, obj.position.y, player.position.x, player.position.y);
-        var xGrav = (gravCoef*Math.cos(theta))/(radius^2);
-        var yGrav = (gravCoef*Math.sin(theta))/(radius^2);
+        var diff = Phaser.Point.subtract(player.position, obj.position);
+        var r = diff.getMagnitude();
+        diff.normalize();
+
+        var xGrav = gravCoef * diff.x / Math.pow(r, 1);
+        var yGrav = gravCoef * diff.y / Math.pow(r, 1);
 
         xGravCoef += xGrav;
         yGravCoef += yGrav;
