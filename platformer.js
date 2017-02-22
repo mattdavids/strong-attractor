@@ -1,229 +1,208 @@
-var mainState = {
-    preload: function() {
+function preload() {
+    game.load.image('player', 'assets/player.png');
+    game.load.image('wall', 'assets/wall.png');
+    game.load.image('gravObj', 'assets/gravObj.png');
+    game.load.image('enemy', 'assets/enemy.png');
+}
 
-        game.load.image('player', 'assets/player.png');
-        game.load.image('wall', 'assets/wall.png');
-        game.load.image('gravObj', 'assets/gravObj.png');
-        game.load.image('enemy', 'assets/enemy.png');
+function create() {
+    game.stage.backgroundColor = '#7ac17c';
+    game.physics.startSystem(Phaser.Physics.ARCADE);
+    game.world.enableBody = true;
 
-    },
+    cursor = game.input.keyboard.createCursorKeys();
 
-    create: function() {
+    player = game.add.sprite(70, 100, 'player');
+    player.body.gravity.y = 2500;
 
-        game.stage.backgroundColor = '#7ac17c';
+    walls = game.add.group();
+    gravObjects = game.add.group();
+    enemies = game.add.group();
 
-        game.physics.startSystem(Phaser.Physics.ARCADE);
+    var levels = [[
+        'xxxxxxxxxxxxxxxxxxxxxx',
+        '!                    x',
+        '!                    x',
+        '!                    x',
+        '!                    x',
+        '!          o         x',
+        '!                    x',
+        '!                    x',
+        '!                    x',
+        '!                    x',
+        '!                    x',
+        '!                    x',
+        '!                    x',
+        '!                    x',
+        'xxxxxxxx!!!!!!!xxxxxxx',
+    ], [
+        'xxxxxxxxxxxxxxxxxxxxxx',
+        '!                    x',
+        '!                    x',
+        '!                    x',
+        '!                    x',
+        '!                    x',
+        '!                    x',
+        '!                    x',
+        '!                    x',
+        '!                    x',
+        '!                    x',
+        '!                    x',
+        '!                    x',
+        '!                    x',
+        'xxxxxxxx!!!!!!!xxxxxxx',
+    ], [
+        'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+        'x                                  x',
+        'x                                  x',
+        'x                                  x',
+        'x                                  x',
+        'x                                  x',
+        'x                  o               x',
+        'x                                  x',
+        'x                                  x',
+        'x                                  x',
+        'x                                  x',
+        'x                                  x',
+        'x                                  x',
+        'x                                  x',
+        'x                                  x',
+        'xxxxxxxxxxxxxxx!!!!!!!!xxxxxxxxxxxxx',
+       ], [
+        'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+        'x                                  x',
+        'x                                  x',
+        'x                                  x',
+        'x                                  x',
+        'x                                  x',
+        'x                                  x',
+        'x                                  x',
+        'x                                  x',
+        'x                                  x',
+        'x                                  x',
+        'x                                  x',
+        'x                                  x',
+        'x                                  x',
+        'x                                  x',
+        'xxxxxxxxxxxxxxx!!!!!!!!xxxxxxxxxxxxx',
+       ], [
+        'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+        'x                                  x',
+        'x                                  x',
+        'x                                  x',
+        'x                  o               x',
+        'x                                  x',
+        'x                                  x',
+        'x                                  x',
+        'x                                  x',
+        'x                                  x',
+        'x                                  x',
+        'x                                  x',
+        'x                                  x',
+        'x           xxx         xxx        x',
+        'x          xxxx         xxxx       x',
+        'xxxxxxxxxxxxxxx!!!!!!!!!xxxxxxxxxxxx',
+       ], [
+        'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+        'x                                  x',
+        'x                                  x',
+        'x                                  x',
+        'x                                  x',
+        'x                                  x',
+        'x                                  x',
+        'x                                  x',
+        'x                                  x',
+        'x                                  x',
+        'x                                  x',
+        'x                                  x',
+        'x                                  x',
+        'x           xxx         xxx        x',
+        'x          xxxx         xxxx       x',
+        'xxxxxxxxxxxxxxx!!!!!!!!!xxxxxxxxxxxx',
+       ]];
 
-        game.world.enableBody = true;
+    var level = levels[4];
 
-        this.cursor = game.input.keyboard.createCursorKeys();
+    for (var i = 0; i< level.length; i++) {
+        for (var j = 0; j < level[i].length; j++) {
 
-        this.player = game.add.sprite(70, 100, 'player');
+            if (level[i][j] =='x') {
+                var wall = game.add.sprite(30 + 20*j, 30 + 20*i, 'wall');
+                walls.add(wall);
+                wall.body.immovable = true;
+            }
 
-        this.player.body.gravity.y = 2500;
+            if (level[i][j] =='o') {
+                var gravObj = game.add.sprite(30 + 20*j, 30 + 20*i, 'gravObj');
+                gravObjects.add(gravObj);
+                gravObj.body.immovable = true;
+            }
 
-        this.walls = game.add.group();
-        this.gravObjects = game.add.group();
-        this.enemies = game.add.group();
-
-        var levels = [[
-            'xxxxxxxxxxxxxxxxxxxxxx',
-            '!                    x',
-            '!                    x',
-            '!                    x',
-            '!                    x',
-            '!          o         x',
-            '!                    x',
-            '!                    x',
-            '!                    x',
-            '!                    x',
-            '!                    x',
-            '!                    x',
-            '!                    x',
-            '!                    x',
-            'xxxxxxxx!!!!!!!xxxxxxx',
-        ], [
-            'xxxxxxxxxxxxxxxxxxxxxx',
-            '!                    x',
-            '!                    x',
-            '!                    x',
-            '!                    x',
-            '!                    x',
-            '!                    x',
-            '!                    x',
-            '!                    x',
-            '!                    x',
-            '!                    x',
-            '!                    x',
-            '!                    x',
-            '!                    x',
-            'xxxxxxxx!!!!!!!xxxxxxx',
-        ], [
-            'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
-            'x                                  x',
-            'x                                  x',
-            'x                                  x',
-            'x                                  x',
-            'x                                  x',
-            'x                  o               x',
-            'x                                  x',
-            'x                                  x',
-            'x                                  x',
-            'x                                  x',
-            'x                                  x',
-            'x                                  x',
-            'x                                  x',
-            'x                                  x',
-            'xxxxxxxxxxxxxxx!!!!!!!!xxxxxxxxxxxxx',
-           ], [
-            'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
-            'x                                  x',
-            'x                                  x',
-            'x                                  x',
-            'x                                  x',
-            'x                                  x',
-            'x                                  x',
-            'x                                  x',
-            'x                                  x',
-            'x                                  x',
-            'x                                  x',
-            'x                                  x',
-            'x                                  x',
-            'x                                  x',
-            'x                                  x',
-            'xxxxxxxxxxxxxxx!!!!!!!!xxxxxxxxxxxxx',
-           ], [
-            'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
-            'x                                  x',
-            'x                                  x',
-            'x                                  x',
-            'x                  o               x',
-            'x                                  x',
-            'x                                  x',
-            'x                                  x',
-            'x                                  x',
-            'x                                  x',
-            'x                                  x',
-            'x                                  x',
-            'x                                  x',
-            'x           xxx         xxx        x',
-            'x          xxxx         xxxx       x',
-            'xxxxxxxxxxxxxxx!!!!!!!!!xxxxxxxxxxxx',
-           ], [
-            'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
-            'x                                  x',
-            'x                                  x',
-            'x                                  x',
-            'x                                  x',
-            'x                                  x',
-            'x                                  x',
-            'x                                  x',
-            'x                                  x',
-            'x                                  x',
-            'x                                  x',
-            'x                                  x',
-            'x                                  x',
-            'x           xxx         xxx        x',
-            'x          xxxx         xxxx       x',
-            'xxxxxxxxxxxxxxx!!!!!!!!!xxxxxxxxxxxx',
-           ]];
-
-        var level = levels[4];
-
-        for (var i = 0; i< level.length; i++){
-            for (var j = 0; j < level[i].length; j++){
-
-                if(level[i][j] =='x'){
-                    var wall = game.add.sprite(30 + 20*j, 30 + 20*i, 'wall');
-                    this.walls.add(wall);
-                    wall.body.immovable = true;
-                }
-
-                if(level[i][j] =='o'){
-                    var gravObj = game.add.sprite(30 + 20*j, 30 + 20*i, 'gravObj');
-                    this.gravObjects.add(gravObj);
-                    gravObj.body.immovable = true;
-                }
-
-                if(level[i][j] =='!'){
-                    var enemy = game.add.sprite(30 + 20*j, 30 + 20*i, 'enemy');
-                    this.enemies.add(enemy);
-                }
+            if (level[i][j] =='!') {
+                var enemy = game.add.sprite(30 + 20*j, 30 + 20*i, 'enemy');
+                enemies.add(enemy);
             }
         }
+    }
+}
 
-    },
+function update() {
+    game.physics.arcade.collide(player, walls);
+    game.physics.arcade.collide(player, gravObjects);
 
-    update: function() {
+    //game.physics.arcade.overlap(player, gravObjects, takeCoin, null, this);
+    game.physics.arcade.overlap(player, enemies, restart, null, this);
 
-
-        game.physics.arcade.collide(this.player, this.walls);
-
-        game.physics.arcade.collide(this.player, this.gravObjects);
-
-        //game.physics.arcade.overlap(this.player, this.gravObjects, this.takeCoin, null, this);
-
-        game.physics.arcade.overlap(this.player, this.enemies, this.restart, null, this);
-
-        if (this.cursor.left.isDown){
-            if (this.player.body.touching.down){
-                this.player.body.velocity.x = Math.max(-250, this.player.body.velocity.x - 15);
-            } else{
-                this.player.body.velocity.x = Math.max(-250, this.player.body.velocity.x - 10);
-            }
-        } else if (this.cursor.right.isDown){
-            if (this.player.body.touching.down){
-                this.player.body.velocity.x = Math.min(250, this.player.body.velocity.x + 15);
-            } else{
-                this.player.body.velocity.x = Math.min(250, this.player.body.velocity.x + 10);
-            }
-        } else{
-            if (this.player.body.touching.down){
-                this.player.body.velocity.x = this.player.body.velocity.x * .8;
-            }
+    if (cursor.left.isDown) {
+        if (player.body.touching.down) {
+            player.body.velocity.x = Math.max(-250, player.body.velocity.x - 15);
+        } else {
+            player.body.velocity.x = Math.max(-250, player.body.velocity.x - 10);
         }
-        if (this.cursor.up.isDown && this.player.body.touching.down){
-            this.player.body.velocity.y = -500;
+    } else if (cursor.right.isDown) {
+        if (player.body.touching.down) {
+            player.body.velocity.x = Math.min(250, player.body.velocity.x + 15);
+        } else {
+            player.body.velocity.x = Math.min(250, player.body.velocity.x + 10);
         }
-
-        var gravCoef = 150000;
-
-        var xGravCoef = 0;
-
-        var yGravCoef = 0;
-
-        // Gravity object changes
-        for(var i=0, len = this.gravObjects.children.length; i < len; i++){
-
-            var obj = this.gravObjects.children[i];
-
-            var radius = Phaser.Math.distance(obj.position.x, obj.position.y, this.player.position.x, this.player.position.y);
-
-            var theta = Phaser.Math.angleBetween(obj.position.x, obj.position.y, this.player.position.x, this.player.position.y);
-
-            var xGrav = (gravCoef*Math.cos(theta))/(radius^2);
-            var yGrav = (gravCoef*Math.sin(theta))/(radius^2);
-
-            xGravCoef += xGrav;
-            yGravCoef += yGrav;
-
+    } else {
+        if (player.body.touching.down) {
+            player.body.velocity.x = player.body.velocity.x * .8;
         }
+    }
 
-        this.player.body.acceleration.x = - xGravCoef;
-        this.player.body.acceleration.y = - yGravCoef;
+    if (cursor.up.isDown && player.body.touching.down){
+        player.body.velocity.y = -500;
+    }
 
-    },
+    var gravCoef = 150000;
+    var xGravCoef = 0;
+    var yGravCoef = 0;
 
-    takeCoin: function(player, coin){
-        coin.kill();
-    },
+    // Gravity object changes
+    for(var i = 0, len = gravObjects.children.length; i < len; i++) {
+        var obj = gravObjects.children[i];
+        var radius = Phaser.Math.distance(obj.position.x, obj.position.y, player.position.x, player.position.y);
+        var theta = Phaser.Math.angleBetween(obj.position.x, obj.position.y, player.position.x, player.position.y);
+        var xGrav = (gravCoef*Math.cos(theta))/(radius^2);
+        var yGrav = (gravCoef*Math.sin(theta))/(radius^2);
 
-    restart: function(){
-        game.state.start('main');
-    },
+        xGravCoef += xGrav;
+        yGravCoef += yGrav;
 
-};
+    }
+    player.body.acceleration.x = - xGravCoef;
+    player.body.acceleration.y = - yGravCoef;
+}
+
+function takeCoin(player, coin) {
+    coin.kill();
+}
+
+function restart() {
+    game.state.start('main');
+}
 
 var game = new Phaser.Game(800, 400);
-game.state.add('main', mainState);
+game.state.add('main', {preload: preload, create: create, update: update});
 game.state.start('main');
