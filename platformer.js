@@ -1,4 +1,10 @@
-var gravCoef = 150000;
+let game = new Phaser.Game(800, 400);
+game.state.add('main', {preload: preload, create: create, update: update});
+game.state.start('main');
+
+const gravCoef = 150000, frictionCoef = 0.5,
+    groundAcceleration = 30, airAcceleration = 10, maxHorizontalVelocity = 250, jumpVelocity = 650;
+let player, walls, gravObjects, enemies, sliders, cursor;
 
 function preload() {
     game.load.image('player', 'assets/player.png');
@@ -16,7 +22,7 @@ function create() {
     game.world.enableBody = true;
 
     cursor = game.input.keyboard.createCursorKeys();
-    gravToggleBtn = game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
+    let gravToggleBtn = game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
     gravToggleBtn.onDown.add(toggleGravityAll, this);
     
     player = game.add.sprite(70, 100, 'player');
@@ -27,19 +33,17 @@ function create() {
     enemies = game.add.group();
     sliders = game.add.group();
     
-    var levelsAll = game.cache.getText('levelsExternal').split(',');
-    var levels = [levelsAll.length];
-    for (var i = 0; i < levelsAll.length; i++){
+    let levelsAll = game.cache.getText('levelsExternal').split(',');
+    let levels = [levelsAll.length];
+    for (let i = 0; i < levelsAll.length; i++){
         levels[i] = levelsAll[i].split('\n');
     }
     
-    var level = levels[6];
+    let level = levels[6];
     
     if (level == undefined) {
         level = 'gggggggg';
     }
-    
-    var currentID = 0;
 
     for (let i = 0; i < level.length; i++) {
         for (let j = 0; j < level[i].length; j++) {
@@ -51,60 +55,11 @@ function create() {
             }
 
             if (level[i][j] =='g') {
-                let gravObj = game.add.sprite(30 + 20*j, 30 + 20*i, 'gravObj_on');
-                gravObj.gravOn = true ;
-                gravObj.gravWeight = gravCoef;
-                gravObjects.add(gravObj);
-                gravObj.body.immovable = true;
-                gravObj.inputEnabled = true;
-                gravObj.events.onInputDown.add(toggleGravity, this);
-                gravObj.ID = currentID;
-                
-                let slider = game.add.sprite(45 + 20*j, 45 + 20*i, 'slider');
-                let bounds = new Phaser.Rectangle(-10 + 20*j, 30 + 20*i, 100, 20);
-                let graphic = game.add.graphics(bounds.x, bounds.y);
-                graphic.drawRect(0,0,bounds.width, bounds.height);
-                slider.initialX = slider.position.x;
-                slider.was_dragged = false;
-                
-                slider.inputEnabled = true;
-                slider.anchor.set(.5, .5);
-                slider.input.setDragLock(true, false);
-                
-                slider.input.enableDrag();
-                slider.events.onDragUpdate.add(dragUpdate, this);
-                slider.input.boundsRect = bounds;
-                slider.ID = currentID;
-                currentID ++;
+                initializeGravObj(i, j, true);
             }
             
             if (level[i][j] =='o') {
-                let gravObj = game.add.sprite(30 + 20*j, 30 + 20*i, 'gravObj_off');
-                gravObj.gravOn = false ;
-                gravObj.gravWeight = gravCoef;
-                gravObjects.add(gravObj);
-                gravObj.body.immovable = true;
-                gravObj.inputEnabled = true;
-                gravObj.events.onInputDown.add(toggleGravity, this);
-                gravObj.ID = currentID;
-                
-                let slider = game.add.sprite(45 + 20*j, 45 + 20*i, 'slider');
-                let bounds = new Phaser.Rectangle(-10 + 20*j, 30 + 20*i, 100, 50);
-                let graphic = game.add.graphics(bounds.x, bounds.y);
-                graphic.drawRect(0,0,bounds.width, bounds.height);
-                slider.initialX = slider.position.x;
-                slider.was_dragged = false;
-                
-                slider.inputEnabled = true;
-                slider.anchor.set(.5, .5);
-                
-                slider.input.enableDrag();
-                slider.input.setDragLock(true, false);
-                slider.events.onDragUpdate.add(dragUpdate, this);
-                slider.input.boundsRect = bounds;
-                slider.ID = currentID;
-                currentID ++;
-                
+                initializeGravObj(i, j, false);
             }
 
             if (level[i][j] =='!') {
@@ -121,42 +76,39 @@ function update() {
 
     //game.physics.arcade.overlap(player, gravObjects, takeCoin, null, this);
     game.physics.arcade.overlap(player, enemies, restart, null, this);
-    
-    var xInertia = 30;
-    var yInertia = 30;
 
     if (cursor.left.isDown) {
         if (player.body.touching.down) {
-            player.body.velocity.x = Math.max(-250, player.body.velocity.x - xInertia);
+            player.body.velocity.x = Math.max(-maxHorizontalVelocity, player.body.velocity.x - groundAcceleration);
         } else {
-            player.body.velocity.x = Math.max(-250, player.body.velocity.x - 10);
+            player.body.velocity.x = Math.max(-maxHorizontalVelocity, player.body.velocity.x - airAcceleration);
         }
     } else if (cursor.right.isDown) {
         if (player.body.touching.down) {
-            player.body.velocity.x = Math.min(250, player.body.velocity.x + xInertia);
+            player.body.velocity.x = Math.min(maxHorizontalVelocity, player.body.velocity.x + groundAcceleration);
         } else {
-            player.body.velocity.x = Math.min(250, player.body.velocity.x + 10);
+            player.body.velocity.x = Math.min(maxHorizontalVelocity, player.body.velocity.x + airAcceleration);
         }
     } else {
         if (player.body.touching.down) {
-            player.body.velocity.x = player.body.velocity.x * .5;
+            player.body.velocity.x = player.body.velocity.x * frictionCoef;
         }
     }
 
-    if (cursor.up.isDown && player.body.touching.down){
-        player.body.velocity.y = -650;
+    if (cursor.up.isDown && player.body.touching.down) {
+        player.body.velocity.y = -jumpVelocity;
     }    
     
-    var xGravCoef = 0;
-    var yGravCoef = 0;
+    let xGravCoef = 0;
+    let yGravCoef = 0;
 
     // Gravity object changes
     for (let i = 0;  i < gravObjects.children.length; i++) {
         let obj = gravObjects.children[i];
         
         if (obj.gravOn) {
-            var diff = Phaser.Point.subtract(player.position, obj.position);
-            var r = diff.getMagnitude();
+            let diff = Phaser.Point.subtract(player.position, obj.position);
+            let r = diff.getMagnitude();
             diff.normalize();
 
             xGravCoef += obj.gravWeight * diff.x / Math.pow(r, 1);
@@ -177,8 +129,34 @@ function restart() {
     game.state.start('main');
 }
 
+function initializeGravObj(i, j, gravOn) {
+    let name = gravOn ? 'gravObj_on' : 'gravObj_off';
+    let gravObj = game.add.sprite(30 + 20*j, 30 + 20*i, name);
+    gravObj.gravOn = gravOn ;
+    gravObj.gravWeight = gravCoef;
+    gravObjects.add(gravObj);
+    gravObj.body.immovable = true;
+    gravObj.inputEnabled = true;
+    gravObj.events.onInputDown.add(toggleGravity, this);
+
+    let slider = game.add.sprite(45 + 20*j, 45 + 20*i, 'slider');
+    let bounds = new Phaser.Rectangle(-10 + 20*j, 30 + 20*i, 100, 20);
+    let graphic = game.add.graphics(bounds.x, bounds.y);
+    graphic.drawRect(0,0,bounds.width, bounds.height);
+    slider.lastX = slider.position.x;
+    //slider.was_dragged = false;
+    slider.gravObj = gravObj;
+
+    slider.inputEnabled = true;
+    slider.anchor.set(.5, .5);
+    slider.input.setDragLock(true, false); // can drag horizontally, not vertically
+    slider.input.enableDrag();
+    slider.events.onDragUpdate.add(dragUpdate, this);
+    slider.input.boundsRect = bounds;
+}
+
 function toggleGravityAll() {
-    
+
     for (let i = 0;  i < gravObjects.children.length; i++) {
         let sprite = gravObjects.children[i];
         sprite.gravOn = !sprite.gravOn;
@@ -189,7 +167,7 @@ function toggleGravityAll() {
 }
 
 function toggleGravity(obj) {
-    
+
     obj.gravOn = !obj.gravOn;
     obj.gravOn
         ? obj.loadTexture('gravObj_on')
@@ -197,19 +175,6 @@ function toggleGravity(obj) {
 }
 
 function dragUpdate(sObj) {
-
-        for (let j = 0;  j < gravObjects.children.length; j++) {
-            let gObj = gravObjects.children[j];
-
-            if (sObj.ID == gObj.ID) {
-            
-                gObj.gravWeight -= (sObj.initialX - sObj.position.x) * 5000;
-                sObj.initialX = sObj.position.x;
-            }
-
-        }
-    }
-
-var game = new Phaser.Game(800, 400);
-game.state.add('main', {preload: preload, create: create, update: update});
-game.state.start('main');
+    sObj.gravObj.gravWeight -= (sObj.lastX - sObj.position.x) * 5000;
+    sObj.lastX = sObj.position.x;
+}
