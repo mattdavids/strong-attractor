@@ -43,7 +43,16 @@ function create() {
 
             if (level[i][j] =='g') {
                 let gravObj = game.add.sprite(30 + 20*j, 30 + 20*i, 'gravObj_on');
-                gravObj.gravOn = false;
+                gravObj.gravOn = true ;
+                gravObjects.add(gravObj);
+                gravObj.body.immovable = true;
+                gravObj.inputEnabled = true;
+                gravObj.events.onInputDown.add(toggleGravity, this);
+            }
+            
+            if (level[i][j] =='o') {
+                let gravObj = game.add.sprite(30 + 20*j, 30 + 20*i, 'gravObj_off');
+                gravObj.gravOn = false ;
                 gravObjects.add(gravObj);
                 gravObj.body.immovable = true;
                 gravObj.inputEnabled = true;
