@@ -93,23 +93,7 @@ x           xxx         xxx        x
 x          xxxx         xxxx       x
 xxxxxxxxxxxxxxx!!!!!!!!!xxxxxxxxxxxx,
 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-x                  o               x
-x                                  x
-x                                  x
-x                                  x
-x                                  x
-x                                  x
-x                                  x
-x                                  x
-x                                  x
-x                                  x
-x                                  x
-x                                  x
-x           xxx         xxx        x
-x          xxxx         xxxx       x
-xxxxxxxxxxxxxxx!!!!!!!!!xxxxxxxxxxxx,
-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-x       o          o         o     x
+x    g             g           g   x
 x                                  x
 x                                  x
 x                                  x
