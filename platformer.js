@@ -16,8 +16,6 @@ function create() {
     gravToggleBtn = game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
     gravToggleBtn.onDown.add(toggleGravityAll, this);
     
-    
-    
     player = game.add.sprite(70, 100, 'player');
     player.body.gravity.y = 2500;
 
@@ -31,7 +29,7 @@ function create() {
         levels[i] = levelsAll[i].split('\n');
     }
     
-    var level = levels[7];
+    var level = levels[6];
     
 
     for (let i = 0; i < level.length; i++) {
