@@ -14,8 +14,10 @@ function create() {
 
     cursor = game.input.keyboard.createCursorKeys();
     gravToggleBtn = game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
-    gravToggleBtn.onDown.add(toggleGravity, this);
-
+    gravToggleBtn.onDown.add(toggleGravityAll, this);
+    
+    
+    
     player = game.add.sprite(70, 100, 'player');
     player.body.gravity.y = 2500;
 
@@ -29,7 +31,7 @@ function create() {
         levels[i] = levelsAll[i].split('\n');
     }
     
-    var level = levels[5];
+    var level = levels[7];
     
 
     for (let i = 0; i < level.length; i++) {
@@ -46,6 +48,8 @@ function create() {
                 gravObj.gravOn = false;
                 gravObjects.add(gravObj);
                 gravObj.body.immovable = true;
+                gravObj.inputEnabled = true;
+                gravObj.events.onInputDown.add(toggleGravity, this);
             }
 
             if (level[i][j] =='!') {
@@ -62,27 +66,30 @@ function update() {
 
     //game.physics.arcade.overlap(player, gravObjects, takeCoin, null, this);
     game.physics.arcade.overlap(player, enemies, restart, null, this);
+    
+    var xInertia = 30;
+    var yInertia = 30;
 
     if (cursor.left.isDown) {
         if (player.body.touching.down) {
-            player.body.velocity.x = Math.max(-250, player.body.velocity.x - 15);
+            player.body.velocity.x = Math.max(-250, player.body.velocity.x - xInertia);
         } else {
             player.body.velocity.x = Math.max(-250, player.body.velocity.x - 10);
         }
     } else if (cursor.right.isDown) {
         if (player.body.touching.down) {
-            player.body.velocity.x = Math.min(250, player.body.velocity.x + 15);
+            player.body.velocity.x = Math.min(250, player.body.velocity.x + xInertia);
         } else {
             player.body.velocity.x = Math.min(250, player.body.velocity.x + 10);
         }
     } else {
         if (player.body.touching.down) {
-            player.body.velocity.x = player.body.velocity.x * .8;
+            player.body.velocity.x = player.body.velocity.x * .5;
         }
     }
 
     if (cursor.up.isDown && player.body.touching.down){
-        player.body.velocity.y = -500;
+        player.body.velocity.y = -650;
     }
 
     var gravCoef = 150000;
@@ -113,7 +120,8 @@ function restart() {
     game.state.start('main');
 }
 
-function toggleGravity() {
+function toggleGravityAll() {
+    
     for (let i = 0;  i < gravObjects.children.length; i++) {
         let sprite = gravObjects.children[i];
         sprite.gravOn = !sprite.gravOn;
@@ -121,6 +129,14 @@ function toggleGravity() {
             ? sprite.loadTexture('gravObj_on')
             : sprite.loadTexture('gravObj_off')
     }
+}
+
+function toggleGravity(obj) {
+    
+    obj.gravOn = !obj.gravOn;
+    obj.gravOn
+        ? obj.loadTexture('gravObj_on')
+        : obj.loadTexture('gravObj_off')
 }
 
 var game = new Phaser.Game(800, 400);
