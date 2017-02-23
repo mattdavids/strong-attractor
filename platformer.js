@@ -3,7 +3,7 @@ game.state.add('main', {preload: preload, create: create, update: update});
 game.state.start('main');
 
 const gravCoef = 150000, frictionCoef = 0.5,
-    groundAcceleration = 30, airAcceleration = 10, maxHorizontalVelocity = 250, jumpVelocity = 650;
+    groundAcceleration = 30, airAcceleration = 5, maxHorizontalVelocity = 250, jumpVelocity = 650;
 let player, walls, gravObjects, enemies, sliders, cursor, levels, currentLevelNum;
 
 function preload() {
@@ -115,13 +115,13 @@ function update() {
         if (player.body.touching.down) {
             player.body.velocity.x = Math.max(-maxHorizontalVelocity, player.body.velocity.x - groundAcceleration);
         } else {
-            player.body.velocity.x = Math.max(-maxHorizontalVelocity, player.body.velocity.x - airAcceleration);
+            player.body.velocity.x -= airAcceleration;
         }
     } else if (cursor.right.isDown) {
         if (player.body.touching.down) {
             player.body.velocity.x = Math.min(maxHorizontalVelocity, player.body.velocity.x + groundAcceleration);
         } else {
-            player.body.velocity.x = Math.min(maxHorizontalVelocity, player.body.velocity.x + airAcceleration);
+            player.body.velocity.x += airAcceleration;
         }
     } else {
         if (player.body.touching.down) {
@@ -149,6 +149,7 @@ function update() {
             yGravCoef += obj.gravWeight * diff.y / Math.pow(r, 1);
         }
         
+        //displays weight of gravity objects
         game.debug.text(obj.gravWeight/1000, obj.position.x, obj.position.y);
     }
     player.body.acceleration.x = -xGravCoef;
@@ -179,7 +180,6 @@ function initializeGravObj(i, j, gravOn) {
     let graphic = game.add.graphics(bounds.x, bounds.y);
     graphic.drawRect(0,0,bounds.width, bounds.height);
     slider.lastX = slider.position.x;
-    //slider.was_dragged = false;
     slider.gravObj = gravObj;
 
     slider.inputEnabled = true;
