@@ -33,25 +33,23 @@ function appStart(){
                     value2 = 'selected';
                 }
                 
-                obj.append('<td style="margin: 0px; padding: 0px"><select style="width: 32px; height: 20px; padding: 0px; margin: 0px"><option ' + value1 + ' value="x">x</option><option value="!">!</option><option ' + value2 + ' value=" "> </option><option value="o">o</option></select></td>');
+                obj.append('<td style="margin: 0px; padding: 0px"><select style="width: 32px; height: 20px; padding: 0px; margin: 0px"><option ' + value1 + ' value="x">x</option><option value="!">!</option><option ' + value2 + ' value=" "> </option><option value="o">o</option><option value="g">g</option></select></td>');
             }
             obj.append('</tr>');
         }       
         
     });
     
-    
-    
     $('#display').click(function(){
         
-        var result = "'";
+        var result = "";
         var current = 0;
         
         $('td select').each(function(){
             result += $(this).val();
             current ++;
-            if (current % (width) == 0){
-                result += "',\n'";
+            if (current % width == 0){
+                result += '\n'
             }
         })
         
