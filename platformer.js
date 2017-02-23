@@ -37,7 +37,7 @@ function create() {
     
     loadLevelsFromFile();
     currentLevelNum = 4;
-    selectLevel();
+    loadLevel();
 }
 
 function loadLevelsFromFile(){
@@ -59,24 +59,23 @@ function clearLevel(){
     player.body.gravity.y = 2500;
 }
 
-function selectLevelButton(){
+function selectLevel(){
 	// This would be simpler with jquery
 	let levelSelector = document.getElementById("level-select");
 	let level = levelSelector.options[levelSelector.selectedIndex].value;
 
 	currentLevelNum = level;
-	selectLevel();
+	loadLevel();
 }
 
-function selectLevel(){
-	console.log("Level "+currentLevelNum+" selected.");
-
+function loadLevel(){
 	clearLevel();
     
     let level = levels[currentLevelNum];
     
     if (level == undefined) {
         level = 'gggggggg';
+        console.log("Attempted to load undefined level");
     }
 
     for (let i = 0; i < level.length; i++) {
@@ -162,7 +161,7 @@ function takeCoin(player, coin) {
 
 function restart() {
     //game.state.start('main');
-    selectLevel();
+    loadLevel();
 }
 
 function initializeGravObj(i, j, gravOn) {
