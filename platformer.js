@@ -4,7 +4,7 @@ game.state.start('main');
 
 const gravCoef = 150000, frictionCoef = 0.5,
     groundAcceleration = 30, airAcceleration = 10, maxHorizontalVelocity = 250, jumpVelocity = 650;
-let player, walls, gravObjects, enemies, sliders, cursor;
+let player, walls, gravObjects, enemies, sliders, cursor, levels, currentLevelNum;
 
 function preload() {
     game.load.image('player', 'assets/player.png');
@@ -14,7 +14,9 @@ function preload() {
     game.load.image('enemy', 'assets/enemy.png');
     game.load.image('slider', 'assets/slider.png');
     game.load.text('levelsExternal', 'assets/levels.txt');
+
 }
+
 
 function create() {
     game.stage.backgroundColor = '#7ac17c';
@@ -33,13 +35,45 @@ function create() {
     enemies = game.add.group();
     sliders = game.add.group();
     
+    loadLevelsFromFile();
+    currentLevelNum = 4;
+    selectLevel();
+}
+
+function loadLevelsFromFile(){
     let levelsAll = game.cache.getText('levelsExternal').split(',');
-    let levels = [levelsAll.length];
+    levels = [levelsAll.length];
     for (let i = 0; i < levelsAll.length; i++){
         levels[i] = levelsAll[i].split('\n');
     }
+}
+
+function clearLevel(){
+	walls.removeAll();
+	enemies.removeAll();
+	gravObjects.removeAll();
+	sliders.removeAll();
+
+	player.kill();
+    player = game.add.sprite(70, 100, 'player');
+    player.body.gravity.y = 2500;
+}
+
+function selectLevelButton(){
+	// This would be simpler with jquery
+	let levelSelector = document.getElementById("level-select");
+	let level = levelSelector.options[levelSelector.selectedIndex].value;
+
+	currentLevelNum = level;
+	selectLevel();
+}
+
+function selectLevel(){
+	console.log("Level "+currentLevelNum+" selected.");
+
+	clearLevel();
     
-    let level = levels[6];
+    let level = levels[currentLevelNum];
     
     if (level == undefined) {
         level = 'gggggggg';
@@ -68,6 +102,7 @@ function create() {
             }
         }
     }
+
 }
 
 function update() {
@@ -126,7 +161,8 @@ function takeCoin(player, coin) {
 }
 
 function restart() {
-    game.state.start('main');
+    //game.state.start('main');
+    selectLevel();
 }
 
 function initializeGravObj(i, j, gravOn) {
@@ -153,6 +189,8 @@ function initializeGravObj(i, j, gravOn) {
     slider.input.enableDrag();
     slider.events.onDragUpdate.add(dragUpdate, this);
     slider.input.boundsRect = bounds;
+
+    sliders.add(slider);
 }
 
 function toggleGravityAll() {
