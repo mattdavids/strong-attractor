@@ -2,9 +2,22 @@ let game = new Phaser.Game(800, 400);
 game.state.add('main', {preload: preload, create: create, update: update});
 game.state.start('main');
 
-const gravCoef = 150000, frictionCoef = 0.5,
-    groundAcceleration = 30, airAcceleration = 5, maxHorizontalVelocity = 250, jumpVelocity = 650;
-let player, walls, gravObjects, enemies, sliders, cursor, levels, currentLevelNum;
+const gravCoef = 150000;
+const frictionCoef = 0.5;
+const groundAcceleration = 30;
+const airAcceleration = 5;
+const maxHorizontalVelocity = 250;
+const jumpVelocity = 650;
+const startingLevelNum = 4;
+
+let player;
+let walls;
+let gravObjects;
+let enemies;
+let sliders;
+let cursor;
+let levels;
+let currentLevelNum;
 
 function preload() {
     game.load.image('player', 'assets/player.png');
@@ -36,7 +49,22 @@ function create() {
     sliders = game.add.group();
     
     loadLevelsFromFile();
-    currentLevelNum = 4;
+    
+    let selector = $('#level-select');
+    currentLevelNum = startingLevelNum;
+    
+    let atrSelected;
+    for(let i = 0; i < levels.length; i++) {
+        
+        if ( i == currentLevelNum) {
+            atrSelected = 'selected';
+        } else {
+            atrSelected = '';
+        }
+        
+        selector.append('<option ' + atrSelected + ' value="' + i + '">' + i + '</option>');
+    }
+    
     loadLevel();
 }
 
