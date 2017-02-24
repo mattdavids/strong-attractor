@@ -8,7 +8,7 @@ const groundAcceleration = 30;
 const airAcceleration = 5;
 const maxHorizontalVelocity = 250;
 const jumpVelocity = 650;
-const startingLevelNum = 4;
+const startingLevelNum = 3;
 
 let player;
 let walls;
@@ -26,7 +26,8 @@ function preload() {
     game.load.image('gravObj_on', 'assets/gravObj_on.png');
     game.load.image('enemy', 'assets/enemy.png');
     game.load.image('slider', 'assets/slider.png');
-    game.load.text('levelsExternal', 'assets/levels.txt');
+    //game.load.text('levelsExternal', 'assets/levels.txt');
+    game.load.text('levelsNew', 'assets/levelsNew.txt');
 
 }
 
@@ -69,11 +70,18 @@ function create() {
 }
 
 function loadLevelsFromFile(){
-    let levelsAll = game.cache.getText('levelsExternal').split(',');
-    levels = [levelsAll.length];
-    for (let i = 0; i < levelsAll.length; i++){
-        levels[i] = levelsAll[i].split('\n');
+    //let levelsAll = game.cache.getText('levelsExternal').split(',');
+    //levels = [levelsAll.length];
+    //for (let i = 0; i < levelsAll.length; i++){
+    //    levels[i] = levelsAll[i].split('\n');
+    //}
+    
+    let levelsAll = game.cache.getText('levelsNew').split(';');
+    levels = [levelsAll.length]
+    for (let i = 0; i < levelsAll.length; i++) {
+        levels[i] = levelsAll[i].split('\n')
     }
+    
 }
 
 function clearLevel(){
@@ -105,30 +113,60 @@ function loadLevel(){
         level = 'gggggggg';
         console.log("Attempted to load undefined level");
     }
-
-    for (let i = 0; i < level.length; i++) {
-        for (let j = 0; j < level[i].length; j++) {
-
-            if (level[i][j] =='x') {
-                let wall = game.add.sprite(30 + 20*j, 30 + 20*i, 'wall');
-                walls.add(wall);
-                wall.body.immovable = true;
-            }
-
-            if (level[i][j] =='g') {
-                initializeGravObj(i, j, true);
-            }
+    
+    level.forEach(function(element) {
+        let objectInfo = element.split(',');
+        let objectName = objectInfo[0];
+        let objectX = parseInt(objectInfo[1]);
+        let objectY = parseInt(objectInfo[2]);
             
-            if (level[i][j] =='o') {
-                initializeGravObj(i, j, false);
-            }
-
-            if (level[i][j] =='!') {
-                let enemy = game.add.sprite(30 + 20*j, 30 + 20*i, 'enemy');
-                enemies.add(enemy);
-            }
+        switch(objectName){
+        case 'wall':
+            let wall = game.add.sprite(objectX, objectY, objectName); 
+            walls.add(wall);
+            wall.body.immovable = true;
+            wall.anchor.set(.5,.5);
+            break;
+        case 'gravObj_off':
+            initializeGravObj(objectX, objectY, false);
+            break;
+        case 'gravObj_on':
+            initializeGravObj(objectX, objectY, true);
+            break;
+        case 'enemy':
+            let enemy = game.add.sprite(objectX, objectY, objectName);
+            enemy.anchor.set(.5, .5);
+            enemies.add(enemy);
+            break;
+        default:
+            break;
         }
-    }
+        
+    });
+
+    //for (let i = 0; i < level.length; i++) {
+    //    for (let j = 0; j < level[i].length; j++) {
+//
+    //        if (level[i][j] =='x') {
+    //            let wall = game.add.sprite(30 + 20*j, 30 + 20*i, 'wall');
+    //            walls.add(wall);
+    //            wall.body.immovable = true;
+    //        }
+//
+    //        if (level[i][j] =='g') {
+    //            initializeGravObj(i, j, true);
+    //        }
+    //        
+    //        if (level[i][j] =='o') {
+    //            initializeGravObj(i, j, false);
+    //        }
+//
+    //        if (level[i][j] =='!') {
+    //            let enemy = game.add.sprite(30 + 20*j, 30 + 20*i, 'enemy');
+    //            enemies.add(enemy);
+    //        }
+    //    }
+    //}
 
 }
 
@@ -178,7 +216,7 @@ function update() {
         }
         
         //displays weight of gravity objects
-        game.debug.text(obj.gravWeight/1000, obj.position.x, obj.position.y);
+        game.debug.text(obj.gravWeight/1000, obj.position.x - 15, obj.position.y - 15);
     }
     player.body.acceleration.x = -xGravCoef;
     player.body.acceleration.y = -yGravCoef;
@@ -195,16 +233,18 @@ function restart() {
 
 function initializeGravObj(i, j, gravOn) {
     let name = gravOn ? 'gravObj_on' : 'gravObj_off';
-    let gravObj = game.add.sprite(30 + 20*j, 30 + 20*i, name);
+    let gravObj = game.add.sprite(i, j, name)
+    //let gravObj = game.add.sprite(30 + 20*j, 30 + 20*i, name);
     gravObj.gravOn = gravOn ;
     gravObj.gravWeight = gravCoef;
     gravObjects.add(gravObj);
     gravObj.body.immovable = true;
     gravObj.inputEnabled = true;
     gravObj.events.onInputDown.add(toggleGravity, this);
+    gravObj.anchor.set(.5, .5);
 
-    let slider = game.add.sprite(45 + 20*j, 45 + 20*i, 'slider');
-    let bounds = new Phaser.Rectangle(-10 + 20*j, 30 + 20*i, 100, 20);
+    let slider = game.add.sprite(i, j, 'slider');
+    let bounds = new Phaser.Rectangle(-50 + i, -10 + j, 100, 20);
     let graphic = game.add.graphics(bounds.x, bounds.y);
     graphic.drawRect(0,0,bounds.width, bounds.height);
     slider.lastX = slider.position.x;
