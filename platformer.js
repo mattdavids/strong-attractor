@@ -31,9 +31,7 @@ function preload() {
     game.load.image('slider', 'assets/slider.png');
     //game.load.text('levelsExternal', 'assets/levels.txt');
     game.load.text('levelsNew', 'assets/levelsNew.txt');
-
 }
-
 
 function create() {
     game.stage.backgroundColor = '#7ac17c';
@@ -73,18 +71,12 @@ function create() {
 }
 
 function loadLevelsFromFile(){
-    //let levelsAll = game.cache.getText('levelsExternal').split(',');
-    //levels = [levelsAll.length];
-    //for (let i = 0; i < levelsAll.length; i++){
-    //    levels[i] = levelsAll[i].split('\n');
-    //}
     
     let levelsAll = game.cache.getText('levelsNew').split(';');
     levels = [levelsAll.length];
     for (let i = 0; i < levelsAll.length; i++) {
         levels[i] = levelsAll[i].split('\n')
-    }
-    
+    }  
 }
 
 function clearLevel(){
@@ -109,7 +101,6 @@ function loadLevel(){
 	clearLevel();
     
     let level = levels[currentLevelNum];
-    
     if (level == undefined) {
         level = 'gggggggg';
         console.log("Attempted to load undefined level");
@@ -145,37 +136,12 @@ function loadLevel(){
         
     });
 
-    //for (let i = 0; i < level.length; i++) {
-    //    for (let j = 0; j < level[i].length; j++) {
-//
-    //        if (level[i][j] =='x') {
-    //            let wall = game.add.sprite(30 + 20*j, 30 + 20*i, 'wall');
-    //            walls.add(wall);
-    //            wall.body.immovable = true;
-    //        }
-//
-    //        if (level[i][j] =='g') {
-    //            initializeGravObj(i, j, true);
-    //        }
-    //
-    //        if (level[i][j] =='o') {
-    //            initializeGravObj(i, j, false);
-    //        }
-//
-    //        if (level[i][j] =='!') {
-    //            let enemy = game.add.sprite(30 + 20*j, 30 + 20*i, 'enemy');
-    //            enemies.add(enemy);
-    //        }
-    //    }
-    //}
-
 }
 
 function update() {
     game.physics.arcade.collide(player, walls);
     game.physics.arcade.collide(player, gravObjects);
 
-    //game.physics.arcade.overlap(player, gravObjects, takeCoin, null, this);
     game.physics.arcade.overlap(player, enemies, restart, null, this);
 
     if (cursor.left.isDown) {
@@ -222,7 +188,6 @@ function update() {
     player.body.acceleration.x = -xGravCoef;
     player.body.acceleration.y = -yGravCoef;
 }
-
 
 function restart() {
     loadLevel();
