@@ -6,6 +6,10 @@ let walls;
 let enemies;
 let gravObj_offs;
 let gravObj_ons;
+let clickedObj;
+let gravObj;
+let gravObj_off;
+let gravObj_on;
 
 let game = new Phaser.Game(width, height, Phaser.CANVAS);
 game.state.add('main', {preload: preload, create: create, update: update});
@@ -13,8 +17,7 @@ game.state.start('main');
 
 function preload() {
     game.load.image('wall', 'assets/wall.png');
-    game.load.image('gravObj_off', 'assets/gravObj_off.png');
-    game.load.image('gravObj_on', 'assets/gravObj_on.png');
+    game.load.image('gravObj', 'assets/gravObj.png');
     game.load.image('enemy', 'assets/enemy.png');
     
 }
@@ -86,12 +89,21 @@ function create() {
 
 function initializeObj(objectName) {
     
-    let obj = game.add.sprite(width/2, height/2, objectName);
+    if (objectName == 'gravObj_off') {
+        var obj = game.add.sprite(width/2, height/2, 'gravObj');
+        obj.tint = 0xffffff;
+    } else if (objectName == 'gravObj_on') {
+        var obj = game.add.sprite(width/2, height/2, 'gravObj');
+        obj.tint = 0x351777
+    } else {
+        var obj = game.add.sprite(width/2, height/2, objectName);
+    }
     
     obj.inputEnabled = true;
     obj.events.onInputDown.add(deleteObject, this);
     obj.anchor.set(.5, .5);
-    obj.input.enableDrag();
+    //obj.input.enableDrag();
+    obj.events.onInputUp.add(inputUp, this);
     
     obj.input.boundsRect = bounds;
     
@@ -113,19 +125,30 @@ function initializeObj(objectName) {
     }
 }
 
+function inputUp(obj) {
+    obj.body.velocity.x = 0;
+    obj.body.velocity.y = 0;
+    obj.body.immovable = true;
+    clickedObj.body.immovable = true;
+    clickedObj = null;
+}
+
 function makeWall(x, y){
     
     let wall = game.add.sprite(x, y, 'wall');
     wall.inputEnabled = true;
     wall.events.onInputDown.add(deleteObject, this);
+    wall.events.onInputUp.add(inputUp, this);
     wall.anchor.set(.5, .5);
-    wall.input.enableDrag();
+    //wall.input.enableDrag();
     wall.input.boundsRect = bounds;
+    wall.body.immovable = true;
     walls.add(wall);
     
 }
 
 function deleteObject(obj) {
+    obj.body.immovable = false;
     if (game.input.activePointer.rightButton.isDown) {
         walls.remove(obj);
 	    enemies.remove(obj);
@@ -133,8 +156,25 @@ function deleteObject(obj) {
         gravObj_offs.remove(obj);
         obj.kill();
     }
+    
+    clickedObj = obj;
+    
 }
 
 function update() {
+    game.physics.arcade.collide(walls, walls);
+    game.physics.arcade.collide(walls, gravObj_ons);
+    game.physics.arcade.collide(walls, gravObj_offs);
+    game.physics.arcade.collide(walls, enemies);
+    game.physics.arcade.collide(gravObj_ons, gravObj_ons);
+    game.physics.arcade.collide(gravObj_ons, gravObj_offs);
+    game.physics.arcade.collide(gravObj_ons, enemies);
+    game.physics.arcade.collide(gravObj_offs, gravObj_offs);
+    game.physics.arcade.collide(gravObj_offs, enemies);
+    game.physics.arcade.collide(enemies, enemies);
     
+    if (game.input.activePointer.leftButton.isDown && clickedObj != null) {
+        clickedObj.body.velocity.x = 20 * (game.input.activePointer.position.x - clickedObj.position.x)
+        clickedObj.body.velocity.y = 20 * (game.input.activePointer.position.y - clickedObj.position.y)
+    }
 }
