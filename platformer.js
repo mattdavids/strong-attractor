@@ -2,7 +2,7 @@ let game = new Phaser.Game(800, 400);
 game.state.add('main', {preload: preload, create: create, update: update});
 game.state.start('main');
 
-const gravCoef = 100000;
+const gravCoef = 150000;
 const frictionCoef = 0.5;
 const groundAcceleration = 30;
 const airAcceleration = 5;
@@ -10,7 +10,7 @@ const maxHorizontalVelocity = 250;
 const jumpVelocity = 650;
 const startingLevelNum = 6;
 const gravObjAttractionMin = 0;
-const gravObjAttractionMax = 3 * gravCoef;
+const gravObjAttractionMax = 2 * gravCoef;
 const gravObjStartColor = 0xffffff;
 const gravObjEndColor = 0x351777;
 
