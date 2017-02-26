@@ -2,13 +2,13 @@ let game = new Phaser.Game(800, 400);
 game.state.add('main', {preload: preload, create: create, update: update});
 game.state.start('main');
 
-const gravCoef = 150000;
+const gravCoef = 100000;
 const frictionCoef = 0.5;
 const groundAcceleration = 30;
 const airAcceleration = 5;
 const maxHorizontalVelocity = 250;
 const jumpVelocity = 650;
-const startingLevelNum = 3;
+const startingLevelNum = 6;
 const gravObjAttractionMin = 0;
 const gravObjAttractionMax = 3 * gravCoef;
 const gravObjStartColor = 0xffffff;
@@ -118,8 +118,8 @@ function loadLevel(){
     level.forEach(function(element) {
         let objectInfo = element.split(',');
         let objectName = objectInfo[0];
-        let objectX = parseInt(objectInfo[1]);
-        let objectY = parseInt(objectInfo[2]);
+        let objectX = parseFloat(objectInfo[1]);
+        let objectY = parseFloat(objectInfo[2]);
             
         switch(objectName) {
             case 'wall':
