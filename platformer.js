@@ -19,6 +19,10 @@ let walls;
 let gravObjects;
 let enemies;
 let sliders;
+let wallCollision;
+let gravObjectCollision;
+let enemyCollision;
+let playerCollision;
 let cursor;
 let levels;
 let currentLevelNum;
@@ -35,20 +39,41 @@ function preload() {
 
 function create() {
     game.stage.backgroundColor = '#7ac17c';
-    game.physics.startSystem(Phaser.Physics.ARCADE);
-    game.world.enableBody = true;
+    game.physics.startSystem(Phaser.Physics.P2JS);
+    //game.physics.startSystem(Phaser.ARCADE);
+    //game.world.enableBody = true;
+    game.physics.p2.setImpactEvents(true);
+    game.physics.p2.world.defaultContactMaterial.friction = 0.2;
+    game.physics.p2.world.defaultContactMaterial.relaxation = 3;
+    game.physics.p2.world.defaultContactMaterial.stiffness = 1e7;
 
     cursor = game.input.keyboard.createCursorKeys();
     let gravToggleBtn = game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
     gravToggleBtn.onDown.add(toggleGravityAll, this);
     
     player = game.add.sprite(70, 100, 'player');
-    player.body.gravity.y = gravCoef / 60;
+    
+    game.physics.p2.gravity.y = gravCoef / 60;
+    game.physics.p2.restitution = 0;
 
     walls = game.add.group();
     gravObjects = game.add.group();
     enemies = game.add.group();
     sliders = game.add.group();
+    
+    walls.enableBody = true;
+    walls.physicsBodyType = Phaser.Physics.P2JS;
+    
+    gravObjects.enableBody = true;
+    gravObjects.physicsBodyType = Phaser.Physics.P2JS;
+    
+    enemies.enableBody = true;
+    enemies.physicsBodyType = Phaser.Physics.P2JS;
+    
+    wallCollision = game.physics.p2.createCollisionGroup();
+    gravObjectCollision = game.physics.p2.createCollisionGroup();
+    enemyCollision = game.physics.p2.createCollisionGroup();
+    playerCollision = game.physics.p2.createCollisionGroup();
     
     loadLevelsFromFile();
     
@@ -80,14 +105,23 @@ function loadLevelsFromFile(){
 }
 
 function clearLevel(){
-	walls.removeAll();
-	enemies.removeAll();
-	gravObjects.removeAll();
-	sliders.removeAll();
+	walls.removeAll(true);
+	enemies.removeAll(true);
+	gravObjects.removeAll(true);
+	sliders.removeAll(true);
 
 	player.kill();
     player = game.add.sprite(70, 100, 'player');
-    player.body.gravity.y = 2500;
+    
+    game.physics.p2.enable(player);
+    player.body.setCollisionGroup(playerCollision);
+    player.body.collides([playerCollision, wallCollision, gravObjectCollision]);
+    player.body.collides(enemyCollision, restart, this);
+    player.body.data.gravityScale = 1;
+    player.body.fixedRotation = true;
+    player.body.damping = .5;
+    player.body.data.ccdIterations = 10;
+    player.body.data.ccdSpeedThreshold = 0;
 }
 
 function selectLevel(){
@@ -116,7 +150,9 @@ function loadLevel(){
             case 'wall':
                 let wall = game.add.sprite(objectX, objectY, objectName);
                 walls.add(wall);
-                wall.body.immovable = true;
+                wall.body.setCollisionGroup(wallCollision);
+                wall.body.collides([playerCollision])
+                wall.body.kinematic = true;
                 wall.anchor.set(.5,.5);
                 break;
             case 'gravObj_off':
@@ -129,6 +165,9 @@ function loadLevel(){
                 let enemy = game.add.sprite(objectX, objectY, objectName);
                 enemy.anchor.set(.5, .5);
                 enemies.add(enemy);
+                enemy.body.data.gravityScale = 0;
+                enemy.body.setCollisionGroup(enemyCollision);
+                enemy.body.collides(playerCollision, restart, this);
                 break;
             default:
                 break;
@@ -139,30 +178,28 @@ function loadLevel(){
 }
 
 function update() {
-    game.physics.arcade.collide(player, walls);
-    game.physics.arcade.collide(player, gravObjects);
-
-    game.physics.arcade.overlap(player, enemies, restart, null, this);
-
+    let onGround = touchingDown(player);
+    console.log(onGround);
+    
     if (cursor.left.isDown) {
-        if (player.body.touching.down) {
+        if (onGround) {
             player.body.velocity.x = Math.max(-maxHorizontalVelocity, player.body.velocity.x - groundAcceleration);
         } else {
             player.body.velocity.x -= airAcceleration;
         }
     } else if (cursor.right.isDown) {
-        if (player.body.touching.down) {
+        if (onGround) {
             player.body.velocity.x = Math.min(maxHorizontalVelocity, player.body.velocity.x + groundAcceleration);
         } else {
             player.body.velocity.x += airAcceleration;
         }
     } else {
-        if (player.body.touching.down) {
-            player.body.velocity.x = player.body.velocity.x * frictionCoef;
-        }
+        //if (onGround) {
+        //    player.body.velocity.x = player.body.velocity.x * frictionCoef;
+        //}
     }
 
-    if (cursor.up.isDown && player.body.touching.down) {
+    if (cursor.up.isDown && onGround) {
         player.body.velocity.y = -jumpVelocity;
     }    
     
@@ -185,8 +222,9 @@ function update() {
         //displays weight of gravity objects
         //game.debug.text(obj.gravWeight/1000, obj.position.x - 15, obj.position.y - 15);
     }
-    player.body.acceleration.x = -xGravCoef;
-    player.body.acceleration.y = -yGravCoef;
+    player.body.force.x += -xGravCoef;
+    player.body.force.y += -yGravCoef;
+    
 }
 
 function restart() {
@@ -202,9 +240,11 @@ function initializeGravObj(x, y, gravOn) {
     gravObj.gravOn = gravOn ;
     gravObj.gravWeight = gravCoef;
     gravObjects.add(gravObj);
-    gravObj.body.immovable = true;
+    gravObj.body.kinematic = true;
     gravObj.inputEnabled = true;
     gravObj.events.onInputDown.add(toggleGravity, this);
+    gravObj.body.setCollisionGroup(gravObjectCollision);
+    gravObj.body.collides([playerCollision]);
 
     slider.anchor.set(.5, .5);
     slider.gravObj = gravObj;
@@ -234,6 +274,24 @@ function toggleGravity(gravObj) {
     } else {
         gravObj.tint = 0xffffff;
     }
+}
+
+function touchingDown(someone) {    
+    let yAxis = p2.vec2.fromValues(0, 1);    
+    let result = false;    
+    for (let i = 0; i < game.physics.p2.world.narrowphase.contactEquations.length; i++) {
+        var c = game.physics.p2.world.narrowphase.contactEquations[i];
+        if (c.bodyA === someone.body.data || c.bodyB === someone.body.data) {
+            var d = p2.vec2.dot(c.normalA, yAxis); // Normal dot Y-axis  
+            if (c.bodyA === someone.body.data) {
+                d *= -1;
+            }
+            if (d > 0.5) {
+                result = true; 
+            }
+        }
+    } 
+    return result;
 }
 
 function updateGravObjFromSlider(slider) {
