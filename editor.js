@@ -126,8 +126,21 @@ function initializeObj(objectName) {
 }
 
 function inputUp(obj) {
+    // Set dragged object velocity to zero
     obj.body.velocity.x = 0;
     obj.body.velocity.y = 0;
+
+    // Snap to grid
+    let diff = obj.body.x % 30;
+    if(diff >15)
+        diff -=30;
+    obj.x-=diff;
+    diff = obj.body.y % 30;
+    if(diff >15)
+        diff -=30;
+    obj.y-=diff;
+
+    // Not sure what this bit does
     obj.body.immovable = true;
     clickedObj.body.immovable = true;
     clickedObj = null;
