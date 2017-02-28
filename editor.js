@@ -175,6 +175,7 @@ function deleteObject(obj) {
 }
 
 function update() {
+    /*
     game.physics.arcade.collide(walls, walls);
     game.physics.arcade.collide(walls, gravObj_ons);
     game.physics.arcade.collide(walls, gravObj_offs);
@@ -185,6 +186,7 @@ function update() {
     game.physics.arcade.collide(gravObj_offs, gravObj_offs);
     game.physics.arcade.collide(gravObj_offs, enemies);
     game.physics.arcade.collide(enemies, enemies);
+    //*/
     
     if (game.input.activePointer.leftButton.isDown && clickedObj != null) {
         clickedObj.body.velocity.x = 20 * (game.input.activePointer.position.x - clickedObj.position.x)
