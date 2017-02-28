@@ -1,5 +1,5 @@
-var height = 400;
-var width = 800;
+var height = 420;
+var width = 810;
 let graphic;
 let bounds;
 let walls;
@@ -31,7 +31,7 @@ function create() {
         e.preventDefault(); 
     }
     
-    bounds = new Phaser.Rectangle(0,0,800, 400);
+    bounds = new Phaser.Rectangle(0,0,width, height);
     graphic = game.add.graphics(bounds.x, bounds.y);
     graphic.drawRect(0, 0, bounds.width, bounds.height);
     
@@ -42,11 +42,11 @@ function create() {
 
     //Make walls around edges
 
-    for (let i = 0; i < width; i += 30){
+    for (let i = 15; i < width + 30; i += 30){
         makeWall(i, 15);
         makeWall(i, height - 15);
     }
-    for (let i = 0; i < height; i += 30){
+    for (let i = 15; i < height; i += 30){
         makeWall(15, i);
         makeWall(width - 15, i);
     }

@@ -1,4 +1,4 @@
-let game = new Phaser.Game(800, 400);
+let game = new Phaser.Game(810, 420);
 game.state.add('main', {preload: preload, create: create, update: update});
 game.state.start('main');
 
