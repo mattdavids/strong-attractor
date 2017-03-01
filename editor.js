@@ -11,6 +11,10 @@ let gravObj;
 let gravObj_off;
 let gravObj_on;
 
+let blockFullSize=30;
+let blockHalfSize=blockFullSize/2;
+let blockQuarterSize=blockHalfSize/2;
+
 let game = new Phaser.Game(width, height, Phaser.CANVAS);
 game.state.add('main', {preload: preload, create: create, update: update});
 game.state.start('main');
@@ -38,21 +42,21 @@ function create() {
 
     // Light gridlines at halfway point
     graphic.lineStyle(1, Phaser.Color.hexToRGB("#bcbcbc"), 1);
-    for(let x=15; x<width; x+=30){
+    for(let x=blockHalfSize; x<width; x+=blockFullSize){
         graphic.moveTo(x,0);
         graphic.lineTo(x,height);
     }
-    for(let y=15; y<height; y+=30){
+    for(let y=blockHalfSize; y<height; y+=blockFullSize){
         graphic.moveTo(0,y);
         graphic.lineTo(width, y);
     }
     // Heavy gridlines at full point
     graphic.lineStyle(1, Phaser.Color.hexToRGB("#444"), 1);
-    for(let x=0; x<width; x+=30){
+    for(let x=0; x<width; x+=blockFullSize){
         graphic.moveTo(x,0);
         graphic.lineTo(x,height);
     }
-    for(let y=0; y<height; y+=30){
+    for(let y=0; y<height; y+=blockFullSize){
         graphic.moveTo(0,y);
         graphic.lineTo(width, y);
     }
@@ -63,13 +67,13 @@ function create() {
     enemies = game.add.group();
 
     // Make walls around edges
-    for (let i = 15; i < width + 30; i += 30){
-        makeWall(i, 15);
-        makeWall(i, height - 15);
+    for (let i = blockHalfSize; i <= width; i += blockFullSize){
+        makeWall(i, blockHalfSize);
+        makeWall(i, height - blockHalfSize);
     }
-    for (let i = 15; i < height; i += 30){
-        makeWall(15, i);
-        makeWall(width - 15, i);
+    for (let i = blockHalfSize; i < height; i += blockFullSize){
+        makeWall(blockHalfSize, i);
+        makeWall(width - blockHalfSize, i);
     }
 
     // Buttons for adding objects to canvas
@@ -153,13 +157,13 @@ function inputUp(obj) {
     obj.body.velocity.y = 0;
 
     // Snap to grid
-    let diff = obj.body.x % 15;
-    if(diff >7)
-        diff -=15;
+    let diff = obj.body.x % blockHalfSize;
+    if(diff >blockQuarterSize)
+        diff -=blockHalfSize;
     obj.x-=diff;
-    diff = obj.body.y % 15;
-    if(diff >7)
-        diff -=15;
+    diff = obj.body.y % blockHalfSize;
+    if(diff >blockQuarterSize)
+        diff -=blockHalfSize;
     obj.y-=diff;
 
     // Only relevant for collision detection, makes object still on collision
