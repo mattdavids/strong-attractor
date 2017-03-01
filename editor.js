@@ -1,7 +1,7 @@
-var heightBlocks = 28;
-var widthBlocks = 27;
-let width = widthBlocks * 30;
-let height = heightBlocks * 30;
+let width;
+let height;
+
+let game;
 let graphic;
 let bounds;
 let walls;
@@ -17,9 +17,24 @@ let blockFullSize=30;
 let blockHalfSize=blockFullSize/2;
 let blockQuarterSize=blockHalfSize/2;
 
-let game = new Phaser.Game(width, height, Phaser.CANVAS);
-game.state.add('main', {preload: preload, create: create, update: update});
-game.state.start('main');
+$('.firstSection').hide();
+
+$('#start').click(function() {
+    
+    let widthBlocks = $('#width')[0].value
+    let heightBlocks = $('#height')[0].value
+    
+    width = widthBlocks * 30;
+    height = heightBlocks * 30;
+    
+    game = new Phaser.Game(width, height, Phaser.CANVAS);
+    game.state.add('main', {preload: preload, create: create, update: update});
+    game.state.start('main');
+    $('.sizeSelect').hide();
+    $('.firstSection').show();
+});
+
+
 
 function preload() {
     game.load.image('wall', 'assets/bricks.png');
