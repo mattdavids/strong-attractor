@@ -1,4 +1,9 @@
-let game = new Phaser.Game(810, 420);
+let heightBlocks = 14;
+let widthBlocks = 27;
+let height = heightBlocks * 30;
+let width = widthBlocks * 30;
+
+let game = new Phaser.Game(width, height);
 game.state.add('main', {preload: preload, create: create, update: update, render: render});
 game.state.start('main');
 
@@ -7,7 +12,7 @@ const frictionCoef = 0.5;
 const groundAcceleration = 30;
 const airAcceleration = 5;
 const maxHorizontalVelocity = 250;
-const jumpVelocity = 650;
+const jumpVelocity = 300;
 const startingLevelNum = 6;
 const gravObjAttractionMin = 0;
 const gravObjAttractionMax = 2 * gravCoef;
@@ -23,10 +28,11 @@ let cursor;
 let levels;
 let currentLevelNum;
 let graphics;
+let jumpCount = 10;
 
 function preload() {
     game.load.image('player', 'assets/player.png');
-    game.load.image('wall', 'assets/wall.png');
+    game.load.image('wall', 'assets/bricks.png');
     game.load.image('gravObj', 'assets/gravObj.png');
     game.load.image('enemy', 'assets/enemy.png');
     game.load.image('slider', 'assets/slider.png');
@@ -38,13 +44,11 @@ function create() {
     game.stage.backgroundColor = '#7ac17c';
     game.physics.startSystem(Phaser.Physics.ARCADE);
     game.world.enableBody = true;
+    //game.world.setBounds(0,0,1920, 820);
 
     cursor = game.input.keyboard.createCursorKeys();
     let gravToggleBtn = game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
     gravToggleBtn.onDown.add(toggleGravityAll, this);
-    
-    player = game.add.sprite(70, 100, 'player');
-    player.body.gravity.y = gravCoef / 60;
 
     walls = game.add.group();
     gravObjects = game.add.group();
@@ -57,7 +61,7 @@ function create() {
     currentLevelNum = startingLevelNum;
 
     graphics = game.add.graphics();
-    
+
     let atrSelected;
     for(let i = 0; i < levels.length; i++) {
         
@@ -88,9 +92,8 @@ function clearLevel(){
 	gravObjects.removeAll();
 	sliders.removeAll();
 
-	player.kill();
-    player = game.add.sprite(70, 100, 'player');
-    player.body.gravity.y = 2500;
+	// player is undefined on first run
+	if (player != undefined) player.kill();
 }
 
 function selectLevel(){
@@ -109,7 +112,11 @@ function loadLevel(){
         console.log("Attempted to load undefined level");
     }
     
-    level.forEach(function(element) {
+
+    let bounds = level[1].split(',');
+    game.world.setBounds(0,0,parseInt(bounds[0]), parseInt(bounds[1]));
+    for (let i = 2; i < level.length; i++) {
+        let element = level[i];
         let objectInfo = element.split(',');
         let objectName = objectInfo[0];
         let objectX = parseFloat(objectInfo[1]);
@@ -136,9 +143,11 @@ function loadLevel(){
             default:
                 break;
         }
-        
-    });
+    }
 
+    player = game.add.sprite(50, bounds[1] - 100, 'player');
+    player.body.gravity.y = gravCoef / 60;
+    game.camera.follow(player);
 }
 
 function update() {
@@ -167,7 +176,20 @@ function update() {
 
     if (cursor.up.isDown && player.body.touching.down) {
         player.body.velocity.y = -jumpVelocity;
-    }    
+        jumpCount = 0;
+    }
+
+    //Let user jump higher if they hold the button down
+    if (jumpCount < 10) {
+        if (cursor.up.isDown) {
+            player.body.velocity.y -= jumpVelocity/7
+        } else {
+            jumpCount = 10;
+        }
+
+    }
+
+    jumpCount += 1;
     
     let xGravCoef = 0;
     let yGravCoef = 0;

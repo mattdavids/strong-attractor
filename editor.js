@@ -1,5 +1,7 @@
-var height = 420;
-var width = 810;
+let width;
+let height;
+
+let game;
 let graphic;
 let bounds;
 let walls;
@@ -11,12 +13,31 @@ let gravObj;
 let gravObj_off;
 let gravObj_on;
 
-let game = new Phaser.Game(width, height, Phaser.CANVAS);
-game.state.add('main', {preload: preload, create: create, update: update});
-game.state.start('main');
+let blockFullSize=30;
+let blockHalfSize=blockFullSize/2;
+let blockQuarterSize=blockHalfSize/2;
+
+$('.firstSection').hide();
+
+$('#start').click(function() {
+    
+    let widthBlocks = $('#width')[0].value
+    let heightBlocks = $('#height')[0].value
+    
+    width = widthBlocks * 30;
+    height = heightBlocks * 30;
+    
+    game = new Phaser.Game(width, height, Phaser.CANVAS);
+    game.state.add('main', {preload: preload, create: create, update: update});
+    game.state.start('main');
+    $('.sizeSelect').hide();
+    $('.firstSection').show();
+});
+
+
 
 function preload() {
-    game.load.image('wall', 'assets/wall.png');
+    game.load.image('wall', 'assets/bricks.png');
     game.load.image('gravObj', 'assets/gravObj.png');
     game.load.image('enemy', 'assets/enemy.png');
     
@@ -38,21 +59,21 @@ function create() {
 
     // Light gridlines at halfway point
     graphic.lineStyle(1, Phaser.Color.hexToRGB("#bcbcbc"), 1);
-    for(let x=15; x<width; x+=30){
+    for(let x=blockHalfSize; x<width; x+=blockFullSize){
         graphic.moveTo(x,0);
         graphic.lineTo(x,height);
     }
-    for(let y=15; y<height; y+=30){
+    for(let y=blockHalfSize; y<height; y+=blockFullSize){
         graphic.moveTo(0,y);
         graphic.lineTo(width, y);
     }
     // Heavy gridlines at full point
     graphic.lineStyle(1, Phaser.Color.hexToRGB("#444"), 1);
-    for(let x=0; x<width; x+=30){
+    for(let x=0; x<width; x+=blockFullSize){
         graphic.moveTo(x,0);
         graphic.lineTo(x,height);
     }
-    for(let y=0; y<height; y+=30){
+    for(let y=0; y<height; y+=blockFullSize){
         graphic.moveTo(0,y);
         graphic.lineTo(width, y);
     }
@@ -63,13 +84,13 @@ function create() {
     enemies = game.add.group();
 
     // Make walls around edges
-    for (let i = 15; i < width + 30; i += 30){
-        makeWall(i, 15);
-        makeWall(i, height - 15);
+    for (let i = blockHalfSize; i <= width; i += blockFullSize){
+        makeWall(i, blockHalfSize);
+        makeWall(i, height - blockHalfSize);
     }
-    for (let i = 15; i < height; i += 30){
-        makeWall(15, i);
-        makeWall(width - 15, i);
+    for (let i = blockHalfSize; i < height; i += blockFullSize){
+        makeWall(blockHalfSize, i);
+        makeWall(width - blockHalfSize, i);
     }
 
     // Buttons for adding objects to canvas
@@ -82,7 +103,7 @@ function create() {
     // Display string representation of canvas
     $('#display').click(function(){
         
-        let result = "";
+        let result = game.world.width + ',' + game.world.height + '\n';
         
         for (let i = 0; i < walls.children.length; i++) {
             let obj = walls.children[i];
@@ -111,15 +132,26 @@ function create() {
 
 function initializeObj(objectName) {
     let obj;
+
+    // Default spawn at center of area
+    // Change this if spawning on click / from mouse position
+    let spawnPosX = width/2;
+    let spawnPosY = height/2;
+
+    // Move spawn positions to fit major gridlines
+    spawnPosX -= spawnPosX%blockFullSize + blockHalfSize;
+    spawnPosY -= spawnPosY%blockFullSize + blockHalfSize;
+
     if (objectName == 'gravObj_off') {
-        obj = game.add.sprite(width/2, height/2, 'gravObj');
+        obj = game.add.sprite(spawnPosX, spawnPosY, 'gravObj');
         obj.tint = 0xffffff;
     } else if (objectName == 'gravObj_on') {
-        obj = game.add.sprite(width/2, height/2, 'gravObj');
+        obj = game.add.sprite(spawnPosX, spawnPosY, 'gravObj');
         obj.tint = 0x351777
     } else {
-        obj = game.add.sprite(width/2, height/2, objectName);
+        obj = game.add.sprite(spawnPosX, spawnPosY, objectName);
     }
+
     
     obj.inputEnabled = true;
     obj.events.onInputDown.add(deleteObject, this);
@@ -153,13 +185,13 @@ function inputUp(obj) {
     obj.body.velocity.y = 0;
 
     // Snap to grid
-    let diff = obj.body.x % 15;
-    if(diff >7)
-        diff -=15;
+    let diff = obj.body.x % blockHalfSize;
+    if(diff >blockQuarterSize)
+        diff -=blockHalfSize;
     obj.x-=diff;
-    diff = obj.body.y % 15;
-    if(diff >7)
-        diff -=15;
+    diff = obj.body.y % blockHalfSize;
+    if(diff >blockQuarterSize)
+        diff -=blockHalfSize;
     obj.y-=diff;
 
     // Only relevant for collision detection, makes object still on collision
