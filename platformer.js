@@ -7,7 +7,7 @@ const frictionCoef = 0.5;
 const groundAcceleration = 30;
 const airAcceleration = 5;
 const maxHorizontalVelocity = 250;
-const jumpVelocity = 650;
+const jumpVelocity = 300;
 const startingLevelNum = 6;
 const gravObjAttractionMin = 0;
 const gravObjAttractionMax = 2 * gravCoef;
@@ -22,6 +22,7 @@ let sliders;
 let cursor;
 let levels;
 let currentLevelNum;
+let jumpCount = 10;
 
 function preload() {
     game.load.image('player', 'assets/player.png');
@@ -164,7 +165,20 @@ function update() {
 
     if (cursor.up.isDown && player.body.touching.down) {
         player.body.velocity.y = -jumpVelocity;
-    }    
+        jumpCount = 0;
+    } 
+    
+    //Let user jump higher if they hold the button down
+    if (jumpCount < 10) {
+        if (cursor.up.isDown) {
+            player.body.velocity.y -= jumpVelocity/7
+        } else {
+            jumpCount = 10;
+        }
+        
+    }
+    
+    jumpCount += 1;
     
     let xGravCoef = 0;
     let yGravCoef = 0;
