@@ -40,11 +40,12 @@ function preload() {
 function create() {
     game.stage.backgroundColor = '#7ac17c';
     game.physics.startSystem(Phaser.Physics.P2JS);
+    game.time.desiredFps = 60;
     //game.physics.startSystem(Phaser.ARCADE);
     //game.world.enableBody = true;
     game.physics.p2.setImpactEvents(true);
-    game.physics.p2.world.defaultContactMaterial.friction = 0.2;
-    game.physics.p2.world.defaultContactMaterial.relaxation = 3;
+    game.physics.p2.world.defaultContactMaterial.friction = 0;
+    game.physics.p2.world.defaultContactMaterial.relaxation = 5;
     game.physics.p2.world.defaultContactMaterial.stiffness = 1e7;
 
     cursor = game.input.keyboard.createCursorKeys();
@@ -115,13 +116,13 @@ function clearLevel(){
     
     game.physics.p2.enable(player);
     player.body.setCollisionGroup(playerCollision);
-    player.body.collides([playerCollision, wallCollision, gravObjectCollision]);
+    player.body.collides([wallCollision, gravObjectCollision]);
     player.body.collides(enemyCollision, restart, this);
     player.body.data.gravityScale = 1;
     player.body.fixedRotation = true;
-    player.body.damping = .5;
+    player.body.damping = .1;
     player.body.data.ccdIterations = 10;
-    player.body.data.ccdSpeedThreshold = 0;
+    player.body.data.ccdSpeedThreshold = 1;
 }
 
 function selectLevel(){
@@ -150,8 +151,9 @@ function loadLevel(){
             case 'wall':
                 let wall = game.add.sprite(objectX, objectY, objectName);
                 walls.add(wall);
+                game.physics.p2.enable(wall);
                 wall.body.setCollisionGroup(wallCollision);
-                wall.body.collides([playerCollision])
+                wall.body.collides(playerCollision)
                 wall.body.kinematic = true;
                 wall.anchor.set(.5,.5);
                 break;
@@ -165,6 +167,7 @@ function loadLevel(){
                 let enemy = game.add.sprite(objectX, objectY, objectName);
                 enemy.anchor.set(.5, .5);
                 enemies.add(enemy);
+                game.physics.p2.enable(enemy);
                 enemy.body.data.gravityScale = 0;
                 enemy.body.setCollisionGroup(enemyCollision);
                 enemy.body.collides(playerCollision, restart, this);
@@ -179,7 +182,6 @@ function loadLevel(){
 
 function update() {
     let onGround = touchingDown(player);
-    console.log(onGround);
     
     if (cursor.left.isDown) {
         if (onGround) {
@@ -194,9 +196,9 @@ function update() {
             player.body.velocity.x += airAcceleration;
         }
     } else {
-        //if (onGround) {
-        //    player.body.velocity.x = player.body.velocity.x * frictionCoef;
-        //}
+        if (onGround) {
+            player.body.velocity.x = player.body.velocity.x * frictionCoef;
+        }
     }
 
     if (cursor.up.isDown && onGround) {
@@ -236,6 +238,7 @@ function initializeGravObj(x, y, gravOn) {
     let slider = game.add.sprite(x, y, 'slider');
 
     gravObj.anchor.set(.5, .5);
+    game.physics.p2.enable(gravObj);
     gravObj.slider = slider;
     gravObj.gravOn = gravOn ;
     gravObj.gravWeight = gravCoef;
