@@ -20,7 +20,7 @@ game.state.add('main', {preload: preload, create: create, update: update});
 game.state.start('main');
 
 function preload() {
-    game.load.image('wall', 'assets/wall.png');
+    game.load.image('wall', 'assets/bricks.png');
     game.load.image('gravObj', 'assets/gravObj.png');
     game.load.image('enemy', 'assets/enemy.png');
     

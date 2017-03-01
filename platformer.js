@@ -26,7 +26,7 @@ let jumpCount = 10;
 
 function preload() {
     game.load.image('player', 'assets/player.png');
-    game.load.image('wall', 'assets/wall.png');
+    game.load.image('wall', 'assets/bricks.png');
     game.load.image('gravObj', 'assets/gravObj.png');
     game.load.image('enemy', 'assets/enemy.png');
     game.load.image('slider', 'assets/slider.png');
