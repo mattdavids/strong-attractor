@@ -34,14 +34,15 @@ function create() {
     bounds = new Phaser.Rectangle(0,0,width, height);
     graphic = game.add.graphics(bounds.x, bounds.y);
     graphic.drawRect(0, 0, bounds.width, bounds.height);
+
+
     
     walls = game.add.group();
     gravObj_offs = game.add.group();
     gravObj_ons = game.add.group();
     enemies = game.add.group();
 
-    //Make walls around edges
-
+    // Make walls around edges
     for (let i = 15; i < width + 30; i += 30){
         makeWall(i, 15);
         makeWall(i, height - 15);
@@ -51,13 +52,14 @@ function create() {
         makeWall(width - 15, i);
     }
 
-    //Add object that was clicked to canvas
-    $('.adders').show();
-    $('.adders').click(function() {
+    // Buttons for adding objects to canvas
+    let adders = $('.adders');
+    adders.show();
+    adders.click(function() {
         initializeObj($(this).attr('id'));
     });           
     
-    //Display string representation of canvas
+    // Display string representation of canvas
     $('#display').click(function(){
         
         let result = "";
