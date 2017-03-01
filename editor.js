@@ -36,6 +36,16 @@ function create() {
     graphic.drawRect(0, 0, bounds.width, bounds.height);
 
 
+    for(let x=0; x<width; x+=30){
+        graphic.lineStyle(1, Phaser.Color.hexToRGB("#333333"), 1);
+        graphic.moveTo(x,0);
+        graphic.lineTo(x,height);
+    }
+    for(let y=0; y<height; y+=30){
+        graphic.lineStyle(1, Phaser.Color.hexToRGB("#333333"), 1);
+        graphic.moveTo(0,y);
+        graphic.lineTo(width, y);
+    }
     
     walls = game.add.group();
     gravObj_offs = game.add.group();
