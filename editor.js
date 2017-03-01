@@ -88,15 +88,15 @@ function create() {
 }
 
 function initializeObj(objectName) {
-    
+    let obj;
     if (objectName == 'gravObj_off') {
-        var obj = game.add.sprite(width/2, height/2, 'gravObj');
+        obj = game.add.sprite(width/2, height/2, 'gravObj');
         obj.tint = 0xffffff;
     } else if (objectName == 'gravObj_on') {
-        var obj = game.add.sprite(width/2, height/2, 'gravObj');
+        obj = game.add.sprite(width/2, height/2, 'gravObj');
         obj.tint = 0x351777
     } else {
-        var obj = game.add.sprite(width/2, height/2, objectName);
+        obj = game.add.sprite(width/2, height/2, objectName);
     }
     
     obj.inputEnabled = true;
