@@ -153,18 +153,18 @@ function inputUp(obj) {
     obj.body.velocity.y = 0;
 
     // Snap to grid
-    let diff = obj.body.x % 30;
-    if(diff >15)
-        diff -=30;
+    let diff = obj.body.x % 15;
+    if(diff >7)
+        diff -=15;
     obj.x-=diff;
-    diff = obj.body.y % 30;
-    if(diff >15)
-        diff -=30;
+    diff = obj.body.y % 15;
+    if(diff >7)
+        diff -=15;
     obj.y-=diff;
 
-    // Not sure what this bit does
-    obj.body.immovable = true;
-    clickedObj.body.immovable = true;
+    // Only relevant for collision detection, makes object still on collision
+    //obj.body.immovable = true;
+    //clickedObj.body.immovable = true;
     clickedObj = null;
 }
 
