@@ -226,8 +226,9 @@ function drawGravObjCircle(gravObj) {
     let radius = gravObj.gravWeight / gravCoef * 150;
     let subAmount = gravObjAttractionMax / gravCoef * 25;
     let alpha = 0.2;
+    let fillColor = gravObj.gravOn ? 0x351777 : 0x808080;
     while (radius > 0) {
-        graphics.beginFill(0x351777, alpha);
+        graphics.beginFill(fillColor, alpha);
         graphics.drawCircle(gravObj.x, gravObj.y, radius);
         graphics.endFill();
         radius -= subAmount;
@@ -251,6 +252,7 @@ function initializeGravObj(x, y, gravOn) {
     gravObj.body.immovable = true;
     gravObj.inputEnabled = true;
     gravObj.events.onInputDown.add(toggleGravity, this);
+    gravObj.tint = 0x351777;
 
     slider.anchor.set(.5, .5);
     slider.gravObj = gravObj;
@@ -261,7 +263,7 @@ function initializeGravObj(x, y, gravOn) {
     slider.input.boundsRect = new Phaser.Rectangle(-50 + x, -10 + y, 100, 20);
 
     sliders.add(slider);
-    if (gravOn) updateGravObjFromSlider(slider);
+    updateGravObjFromSlider(slider);
 }
 
 function toggleGravityAll() {
@@ -273,19 +275,10 @@ function toggleGravityAll() {
 }
 
 function toggleGravity(gravObj) {
-
     gravObj.gravOn = !gravObj.gravOn;
-    if (gravObj.gravOn) {
-        updateGravObjFromSlider(gravObj.slider)
-    } else {
-        gravObj.tint = 0xffffff;
-    }
 }
 
 function updateGravObjFromSlider(slider) {
     let gravAmount = (slider.left - slider.input.boundsRect.left) / (slider.input.boundsRect.width - slider.width);
     slider.gravObj.gravWeight = Phaser.Math.linear(gravObjAttractionMin, gravObjAttractionMax, gravAmount);
-    if (slider.gravObj.gravOn) {
-        slider.gravObj.tint = Phaser.Color.interpolateColor(gravObjStartColor, gravObjEndColor, 1, gravAmount, 0xff);
-    }
 }
