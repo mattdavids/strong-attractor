@@ -1,5 +1,5 @@
 let game = new Phaser.Game(810, 420);
-game.state.add('main', {preload: preload, create: create, update: update});
+game.state.add('main', {preload: preload, create: create, update: update, render: render});
 game.state.start('main');
 
 const gravCoef = 150000;
@@ -22,6 +22,7 @@ let sliders;
 let cursor;
 let levels;
 let currentLevelNum;
+let graphics;
 
 function preload() {
     game.load.image('player', 'assets/player.png');
@@ -54,6 +55,8 @@ function create() {
     
     let selector = $('#level-select');
     currentLevelNum = startingLevelNum;
+
+    graphics = game.add.graphics();
     
     let atrSelected;
     for(let i = 0; i < levels.length; i++) {
@@ -171,15 +174,15 @@ function update() {
 
     // Gravity object changes
     for (let i = 0;  i < gravObjects.children.length; i++) {
-        let obj = gravObjects.children[i];
+        let gravObj = gravObjects.children[i];
         
-        if (obj.gravOn) {
-            let diff = Phaser.Point.subtract(player.position, obj.position);
+        if (gravObj.gravOn) {
+            let diff = Phaser.Point.subtract(player.position, gravObj.position);
             let r = diff.getMagnitude();
             diff.normalize();
 
-            xGravCoef += obj.gravWeight * diff.x / Math.pow(r, 1);
-            yGravCoef += obj.gravWeight * diff.y / Math.pow(r, 1);
+            xGravCoef += gravObj.gravWeight * diff.x / r;
+            yGravCoef += gravObj.gravWeight * diff.y / r;
         }
         
         //displays weight of gravity objects
@@ -187,6 +190,27 @@ function update() {
     }
     player.body.acceleration.x = -xGravCoef;
     player.body.acceleration.y = -yGravCoef;
+}
+
+function render() {
+    graphics.clear();
+    for (let i = 0; i < gravObjects.children.length; i++) {
+        drawGravObjCircle(gravObjects.children[i]);
+    }
+}
+
+function drawGravObjCircle(gravObj) {
+    // these are heuristic constants which look okay
+    let radius = gravObj.gravWeight / gravCoef * 150;
+    let subAmount = gravObjAttractionMax / gravCoef * 25;
+    let alpha = 0.2;
+    while (radius > 0) {
+        graphics.beginFill(0x351777, alpha);
+        graphics.drawCircle(gravObj.x, gravObj.y, radius);
+        graphics.endFill();
+        radius -= subAmount;
+        alpha += 0.7 * alpha * (1 - alpha); // logistically increase alpha
+    }
 }
 
 function restart() {
