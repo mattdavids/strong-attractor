@@ -1,4 +1,9 @@
-let game = new Phaser.Game(810, 420);
+let heightBlocks = 14;
+let widthBlocks = 27;
+let height = heightBlocks * 30;
+let width = widthBlocks * 30;
+
+let game = new Phaser.Game(width, height);
 game.state.add('main', {preload: preload, create: create, update: update});
 game.state.start('main');
 
@@ -38,6 +43,7 @@ function create() {
     game.stage.backgroundColor = '#7ac17c';
     game.physics.startSystem(Phaser.Physics.ARCADE);
     game.world.enableBody = true;
+    //game.world.setBounds(0,0,1920, 820);
 
     cursor = game.input.keyboard.createCursorKeys();
     let gravToggleBtn = game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
@@ -87,8 +93,6 @@ function clearLevel(){
 	sliders.removeAll();
 
 	player.kill();
-    player = game.add.sprite(70, 100, 'player');
-    player.body.gravity.y = 2500;
 }
 
 function selectLevel(){
@@ -107,7 +111,11 @@ function loadLevel(){
         console.log("Attempted to load undefined level");
     }
     
-    level.forEach(function(element) {
+    
+    let bounds = level[1].split(',');
+    game.world.setBounds(0,0,parseInt(bounds[0]), parseInt(bounds[1]));
+    for (let i = 2; i < level.length; i++) {
+        let element = level[i];
         let objectInfo = element.split(',');
         let objectName = objectInfo[0];
         let objectX = parseFloat(objectInfo[1]);
@@ -134,9 +142,11 @@ function loadLevel(){
             default:
                 break;
         }
-        
-    });
-
+    }
+    
+    player = game.add.sprite(50, bounds[1] - 100, 'player');
+    player.body.gravity.y = 2500;
+    game.camera.follow(player);
 }
 
 function update() {

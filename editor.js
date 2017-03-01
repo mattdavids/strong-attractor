@@ -1,5 +1,7 @@
-var height = 420;
-var width = 810;
+var heightBlocks = 28;
+var widthBlocks = 27;
+let width = widthBlocks * 30;
+let height = heightBlocks * 30;
 let graphic;
 let bounds;
 let walls;
@@ -86,7 +88,7 @@ function create() {
     // Display string representation of canvas
     $('#display').click(function(){
         
-        let result = "";
+        let result = game.world.width + ',' + game.world.height + '\n';
         
         for (let i = 0; i < walls.children.length; i++) {
             let obj = walls.children[i];
