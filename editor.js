@@ -115,15 +115,26 @@ function create() {
 
 function initializeObj(objectName) {
     let obj;
+
+    // Default spawn at center of area
+    // Change this if spawning on click / from mouse position
+    let spawnPosX = width/2;
+    let spawnPosY = height/2;
+
+    // Move spawn positions to fit major gridlines
+    spawnPosX -= spawnPosX%blockFullSize + blockHalfSize;
+    spawnPosY -= spawnPosY%blockFullSize + blockHalfSize;
+
     if (objectName == 'gravObj_off') {
-        obj = game.add.sprite(width/2, height/2, 'gravObj');
+        obj = game.add.sprite(spawnPosX, spawnPosY, 'gravObj');
         obj.tint = 0xffffff;
     } else if (objectName == 'gravObj_on') {
-        obj = game.add.sprite(width/2, height/2, 'gravObj');
+        obj = game.add.sprite(spawnPosX, spawnPosY, 'gravObj');
         obj.tint = 0x351777
     } else {
-        obj = game.add.sprite(width/2, height/2, objectName);
+        obj = game.add.sprite(spawnPosX, spawnPosY, objectName);
     }
+
     
     obj.inputEnabled = true;
     obj.events.onInputDown.add(deleteObject, this);
