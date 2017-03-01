@@ -827,13 +827,15 @@ wall,135,285
 wall,675,165
 wall,645,165
 wall,705,165
-wall,765,165
+wall,735,195
 wall,765,45
 wall,750,75
 wall,735,105
 wall,675,45
 wall,690,75
 wall,705,105
+wall,285,225
+wall,765,195
 enemy,285,705
 enemy,315,705
 enemy,345,705
@@ -851,5 +853,5 @@ enemy,375,435
 gravObj_off,135,585
 gravObj_off,285,495
 gravObj_off,705,435
-gravObj_off,285,225
+gravObj_off,285,255.00000000000003
 gravObj_off,495,45

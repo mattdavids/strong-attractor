@@ -12,6 +12,7 @@ let clickedObj;
 let gravObj;
 let gravObj_off;
 let gravObj_on;
+let level;
 
 let blockFullSize=30;
 let blockHalfSize=blockFullSize/2;
@@ -24,14 +25,49 @@ $('#start').click(function() {
     let widthBlocks = $('#width')[0].value
     let heightBlocks = $('#height')[0].value
     
-    width = widthBlocks * 30;
-    height = heightBlocks * 30;
     
-    game = new Phaser.Game(width, height, Phaser.CANVAS);
-    game.state.add('main', {preload: preload, create: create, update: update});
-    game.state.start('main');
+    let input = $('#file')[0];
+    let reader = new FileReader();
+    if (input.files.length) {
+        let textFile = input.files[0];
+        
+        reader.readAsText(textFile);
+        
+        $(reader).on('load', function(e) {
+            let file = e.target.result;
+            
+            if(file && file.length) {
+                level = file.split('\n'); 
+
+                let boundary = level[0].split(',');
+                width = parseInt(boundary[0]);
+                height = parseInt(boundary[1]);
+                game = new Phaser.Game(width, height, Phaser.CANVAS);
+                game.state.add('main', {preload: preload, create: create, update: update});
+                game.state.start('main');
+            }
+        });
+    } else {
+        
+        width = widthBlocks * 30;
+        height = heightBlocks * 30;
+        
+        let levelText = $('#levelText')[0].value
+        
+        if (levelText) {
+            level = levelText.split('\n');
+            let boundary = level[0].split(',');
+            width = parseInt(boundary[0]);
+            height = parseInt(boundary[1]);
+        }
+        
+        game = new Phaser.Game(width, height, Phaser.CANVAS);
+        game.state.add('main', {preload: preload, create: create, update: update});
+        game.state.start('main');
+    }
+    
     $('.sizeSelect').hide();
-    $('.firstSection').show();
+    $('.firstSection').show(); 
 });
 
 
@@ -83,14 +119,54 @@ function create() {
     gravObj_ons = game.add.group();
     enemies = game.add.group();
 
-    // Make walls around edges
-    for (let i = blockHalfSize; i <= width; i += blockFullSize){
-        makeWall(i, blockHalfSize);
-        makeWall(i, height - blockHalfSize);
-    }
-    for (let i = blockHalfSize; i < height; i += blockFullSize){
-        makeWall(blockHalfSize, i);
-        makeWall(width - blockHalfSize, i);
+    
+    if (level) {
+        for (let i = 1; i < level.length; i++) {
+            let element = level[i];
+            let objectInfo = element.split(',');
+            let objectName = objectInfo[0];
+            let objectX = parseFloat(objectInfo[1]);
+            let objectY = parseFloat(objectInfo[2]);
+            let obj;
+            
+            switch(objectName) {
+                case 'wall':
+                    obj = game.add.sprite(objectX, objectY, objectName);
+                    walls.add(obj);
+                    break;
+                case 'gravObj_off':
+                    obj = game.add.sprite(objectX, objectY, 'gravObj');
+                    gravObj_offs.add(obj);
+                    obj.tint = 0xffffff;
+                    break;
+                case 'gravObj_on':
+                    obj = game.add.sprite(objectX, objectY, 'gravObj');
+                    gravObj_ons.add(obj);
+                    obj.tint = 0x351777;
+                    break;
+                case 'enemy':
+                    obj = game.add.sprite(objectX, objectY, objectName);
+                    enemies.add(obj);
+                    break;
+                default:
+                    break;
+            }
+            obj.anchor.set(.5,.5);
+            obj.inputEnabled = true;
+            obj.events.onInputDown.add(deleteObject, this);
+            obj.events.onInputUp.add(inputUp, this);
+            obj.input.boundsRect = bounds;
+        }  
+    } else {
+        // Make walls around edges
+        for (let i = blockHalfSize; i <= width; i += blockFullSize){
+            makeWall(i, blockHalfSize);
+            makeWall(i, height - blockHalfSize);
+        }
+        for (let i = blockHalfSize; i < height; i += blockFullSize){
+            makeWall(blockHalfSize, i);
+            makeWall(width - blockHalfSize, i);
+        }
     }
 
     // Buttons for adding objects to canvas
@@ -147,7 +223,7 @@ function initializeObj(objectName) {
         obj.tint = 0xffffff;
     } else if (objectName == 'gravObj_on') {
         obj = game.add.sprite(spawnPosX, spawnPosY, 'gravObj');
-        obj.tint = 0x351777
+        obj.tint = 0x351777;
     } else {
         obj = game.add.sprite(spawnPosX, spawnPosY, objectName);
     }
