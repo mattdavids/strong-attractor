@@ -108,9 +108,11 @@ function clearLevel(){
     exits.removeAll(true);
 
 	// player is undefined on first run
-	if (player != undefined) player.kill();
+	if (player != undefined)
+	    player.kill();
     // exit is undefined on first run
-    if (exit != undefined) exit.kill();
+    if (exit != undefined)
+        exit.kill();
 }
 
 function selectLevel(){
