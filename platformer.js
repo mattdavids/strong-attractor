@@ -68,6 +68,7 @@ function create() {
     walls = game.add.group();
     gravObjects = game.add.group();
     enemies = game.add.group();
+    exits = game.add.group();
     
     loadLevelsFromFile();
     
@@ -101,9 +102,10 @@ function loadLevelsFromFile(){
 }
 
 function clearLevel(){
-	walls.removeAll();
-	enemies.removeAll();
-	gravObjects.removeAll();
+	walls.removeAll(true);
+	enemies.removeAll(true);
+	gravObjects.removeAll(true);
+    exits.removeAll(true);
 
 	// player is undefined on first run
 	if (player != undefined) player.kill();
@@ -154,6 +156,11 @@ function loadLevel(){
                 let enemy = game.add.sprite(objectX, objectY, objectName);
                 enemy.anchor.set(.5, .5);
                 enemies.add(enemy);
+                break;
+            case 'exit':
+                let exit = game.add.sprite(objectX, objectY, objectName);
+                exit.anchor.set(.5, .5);
+                exits.add(exit);
                 break;
             default:
                 break;

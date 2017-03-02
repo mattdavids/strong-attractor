@@ -76,7 +76,7 @@ function preload() {
     game.load.image('wall', 'assets/bricks.png');
     game.load.image('gravObj', 'assets/gravObj.png');
     game.load.image('enemy', 'assets/enemy.png');
-    
+    game.load.image('exit', 'assets/exit.png');
 }
 
 function create() {
@@ -118,6 +118,7 @@ function create() {
     gravObj_offs = game.add.group();
     gravObj_ons = game.add.group();
     enemies = game.add.group();
+    exits = game.add.group();
 
     
     if (level) {
@@ -147,6 +148,10 @@ function create() {
                 case 'enemy':
                     obj = game.add.sprite(objectX, objectY, objectName);
                     enemies.add(obj);
+                    break;
+                case 'exit':
+                    obj = game.add.sprite(objectX, objectY, objectName);
+                    exits.add(obj);
                     break;
                 default:
                     break;
@@ -197,6 +202,11 @@ function create() {
             let obj = gravObj_ons.children[i];
             result += 'gravObj_on,' + obj.position.x + ',' + obj.position.y + '\n'
         }
+        
+        exits.children.forEach(function(obj) {
+            result += 'exit,' + obj.position.x + ',' + obj.position.y + '\n'
+        });
+        
         $(this).hide();
         $('.firstSection').remove();
         $('#response').text(result.slice(0,-1));
@@ -250,6 +260,8 @@ function initializeObj(objectName) {
         case 'enemy':
             enemies.add(obj);
             break;
+        case 'exit':
+            exits.add(obj);
         default:
             break;
     }
