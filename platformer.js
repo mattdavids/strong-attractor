@@ -236,12 +236,14 @@ function drawGravObjCircle(gravObj) {
     if (gravObj.gravOn) {
         let radius = gravObj.gravWeight / gravCoef * 150;
         let subAmount = gravObjAttractionMax / gravCoef * 25;
-        let alpha = 0.15;
+        let alpha = 0.2;
+        let fillColor = gravObj.gravOn ? 0x351777 : 0x808080;
         while (radius > 0) {
-            graphics.beginFill(0x351777, alpha);
+            graphics.beginFill(fillColor, alpha);
             graphics.drawCircle(gravObj.x, gravObj.y, radius);
             graphics.endFill();
             radius -= subAmount;
+            alpha += 0.7 * alpha * (1 - alpha); // logistically increase alpha
         }
     }
 }
@@ -261,6 +263,7 @@ function initializeGravObj(x, y, gravOn) {
     gravObj.inputEnabled = true;
     gravObj.events.onInputDown.add(toggleGravity, this);
     gravObj.events.onInputUp.add(endClick, this);
+    gravObj.tint = 0x351777;
 }
 
 function toggleGravityAll() {
