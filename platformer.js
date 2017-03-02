@@ -21,6 +21,7 @@ const gravObjStartColor = 0xffffff;
 const gravObjEndColor = 0x351777;
 
 let player;
+let exit;
 let walls;
 let gravObjects;
 let enemies;
@@ -35,6 +36,7 @@ let pauseText;
 
 function preload() {
     game.load.image('player', 'assets/player.png');
+    game.load.image('exit', 'assets/exit.png');
     game.load.image('wall', 'assets/bricks.png');
     game.load.image('gravObj', 'assets/gravObj.png');
     game.load.image('enemy', 'assets/enemy.png');
@@ -105,6 +107,8 @@ function clearLevel(){
 
 	// player is undefined on first run
 	if (player != undefined) player.kill();
+    // exit is undefined on first run
+    if (exit != undefined) exit.kill();
 }
 
 function selectLevel(){
@@ -159,6 +163,9 @@ function loadLevel(){
     player = game.add.sprite(50, bounds[1] - 100, 'player');
     player.body.gravity.y = gravCoef / 60;
     game.camera.follow(player);
+    
+    exit = game.add.sprite(game.world.width - 70, game.world.height - 110, 'exit');
+    exit.body.immovable = true;
 }
 
 function update() {
@@ -190,7 +197,6 @@ function update() {
             player.body.velocity.y = -jumpVelocity;
             jumpCount = 0;
         }
-
         //Let user jump higher if they hold the button down
         if (jumpCount < jumpFrames) {
             if (cursor.up.isDown) {
@@ -202,6 +208,12 @@ function update() {
         }
 
         jumpCount += 1;
+    }
+    
+    // updates level if player reaches exit
+    if (player.overlap(exit)) {
+        currentLevelNum--;
+        loadLevel();
     }
 
     if (game.input.activePointer.leftButton.isDown && clickedObj != null) {
