@@ -282,7 +282,16 @@ function drawGravObjCircle(gravObj) {
 }
 
 function restart() {
-    loadLevel();
+
+    // Reload player
+    if (player != undefined)
+        player.kill();
+    let gheight = game.world.bounds.height;
+    player = game.add.sprite(50, gheight - 100, 'player');
+    player.body.gravity.y = gravCoef / 60;
+    game.camera.follow(player);
+
+    // Reset any pick-ups or similar here
 }
 
 function initializeGravObj(x, y, gravOn) {
