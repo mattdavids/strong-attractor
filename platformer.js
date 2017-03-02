@@ -30,6 +30,8 @@ let currentLevelNum;
 let graphics;
 let clickedObj;
 let jumpCount;
+let pauseBtn;
+let pauseText;
 
 function preload() {
     game.load.image('player', 'assets/player.png');
@@ -50,8 +52,16 @@ function create() {
     }
 
     cursor = game.input.keyboard.createCursorKeys();
-    let gravToggleBtn = game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
-    gravToggleBtn.onDown.add(toggleGravityAll, this);
+    pauseBtn = game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
+    pauseBtn.onDown.add(function() {
+        if (game.physics.arcade.isPaused) {
+            pauseText.kill();
+        } else {
+            pauseText = game.add.text(player.body.position.x + 5, player.body.position.y - 15, "Paused", {fill: "#ffffff"});
+            pauseText.anchor.set(.5, .5);
+        }
+        game.physics.arcade.isPaused = ! game.physics.arcade.isPaused;
+    }, this);
 
     walls = game.add.group();
     gravObjects = game.add.group();
@@ -156,42 +166,44 @@ function update() {
     game.physics.arcade.collide(player, gravObjects);
 
     game.physics.arcade.overlap(player, enemies, restart, null, this);
-
-    if (cursor.left.isDown) {
-        if (player.body.touching.down) {
-            player.body.velocity.x = Math.max(-maxHorizontalVelocity, player.body.velocity.x - groundAcceleration);
-        } else {
-            player.body.velocity.x -= airAcceleration;
-        }
-    } else if (cursor.right.isDown) {
-        if (player.body.touching.down) {
-            player.body.velocity.x = Math.min(maxHorizontalVelocity, player.body.velocity.x + groundAcceleration);
-        } else {
-            player.body.velocity.x += airAcceleration;
-        }
-    } else {
-        if (player.body.touching.down) {
-            player.body.velocity.x = player.body.velocity.x * frictionCoef;
-        }
-    }
-
-    if (cursor.up.isDown && player.body.touching.down) {
-        player.body.velocity.y = -jumpVelocity;
-        jumpCount = 0;
-    }
-
-    //Let user jump higher if they hold the button down
-    if (jumpCount < jumpFrames) {
-        if (cursor.up.isDown) {
-            player.body.velocity.y -= jumpVelocity/(jumpFrames - 3)
-        } else {
-            jumpCount = jumpFrames;
-        }
-
-    }
-
-    jumpCount += 1;
     
+    if (! game.physics.arcade.isPaused){
+        if (cursor.left.isDown) {
+            if (player.body.touching.down) {
+                player.body.velocity.x = Math.max(-maxHorizontalVelocity, player.body.velocity.x - groundAcceleration);
+            } else {
+                player.body.velocity.x -= airAcceleration;
+            }
+        } else if (cursor.right.isDown) {
+            if (player.body.touching.down) {
+                player.body.velocity.x = Math.min(maxHorizontalVelocity, player.body.velocity.x + groundAcceleration);
+            } else {
+                player.body.velocity.x += airAcceleration;
+            }
+        } else {
+            if (player.body.touching.down) {
+                player.body.velocity.x = player.body.velocity.x * frictionCoef;
+            }
+        }
+
+        if (cursor.up.isDown && player.body.touching.down) {
+            player.body.velocity.y = -jumpVelocity;
+            jumpCount = 0;
+        }
+
+        //Let user jump higher if they hold the button down
+        if (jumpCount < jumpFrames) {
+            if (cursor.up.isDown) {
+                player.body.velocity.y -= jumpVelocity/(jumpFrames - 3)
+            } else {
+                jumpCount = jumpFrames;
+            }
+
+        }
+
+        jumpCount += 1;
+    }
+
     if (game.input.activePointer.leftButton.isDown && clickedObj != null) {
         clickedObj.gravWeight = Math.min(gravObjAttractionMax, clickedObj.gravWeight + 5000)
     }
