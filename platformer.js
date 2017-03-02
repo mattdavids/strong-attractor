@@ -13,6 +13,7 @@ const groundAcceleration = 30;
 const airAcceleration = 5;
 const maxHorizontalVelocity = 250;
 const jumpVelocity = 300;
+const jumpFrames = 10;
 const startingLevelNum = 6;
 const gravObjAttractionMin = 0;
 const gravObjAttractionMax = 2 * gravCoef;
@@ -23,19 +24,19 @@ let player;
 let walls;
 let gravObjects;
 let enemies;
-let sliders;
 let cursor;
 let levels;
 let currentLevelNum;
 let graphics;
-let jumpCount = 10;
+let clickedObj;
+let jumpCount;
 
 function preload() {
     game.load.image('player', 'assets/player.png');
     game.load.image('wall', 'assets/bricks.png');
     game.load.image('gravObj', 'assets/gravObj.png');
     game.load.image('enemy', 'assets/enemy.png');
-    game.load.image('slider', 'assets/slider.png');
+    //game.load.image('slider', 'assets/slider.png');
     //game.load.text('levelsExternal', 'assets/levels.txt');
     game.load.text('levelsNew', 'assets/levelsNew.txt');
 }
@@ -44,7 +45,9 @@ function create() {
     game.stage.backgroundColor = '#7ac17c';
     game.physics.startSystem(Phaser.Physics.ARCADE);
     game.world.enableBody = true;
-    //game.world.setBounds(0,0,1920, 820);
+    game.canvas.oncontextmenu = function (e) {
+        e.preventDefault(); 
+    }
 
     cursor = game.input.keyboard.createCursorKeys();
     let gravToggleBtn = game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
@@ -53,7 +56,6 @@ function create() {
     walls = game.add.group();
     gravObjects = game.add.group();
     enemies = game.add.group();
-    sliders = game.add.group();
     
     loadLevelsFromFile();
     
@@ -90,7 +92,6 @@ function clearLevel(){
 	walls.removeAll();
 	enemies.removeAll();
 	gravObjects.removeAll();
-	sliders.removeAll();
 
 	// player is undefined on first run
 	if (player != undefined) player.kill();
@@ -180,16 +181,25 @@ function update() {
     }
 
     //Let user jump higher if they hold the button down
-    if (jumpCount < 10) {
+    if (jumpCount < jumpFrames) {
         if (cursor.up.isDown) {
-            player.body.velocity.y -= jumpVelocity/7
+            player.body.velocity.y -= jumpVelocity/(jumpFrames - 3)
         } else {
-            jumpCount = 10;
+            jumpCount = jumpFrames;
         }
 
     }
 
     jumpCount += 1;
+    
+    if (game.input.activePointer.leftButton.isDown && clickedObj != null) {
+        clickedObj.gravWeight = Math.min(gravObjAttractionMax, clickedObj.gravWeight + 5000)
+    }
+    if (game.input.activePointer.rightButton.isDown && clickedObj != null) {
+        clickedObj.gravWeight = Math.max(gravObjAttractionMin, clickedObj.gravWeight - 5000)
+    }
+    
+    
     
     let xGravCoef = 0;
     let yGravCoef = 0;
@@ -223,15 +233,16 @@ function render() {
 
 function drawGravObjCircle(gravObj) {
     // these are heuristic constants which look okay
-    let radius = gravObj.gravWeight / gravCoef * 150;
-    let subAmount = gravObjAttractionMax / gravCoef * 25;
-    let alpha = 0.2;
-    while (radius > 0) {
-        graphics.beginFill(0x351777, alpha);
-        graphics.drawCircle(gravObj.x, gravObj.y, radius);
-        graphics.endFill();
-        radius -= subAmount;
-        alpha += 0.7 * alpha * (1 - alpha); // logistically increase alpha
+    if (gravObj.gravOn) {
+        let radius = gravObj.gravWeight / gravCoef * 150;
+        let subAmount = gravObjAttractionMax / gravCoef * 25;
+        let alpha = 0.15;
+        while (radius > 0) {
+            graphics.beginFill(0x351777, alpha);
+            graphics.drawCircle(gravObj.x, gravObj.y, radius);
+            graphics.endFill();
+            radius -= subAmount;
+        }
     }
 }
 
@@ -241,51 +252,30 @@ function restart() {
 
 function initializeGravObj(x, y, gravOn) {
     let gravObj = game.add.sprite(x, y, 'gravObj');
-    let slider = game.add.sprite(x, y, 'slider');
 
     gravObj.anchor.set(.5, .5);
-    gravObj.slider = slider;
-    gravObj.gravOn = gravOn ;
-    gravObj.gravWeight = gravCoef;
+    gravObj.gravOn = true ;
+    gravObj.gravWeight = gravCoef * gravOn;
     gravObjects.add(gravObj);
     gravObj.body.immovable = true;
     gravObj.inputEnabled = true;
     gravObj.events.onInputDown.add(toggleGravity, this);
-
-    slider.anchor.set(.5, .5);
-    slider.gravObj = gravObj;
-    slider.inputEnabled = true;
-    slider.input.setDragLock(true, false); // can drag horizontally, not vertically
-    slider.input.enableDrag();
-    slider.events.onDragUpdate.add(updateGravObjFromSlider, this);
-    slider.input.boundsRect = new Phaser.Rectangle(-50 + x, -10 + y, 100, 20);
-
-    sliders.add(slider);
-    if (gravOn) updateGravObjFromSlider(slider);
+    gravObj.events.onInputUp.add(endClick, this);
 }
 
 function toggleGravityAll() {
 
     for (let i = 0;  i < gravObjects.children.length; i++) {
         let gravObj = gravObjects.children[i];
-        toggleGravity(gravObj);
+        gravObj.gravOn = !gravObj.gravOn;
     }
 }
 
 function toggleGravity(gravObj) {
 
-    gravObj.gravOn = !gravObj.gravOn;
-    if (gravObj.gravOn) {
-        updateGravObjFromSlider(gravObj.slider)
-    } else {
-        gravObj.tint = 0xffffff;
-    }
+    clickedObj = gravObj;
 }
 
-function updateGravObjFromSlider(slider) {
-    let gravAmount = (slider.left - slider.input.boundsRect.left) / (slider.input.boundsRect.width - slider.width);
-    slider.gravObj.gravWeight = Phaser.Math.linear(gravObjAttractionMin, gravObjAttractionMax, gravAmount);
-    if (slider.gravObj.gravOn) {
-        slider.gravObj.tint = Phaser.Color.interpolateColor(gravObjStartColor, gravObjEndColor, 1, gravAmount, 0xff);
-    }
+function endClick(gravObj) {
+    clickedObj = null;
 }
