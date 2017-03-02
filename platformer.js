@@ -165,6 +165,7 @@ function loadLevel(){
                 let exit = game.add.sprite(objectX, objectY, objectName);
                 exit.anchor.set(.5, .5);
                 exits.add(exit);
+                exit.body.immovable = true;
                 break;
             default:
                 break;
@@ -174,9 +175,6 @@ function loadLevel(){
     player = game.add.sprite(50, bounds[1] - 100, 'player');
     player.body.gravity.y = gravCoef / 60;
     game.camera.follow(player);
-    
-    exit = game.add.sprite(game.world.width - 70, game.world.height - 110, 'exit');
-    exit.body.immovable = true;
 }
 
 function update() {
@@ -184,6 +182,11 @@ function update() {
     game.physics.arcade.collide(player, gravObjects);
 
     game.physics.arcade.overlap(player, enemies, restart, null, this);
+    game.physics.arcade.overlap(player, exits, function() {
+        currentLevelNum ++;
+        loadLevel();
+    }, null);
+    
     
     if (! game.physics.arcade.isPaused){
         if (cursor.left.isDown) {
@@ -219,12 +222,6 @@ function update() {
         }
 
         jumpCount += 1;
-    }
-    
-    // updates level if player reaches exit
-    if (player.overlap(exit)) {
-        currentLevelNum--;
-        loadLevel();
     }
 
     // Adjust attraction of clicked object
