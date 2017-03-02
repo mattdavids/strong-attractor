@@ -116,7 +116,7 @@ function clearLevel(){
 }
 
 function selectLevel(){
-	// This would be simpler with jquery
+	// This can be simpler with jquery
 	let levelSelector = document.getElementById("level-select");
 	currentLevelNum = levelSelector.options[levelSelector.selectedIndex].value;
 	loadLevel();
@@ -225,6 +225,7 @@ function update() {
         loadLevel();
     }
 
+    // Adjust attraction of clicked object
     if (game.input.activePointer.leftButton.isDown && clickedObj != null) {
         clickedObj.gravWeight = Math.min(gravObjAttractionMax, clickedObj.gravWeight + 5000)
     }
