@@ -22,9 +22,11 @@ const gravObjEndColor = 0x351777;
 
 let player;
 let exit;
+let exits;
 let walls;
 let gravObjects;
 let enemies;
+
 let cursor;
 let levels;
 let currentLevelNum;
