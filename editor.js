@@ -5,7 +5,7 @@ let game;
 let graphic;
 let bounds;
 let walls;
-let lava_pools;
+let shockers;
 let gravObj_offs;
 let gravObj_ons;
 let clickedObj;
@@ -78,7 +78,7 @@ $('#start').click(function() {
 function preload() {
     game.load.image('wall', 'assets/bricks.png');
     game.load.image('gravObj', 'assets/gravObj.png');
-    game.load.image('lava', 'assets/lava.png');
+    game.load.spritesheet('shocker', 'assets/electricity_sprites.png', 30, 30, 3);
     game.load.image('exit', 'assets/exit.png');
     game.load.image('player', 'assets/player.png')
 }
@@ -121,7 +121,7 @@ function create() {
     walls = game.add.group();
     gravObj_offs = game.add.group();
     gravObj_ons = game.add.group();
-    lava_pools = game.add.group();
+    shockers = game.add.group();
     exits = game.add.group();
 
     
@@ -149,9 +149,11 @@ function create() {
                     gravObj_ons.add(obj);
                     obj.tint = 0x351777;
                     break;
-                case 'lava':
+                case 'shocker':
                     obj = game.add.sprite(objectX, objectY, objectName);
-                    lava_pools.add(obj);
+                    shockers.add(obj);
+                    obj.animations.add('crackle');
+                    obj.animations.play('crackle', 10, true);
                     break;
                 case 'exit':
                     obj = game.add.sprite(objectX, objectY, objectName);
@@ -205,9 +207,9 @@ function create() {
             let obj = walls.children[i];
             result += 'wall,' + obj.position.x + ',' + obj.position.y + '\n'
         }
-        for (let i = 0; i < lava_pools.children.length; i++) {
-            let obj = lava_pools.children[i];
-            result += 'lava,' + obj.position.x + ',' + obj.position.y + '\n'
+        for (let i = 0; i < shockers.children.length; i++) {
+            let obj = shockers.children[i];
+            result += 'shocker,' + obj.position.x + ',' + obj.position.y + '\n'
         }
         for (let i = 0; i < gravObj_offs.children.length; i++) {
             let obj = gravObj_offs.children[i];
@@ -291,11 +293,14 @@ function initializeObj(objectName) {
         case 'gravObj_on':
             gravObj_ons.add(obj);
             break;
-        case 'lava':
-            lava_pools.add(obj);
+        case 'shocker':
+            shockers.add(obj);
+            obj.animations.add('crackle');
+            obj.animations.play('crackle', 10, true);
             break;
         case 'exit':
             exits.add(obj);
+            break;
         default:
             break;
     }
@@ -340,7 +345,7 @@ function deleteObject(obj) {
     obj.body.immovable = false;
     if (game.input.activePointer.rightButton.isDown) {
         walls.remove(obj);
-	    lava_pools.remove(obj);
+	    shockers.remove(obj);
 	    gravObj_ons.remove(obj);
         gravObj_offs.remove(obj);
         if (obj !== player_start) {
@@ -357,13 +362,13 @@ function update() {
     game.physics.arcade.collide(walls, walls);
     game.physics.arcade.collide(walls, gravObj_ons);
     game.physics.arcade.collide(walls, gravObj_offs);
-    game.physics.arcade.collide(walls, lava_pools);
+    game.physics.arcade.collide(walls, shockers);
     game.physics.arcade.collide(gravObj_ons, gravObj_ons);
     game.physics.arcade.collide(gravObj_ons, gravObj_offs);
-    game.physics.arcade.collide(gravObj_ons, lava_pools);
+    game.physics.arcade.collide(gravObj_ons, shockers);
     game.physics.arcade.collide(gravObj_offs, gravObj_offs);
-    game.physics.arcade.collide(gravObj_offs, lava_pools);
-    game.physics.arcade.collide(lava_pools, lava_pools);
+    game.physics.arcade.collide(gravObj_offs, shockers);
+    game.physics.arcade.collide(shockers, shockers);
     //*/
     
     if (game.input.activePointer.leftButton.isDown && clickedObj != null) {
