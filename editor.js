@@ -288,6 +288,7 @@ function initializeObj(objectName) {
             break;
         case 'exit':
             exits.add(obj);
+            break;
         default:
             break;
     }
