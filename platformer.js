@@ -41,7 +41,7 @@ function preload() {
     game.load.image('player', 'assets/player.png');
     game.load.image('exit', 'assets/exit.png');
     game.load.image('wall', 'assets/bricks_gray.png');
-    game.load.image('gravObj', 'assets/gravity_circle_white.png');
+    game.load.image('gravObj', 'assets/gravObj.png');
 
     game.load.spritesheet('shocker', 'assets/electricity_sprites.png', 30, 30, 3);
 
@@ -63,7 +63,7 @@ function create() {
         if (game.physics.arcade.isPaused) {
             pauseText.kill();
         } else {
-            pauseText = game.add.text(player.body.position.x + 5, player.body.position.y - 15, "Paused", {fill: "#ffffff"});
+            pauseText = game.add.text(player.body.position.x + 5, player.body.position.y - 15, "Paused", {fill: "#000"});
             pauseText.anchor.set(.5, .5);
         }
         game.physics.arcade.isPaused = ! game.physics.arcade.isPaused;

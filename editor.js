@@ -77,7 +77,7 @@ $('#start').click(function() {
 
 function preload() {
     game.load.image('wall', 'assets/bricks_gray.png');
-    game.load.image('gravObj', 'assets/gravity_circle_white.png');
+    game.load.image('gravObj', 'assets/gravObj.png');
     game.load.spritesheet('shocker', 'assets/electricity_sprites.png', 30, 30, 3);
     game.load.image('exit', 'assets/exit.png');
     game.load.image('player', 'assets/player.png')
