@@ -5,7 +5,8 @@ let game;
 let graphic;
 let bounds;
 let walls;
-let lava_pools;
+let lava_pool;
+let exits;
 let gravObj_offs;
 let gravObj_ons;
 let clickedObj;
@@ -117,7 +118,7 @@ function create() {
     walls = game.add.group();
     gravObj_offs = game.add.group();
     gravObj_ons = game.add.group();
-    lava_pools = game.add.group();
+    lava_pool = game.add.group();
     exits = game.add.group();
 
     
@@ -147,7 +148,7 @@ function create() {
                     break;
                 case 'lava':
                     obj = game.add.sprite(objectX, objectY, objectName);
-                    lava_pools.add(obj);
+                    lava_pool.add(obj);
                     break;
                 case 'exit':
                     obj = game.add.sprite(objectX, objectY, objectName);
@@ -190,8 +191,8 @@ function create() {
             let obj = walls.children[i];
             result += 'wall,' + obj.position.x + ',' + obj.position.y + '\n'
         }
-        for (let i = 0; i < lava_pools.children.length; i++) {
-            let obj = lava_pools.children[i];
+        for (let i = 0; i < lava_pool.children.length; i++) {
+            let obj = lava_pool.children[i];
             result += 'lava,' + obj.position.x + ',' + obj.position.y + '\n'
         }
         for (let i = 0; i < gravObj_offs.children.length; i++) {
@@ -258,7 +259,7 @@ function initializeObj(objectName) {
             gravObj_ons.add(obj);
             break;
         case 'lava':
-            lava_pools.add(obj);
+            lava_pool.add(obj);
             break;
         case 'exit':
             exits.add(obj);
@@ -306,7 +307,7 @@ function deleteObject(obj) {
     obj.body.immovable = false;
     if (game.input.activePointer.rightButton.isDown) {
         walls.remove(obj);
-	    lava_pools.remove(obj);
+	    lava_pool.remove(obj);
 	    gravObj_ons.remove(obj);
         gravObj_offs.remove(obj);
         obj.kill();
@@ -321,13 +322,13 @@ function update() {
     game.physics.arcade.collide(walls, walls);
     game.physics.arcade.collide(walls, gravObj_ons);
     game.physics.arcade.collide(walls, gravObj_offs);
-    game.physics.arcade.collide(walls, lava_pools);
+    game.physics.arcade.collide(walls, lava_pool);
     game.physics.arcade.collide(gravObj_ons, gravObj_ons);
     game.physics.arcade.collide(gravObj_ons, gravObj_offs);
-    game.physics.arcade.collide(gravObj_ons, lava_pools);
+    game.physics.arcade.collide(gravObj_ons, lava_pool);
     game.physics.arcade.collide(gravObj_offs, gravObj_offs);
-    game.physics.arcade.collide(gravObj_offs, lava_pools);
-    game.physics.arcade.collide(lava_pools, lava_pools);
+    game.physics.arcade.collide(gravObj_offs, lava_pool);
+    game.physics.arcade.collide(lava_pool, lava_pool);
     //*/
     
     if (game.input.activePointer.leftButton.isDown && clickedObj != null) {

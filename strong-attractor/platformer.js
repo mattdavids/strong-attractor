@@ -14,7 +14,7 @@ const airAcceleration = 5;
 const maxHorizontalVelocity = 250;
 const jumpVelocity = 300;
 const jumpFrames = 10;
-const startingLevelNum = 6;
+const startingLevelNum = 0;
 const gravObjAttractionMin = 0;
 const gravObjAttractionMax = 2 * gravCoef;
 const gravObjStartColor = 0xffffff;
@@ -22,11 +22,9 @@ const gravObjEndColor = 0x351777;
 
 let player;
 let exit;
-let exits;
 let walls;
 let gravObjects;
-let lava_pools;
-
+let lava_pool;
 let cursor;
 let levels;
 let currentLevelNum;
@@ -69,7 +67,7 @@ function create() {
 
     walls = game.add.group();
     gravObjects = game.add.group();
-    lava_pools = game.add.group();
+    lava_pool = game.add.group();
     exits = game.add.group();
     
     loadLevelsFromFile();
@@ -105,20 +103,18 @@ function loadLevelsFromFile(){
 
 function clearLevel(){
 	walls.removeAll(true);
-	lava_pools.removeAll(true);
+	lava_pool.removeAll(true);
 	gravObjects.removeAll(true);
     exits.removeAll(true);
 
 	// player is undefined on first run
-	if (player != undefined)
-	    player.kill();
+	if (player != undefined) player.kill();
     // exit is undefined on first run
-    if (exit != undefined)
-        exit.kill();
+    //if (exit != undefined) exit.kill();
 }
 
 function selectLevel(){
-	// This can be simpler with jquery
+	// This would be simpler with jquery
 	let levelSelector = document.getElementById("level-select");
 	currentLevelNum = levelSelector.options[levelSelector.selectedIndex].value;
 	loadLevel();
@@ -159,13 +155,12 @@ function loadLevel(){
             case 'lava':
                 let lava = game.add.sprite(objectX, objectY, objectName);
                 lava.anchor.set(.5, .5);
-                lava_pools.add(lava);
+                lava_pool.add(lava);
                 break;
             case 'exit':
                 let exit = game.add.sprite(objectX, objectY, objectName);
                 exit.anchor.set(.5, .5);
                 exits.add(exit);
-                exit.body.immovable = true;
                 break;
             default:
                 break;
@@ -175,18 +170,16 @@ function loadLevel(){
     player = game.add.sprite(50, bounds[1] - 100, 'player');
     player.body.gravity.y = gravCoef / 60;
     game.camera.follow(player);
+    
+    exit = game.add.sprite(game.world.width - 70, game.world.height - 110, 'exit');
+    exit.body.immovable = true;
 }
 
 function update() {
     game.physics.arcade.collide(player, walls);
     game.physics.arcade.collide(player, gravObjects);
 
-    game.physics.arcade.overlap(player, lava_pools, restart, null, this);
-    game.physics.arcade.overlap(player, exits, function() {
-        currentLevelNum ++;
-        loadLevel();
-    }, null);
-    
+    game.physics.arcade.overlap(player, lava_pool, restart, null, this);
     
     if (! game.physics.arcade.isPaused){
         if (cursor.left.isDown) {
@@ -223,8 +216,13 @@ function update() {
 
         jumpCount += 1;
     }
+    
+    // updates level if player reaches exit
+    if (player.overlap(exit)) {
+        currentLevelNum++;
+        loadLevel();
+    }
 
-    // Adjust attraction of clicked object
     if (game.input.activePointer.leftButton.isDown && clickedObj != null) {
         clickedObj.gravWeight = Math.min(gravObjAttractionMax, clickedObj.gravWeight + 5000)
     }
@@ -282,16 +280,7 @@ function drawGravObjCircle(gravObj) {
 }
 
 function restart() {
-
-    // Reload player
-    if (player != undefined)
-        player.kill();
-    let gheight = game.world.bounds.height;
-    player = game.add.sprite(50, gheight - 100, 'player');
-    player.body.gravity.y = gravCoef / 60;
-    game.camera.follow(player);
-
-    // Reset any pick-ups or similar here
+    loadLevel();
 }
 
 function initializeGravObj(x, y, gravOn) {
@@ -303,8 +292,8 @@ function initializeGravObj(x, y, gravOn) {
     gravObjects.add(gravObj);
     gravObj.body.immovable = true;
     gravObj.inputEnabled = true;
-    gravObj.events.onInputDown.add(startGravityClick, this);
-    gravObj.events.onInputUp.add(endGravityClick, this);
+    gravObj.events.onInputDown.add(toggleGravity, this);
+    gravObj.events.onInputUp.add(endClick, this);
     gravObj.tint = 0x351777;
 }
 
@@ -316,11 +305,11 @@ function toggleGravityAll() {
     }
 }
 
-function startGravityClick(gravObj) {
+function toggleGravity(gravObj) {
 
     clickedObj = gravObj;
 }
 
-function endGravityClick(gravObj) {
+function endClick(gravObj) {
     clickedObj = null;
 }
