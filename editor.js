@@ -14,6 +14,8 @@ let gravObj_off;
 let gravObj_on;
 let level;
 
+let zoom = false;
+
 let blockFullSize=30;
 let blockHalfSize=blockFullSize/2;
 let blockQuarterSize=blockHalfSize/2;
@@ -63,7 +65,7 @@ $('#start').click(function() {
         
         game = new Phaser.Game(width, height, Phaser.CANVAS);
         game.state.add('main', {preload: preload, create: create, update: update});
-        game.state.start('main');
+        game.state.start('main');        
     }
     
     $('.sizeSelect').hide();
@@ -77,6 +79,9 @@ function preload() {
     game.load.image('gravObj', 'assets/gravObj.png');
     game.load.image('lava', 'assets/lava.png');
     game.load.image('exit', 'assets/exit.png');
+    
+    game.scale.maxWidth = window.innerWidth;
+    game.scale.maxHeight = window.innerHeight - 100;
 }
 
 function create() {
@@ -213,6 +218,23 @@ function create() {
         game.destroy();
         
     });
+    
+    $('#zoom').click(function() {
+        if (! zoom) {
+            game.scale.maxWidth = window.innerWidth - 15;
+            game.scale.maxHeight = window.innerHeight - 100;
+            game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+            $(this)[0].value = 'Zoom In';
+            
+        } else {
+            game.scale.maxWidth = width;
+            game.scale.maxHeight = height;
+            game.scale.scaleMode = Phaser.ScaleManager.NO_SCALE;
+            $(this)[0].value = 'Zoom Out';
+        }
+        zoom = ! zoom;
+    });
+    
     
 }
 
