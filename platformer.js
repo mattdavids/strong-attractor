@@ -27,7 +27,6 @@ let walls;
 let gravObjects;
 let shockers;
 
-let cursor;
 let levels;
 let currentLevelNum;
 let graphics;
@@ -57,7 +56,6 @@ function create() {
         e.preventDefault(); 
     }
 
-    cursor = game.input.keyboard.createCursorKeys();
     pauseBtn = game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
     pauseBtn.onDown.add(function() {
         if (game.physics.arcade.isPaused) {
