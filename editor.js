@@ -13,6 +13,7 @@ let gravObj;
 let gravObj_off;
 let gravObj_on;
 let level;
+let player_start;
 
 let zoom = false;
 
@@ -79,9 +80,7 @@ function preload() {
     game.load.image('gravObj', 'assets/gravObj.png');
     game.load.image('lava', 'assets/lava.png');
     game.load.image('exit', 'assets/exit.png');
-    
-    game.scale.maxWidth = window.innerWidth;
-    game.scale.maxHeight = window.innerHeight - 100;
+    game.load.image('player', 'assets/player.png')
 }
 
 function create() {
@@ -158,9 +157,13 @@ function create() {
                     obj = game.add.sprite(objectX, objectY, objectName);
                     exits.add(obj);
                     break;
+                case 'player':
+                    player_start = game.add.sprite(objectX, objectY, objectName);
+                    obj = player_start;
+                    break;
                 default:
                     break;
-            }
+            }       
             obj.anchor.set(.5,.5);
             obj.inputEnabled = true;
             obj.events.onInputDown.add(deleteObject, this);
@@ -177,6 +180,13 @@ function create() {
             makeWall(blockHalfSize, i);
             makeWall(width - blockHalfSize, i);
         }
+        
+        player_start = game.add.sprite(blockFullSize + blockQuarterSize, height - blockFullSize - blockQuarterSize, 'player');
+        player_start.anchor.set(.5, .5);
+        player_start.inputEnabled = true;
+        player_start.events.onInputDown.add(deleteObject, this);
+        player_start.events.onInputUp.add(inputUp, this);
+        player_start.input.boundsRect = bounds;
     }
 
     // Buttons for adding objects to canvas
@@ -211,6 +221,8 @@ function create() {
         exits.children.forEach(function(obj) {
             result += 'exit,' + obj.position.x + ',' + obj.position.y + '\n'
         });
+        
+        result += 'player,' + player_start.position.x + ',' + player_start.position.y + '\n';
         
         $(this).hide();
         $('.firstSection').remove();
@@ -331,7 +343,9 @@ function deleteObject(obj) {
 	    lava_pools.remove(obj);
 	    gravObj_ons.remove(obj);
         gravObj_offs.remove(obj);
-        obj.kill();
+        if (obj !== player_start) {
+            obj.kill();
+        }
     }
     
     clickedObj = obj;

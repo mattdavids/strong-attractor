@@ -26,6 +26,8 @@ let exits;
 let walls;
 let gravObjects;
 let lava_pools;
+let player_startX;
+let player_startY;
 
 let cursor;
 let levels;
@@ -167,12 +169,17 @@ function loadLevel(){
                 exits.add(exit);
                 exit.body.immovable = true;
                 break;
+            case 'player':
+                player_startX = objectX;
+                player_startY = objectY;
+                break;
             default:
                 break;
         }
     }
 
-    player = game.add.sprite(50, bounds[1] - 100, 'player');
+    player = game.add.sprite(player_startX, player_startY, 'player');
+    player.anchor.set(.5, .5)
     player.body.gravity.y = gravCoef / 60;
     game.camera.follow(player);
 }
@@ -287,7 +294,8 @@ function restart() {
     if (player != undefined)
         player.kill();
     let gheight = game.world.bounds.height;
-    player = game.add.sprite(50, gheight - 100, 'player');
+    player = game.add.sprite(player_startX, player_startY, 'player');
+    player.anchor.set(.5, .5)
     player.body.gravity.y = gravCoef / 60;
     game.camera.follow(player);
 

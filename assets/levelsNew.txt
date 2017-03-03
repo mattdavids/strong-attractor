@@ -23,7 +23,8 @@ lava,575,384
 lava,604,384
 lava,634,384
 gravObj_on,283,18
-exit,755,340;
+exit,755,340
+player,37,350;
 810,420
 wall,0,15
 wall,0,385
@@ -122,7 +123,8 @@ lava,448,384
 lava,478,384
 lava,509,384
 gravObj_on,405,47
-exit,755,340;
+exit,755,340
+player,37,350;
 810,420
 wall,0,15
 wall,0,385
@@ -219,7 +221,8 @@ lava,486,384
 lava,517,384
 lava,539,384
 gravObj_on,401,46
-exit,755,340;
+exit,755,340
+player,37,350;
 810,420
 wall,0,15
 wall,0,385
@@ -316,7 +319,8 @@ lava,509,384
 gravObj_off,105,47
 gravObj_off,699,47
 gravObj_on,404,47
-exit,755,340;
+exit,755,340
+player,37,350;
 810,420
 wall,0,15
 wall,0,385
@@ -533,7 +537,8 @@ lava,540,385.0000000008604
 gravObj_off,105.99576241183638,46
 gravObj_off,692.0000012415451,46
 gravObj_on,420.9999999999964,46
-exit,755,340;
+exit,755,340
+player,37,350;
 810,420
 wall,0,15
 wall,0,385
@@ -630,7 +635,8 @@ lava,510,386.0000000000955
 gravObj_off,102.99999997377789,46
 gravObj_off,689.0000000000107,46
 gravObj_on,400,46
-exit,755,340;
+exit,755,340
+player,37,350;
 810,840
 wall,15,15
 wall,15,825
@@ -862,7 +868,8 @@ gravObj_off,285,495
 gravObj_off,705,435
 gravObj_off,285,255.00000000000003
 gravObj_off,495,45
-exit,765,150;
+exit,765,150
+player,37,790;
 900,900
 wall,825,45
 wall,795,45
@@ -997,3 +1004,4 @@ gravObj_off,885,885
 gravObj_off,855,885
 gravObj_off,825,885
 exit,765,150
+player,37,850;
