@@ -153,10 +153,10 @@ function loadLevel(){
                 wall.anchor.set(.5,.5);
                 break;
             case 'gravObj_off':
-                initializeGravObj(objectX, objectY, false);
+                initializeGravObj(objectX, objectY, parseFloat(objectInfo[3]), parseFloat(objectInfo[4]), false);
                 break;
             case 'gravObj_on':
-                initializeGravObj(objectX, objectY, true);
+                initializeGravObj(objectX, objectY, parseFloat(objectInfo[3]), parseFloat(objectInfo[4]), true);
                 break;
             case 'shocker':
                 let shocker = game.add.sprite(objectX, objectY, objectName);
@@ -235,10 +235,10 @@ function update() {
 
     // Adjust attraction of clicked object
     if (game.input.activePointer.leftButton.isDown && clickedObj != null) {
-        clickedObj.gravWeight = Math.min(gravObjAttractionMax, clickedObj.gravWeight + 5000)
+        clickedObj.gravWeight = Math.min(clickedObj.gravMax, clickedObj.gravWeight + 5000)
     }
     if (game.input.activePointer.rightButton.isDown && clickedObj != null) {
-        clickedObj.gravWeight = Math.max(gravObjAttractionMin, clickedObj.gravWeight - 5000)
+        clickedObj.gravWeight = Math.max(clickedObj.gravMin, clickedObj.gravWeight - 5000)
     }
     
     
@@ -303,12 +303,14 @@ function restart() {
     // Reset any pick-ups or similar here
 }
 
-function initializeGravObj(x, y, gravOn) {
+function initializeGravObj(x, y, gravMin, gravMax, gravOn) {
     let gravObj = game.add.sprite(x, y, 'gravObj');
 
     gravObj.anchor.set(.5, .5);
     gravObj.gravOn = true ;
-    gravObj.gravWeight = gravCoef * gravOn;
+    gravObj.gravWeight = ((gravMin + gravMax)/2) * gravOn;
+    gravObj.gravMin = gravMin;
+    gravObj.gravMax = gravMax;
     gravObjects.add(gravObj);
     gravObj.body.immovable = true;
     gravObj.inputEnabled = true;

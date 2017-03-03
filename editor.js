@@ -1,3 +1,5 @@
+const gravCoef = 150000;
+
 let width;
 let height;
 
@@ -141,11 +143,15 @@ function create() {
                     break;
                 case 'gravObj_off':
                     obj = game.add.sprite(objectX, objectY, 'gravObj');
+                    obj.gravMin = parseFloat(objectInfo[3]);
+                    obj.gravMax = parseFloat(objectInfo[4]);
                     gravObj_offs.add(obj);
                     obj.tint = 0xffffff;
                     break;
                 case 'gravObj_on':
                     obj = game.add.sprite(objectX, objectY, 'gravObj');
+                    obj.gravMin = parseFloat(objectInfo[3]);
+                    obj.gravMax = parseFloat(objectInfo[4]);
                     gravObj_ons.add(obj);
                     obj.tint = 0x351777;
                     break;
@@ -213,11 +219,11 @@ function create() {
         }
         for (let i = 0; i < gravObj_offs.children.length; i++) {
             let obj = gravObj_offs.children[i];
-            result += 'gravObj_off,' + obj.position.x + ',' + obj.position.y + '\n'
+            result += 'gravObj_off,' + obj.position.x + ',' + obj.position.y + ',' + obj.gravMin + ',' + obj.gravMax + '\n'
         }
         for (let i = 0; i < gravObj_ons.children.length; i++) {
             let obj = gravObj_ons.children[i];
-            result += 'gravObj_on,' + obj.position.x + ',' + obj.position.y + '\n'
+            result += 'gravObj_on,' + obj.position.x + ',' + obj.position.y + ',' + obj.gravMin + ',' + obj.gravMax + '\n'
         }
         
         exits.children.forEach(function(obj) {
@@ -289,9 +295,13 @@ function initializeObj(objectName) {
             break;
         case 'gravObj_off':
             gravObj_offs.add(obj);
+            obj.gravMin = parseInt($('#gravMin')[0].value);
+            obj.gravMax = parseInt($('#gravMax')[0].value);
             break;
         case 'gravObj_on':
             gravObj_ons.add(obj);
+            obj.gravMin = parseInt($('#gravMin')[0].value);
+            obj.gravMax = parseInt($('#gravMax')[0].value);
             break;
         case 'shocker':
             shockers.add(obj);
