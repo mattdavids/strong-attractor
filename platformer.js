@@ -25,7 +25,7 @@ let exit;
 let exits;
 let walls;
 let gravObjects;
-let lava_pools;
+let shockers;
 
 let cursor;
 let levels;
@@ -41,7 +41,9 @@ function preload() {
     game.load.image('exit', 'assets/exit.png');
     game.load.image('wall', 'assets/bricks.png');
     game.load.image('gravObj', 'assets/gravObj.png');
-    game.load.image('lava', 'assets/lava.png');
+
+    game.load.spritesheet('shocker', 'assets/electricity_sprites.png', 30, 30, 3);
+
     //game.load.image('slider', 'assets/slider.png');
     //game.load.text('levelsExternal', 'assets/levels.txt');
     game.load.text('levelsNew', 'assets/levelsNew.txt');
@@ -69,7 +71,7 @@ function create() {
 
     walls = game.add.group();
     gravObjects = game.add.group();
-    lava_pools = game.add.group();
+    shockers = game.add.group();
     exits = game.add.group();
     
     loadLevelsFromFile();
@@ -105,7 +107,7 @@ function loadLevelsFromFile(){
 
 function clearLevel(){
 	walls.removeAll(true);
-	lava_pools.removeAll(true);
+	shockers.removeAll(true);
 	gravObjects.removeAll(true);
     exits.removeAll(true);
 
@@ -156,10 +158,12 @@ function loadLevel(){
             case 'gravObj_on':
                 initializeGravObj(objectX, objectY, true);
                 break;
-            case 'lava':
-                let lava = game.add.sprite(objectX, objectY, objectName);
-                lava.anchor.set(.5, .5);
-                lava_pools.add(lava);
+            case 'shocker':
+                let shocker = game.add.sprite(objectX, objectY, objectName);
+                shocker.anchor.set(.5, .5);
+                shockers.add(shocker);
+                shocker.animations.add('crackle');
+                shocker.animations.play('crackle', 10, true);
                 break;
             case 'exit':
                 let exit = game.add.sprite(objectX, objectY, objectName);
@@ -181,7 +185,7 @@ function update() {
     game.physics.arcade.collide(player, walls);
     game.physics.arcade.collide(player, gravObjects);
 
-    game.physics.arcade.overlap(player, lava_pools, restart, null, this);
+    game.physics.arcade.overlap(player, shockers, restart, null, this);
     game.physics.arcade.overlap(player, exits, function() {
         currentLevelNum ++;
         loadLevel();
