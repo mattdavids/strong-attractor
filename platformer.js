@@ -276,16 +276,15 @@ function render() {
 function drawGravObjCircle(gravObj) {
     // these are heuristic constants which look okay
     if (gravObj.gravOn) {
-        let radius = gravObj.gravWeight / gravCoef * 150;
-        let subAmount = gravObjAttractionMax / gravCoef * 25;
-        let alpha = 0.2;
+        let radius = (gravObj.gravWeight / gravCoef) * 500;
+        let subAmount = (gravObjAttractionMax / gravCoef) * 25;
+        let alpha = 0.1;
         let fillColor = gravObj.gravOn ? 0x351777 : 0x808080;
         while (radius > 0) {
             graphics.beginFill(fillColor, alpha);
             graphics.drawCircle(gravObj.x, gravObj.y, radius);
             graphics.endFill();
             radius -= subAmount;
-            alpha += 0.7 * alpha * (1 - alpha); // logistically increase alpha
         }
     }
 }
