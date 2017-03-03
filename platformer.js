@@ -51,7 +51,7 @@ function preload() {
 }
 
 function create() {
-    game.stage.backgroundColor = '#908fa3';
+    game.stage.backgroundColor = '#faebd7';
     game.physics.startSystem(Phaser.Physics.ARCADE);
     game.world.enableBody = true;
     game.canvas.oncontextmenu = function (e) {
