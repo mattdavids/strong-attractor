@@ -1004,4 +1004,4 @@ gravObj_off,885,885
 gravObj_off,855,885
 gravObj_off,825,885
 exit,765,150
-player,37,850;
+player,37,850
