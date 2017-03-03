@@ -29,7 +29,6 @@ let shockers;
 
 let player_startX;
 let player_startY;
-let cursor;
 let levels;
 let currentLevelNum;
 let graphics;
@@ -59,7 +58,6 @@ function create() {
         e.preventDefault(); 
     }
 
-    cursor = game.input.keyboard.createCursorKeys();
     pauseBtn = game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
     pauseBtn.onDown.add(function() {
         if (game.physics.arcade.isPaused) {
@@ -200,13 +198,13 @@ function update() {
     
     
     if (! game.physics.arcade.isPaused){
-        if (cursor.left.isDown) {
+        if (game.input.keyboard.isDown(Phaser.KeyCode.A)) {
             if (player.body.touching.down) {
                 player.body.velocity.x = Math.max(-maxHorizontalVelocity, player.body.velocity.x - groundAcceleration);
             } else {
                 player.body.velocity.x -= airAcceleration;
             }
-        } else if (cursor.right.isDown) {
+        } else if (game.input.keyboard.isDown(Phaser.KeyCode.D)) {
             if (player.body.touching.down) {
                 player.body.velocity.x = Math.min(maxHorizontalVelocity, player.body.velocity.x + groundAcceleration);
             } else {
@@ -218,13 +216,13 @@ function update() {
             }
         }
 
-        if (cursor.up.isDown && player.body.touching.down) {
+        if (game.input.keyboard.isDown(Phaser.KeyCode.W) && player.body.touching.down) {
             player.body.velocity.y = -jumpVelocity;
             jumpCount = 0;
         }
         //Let user jump higher if they hold the button down
         if (jumpCount < jumpFrames) {
-            if (cursor.up.isDown) {
+            if (game.input.keyboard.isDown(Phaser.KeyCode.W)) {
                 player.body.velocity.y -= jumpVelocity/(jumpFrames - 3)
             } else {
                 jumpCount = jumpFrames;
