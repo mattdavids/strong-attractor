@@ -84,7 +84,7 @@ function preload() {
 }
 
 function create() {
-    game.stage.backgroundColor = '#dbdbdb';
+    game.stage.backgroundColor = '#6970db';
     game.physics.startSystem(Phaser.Physics.ARCADE);
     game.world.enableBody = true;
     
@@ -98,7 +98,7 @@ function create() {
 
 
     // Light gridlines at halfway point
-    graphic.lineStyle(1, Phaser.Color.hexToRGB("#bcbcbc"), 1);
+    graphic.lineStyle(1, Phaser.Color.hexToRGB("#939dff"), 1);
     for(let x=blockHalfSize; x<width; x+=blockFullSize){
         graphic.moveTo(x,0);
         graphic.lineTo(x,height);
@@ -108,7 +108,7 @@ function create() {
         graphic.lineTo(width, y);
     }
     // Heavy gridlines at full point
-    graphic.lineStyle(1, Phaser.Color.hexToRGB("#444"), 1);
+    graphic.lineStyle(1, Phaser.Color.hexToRGB("#f7f7f7"), 1);
     for(let x=0; x<width; x+=blockFullSize){
         graphic.moveTo(x,0);
         graphic.lineTo(x,height);
