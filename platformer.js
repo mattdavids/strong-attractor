@@ -326,7 +326,21 @@ function toggleGravityAll() {
 }
 
 function startGravityClick(gravObj) {
+    
+    if (game.input.activePointer.rightButton.isDown){
+        if (! gravObj.secondClick) {
+            gravObj.secondClick = true;
+            game.time.events.add(300, function() {
+                gravObj.secondClick = false;
+            }, this);
 
+        } else{
+            gravObj.gravWeight = 0;
+        }
+    }
+    
+    
+    
     clickedObj = gravObj;
 }
 
