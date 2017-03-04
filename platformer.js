@@ -21,7 +21,7 @@ const gravObjStartColor = 0xffffff;
 const gravObjEndColor = 0x351777;
 
 let player;
-let exit;
+let coins;
 let exits;
 let walls;
 let gravObjects;
@@ -31,6 +31,7 @@ let player_startX;
 let player_startY;
 let levels;
 let currentLevelNum;
+let currentScore;
 let graphics;
 let clickedObj;
 let jumpCount;
@@ -39,6 +40,7 @@ let pauseText;
 
 function preload() {
     game.load.image('player', 'assets/player.png');
+    game.load.image('coin', 'assets/coin.png');
     game.load.image('exit', 'assets/exit.png');
     game.load.image('wall', 'assets/bricks_gray.png');
     game.load.image('gravObj', 'assets/gravObj.png');
@@ -73,11 +75,13 @@ function create() {
     gravObjects = game.add.group();
     shockers = game.add.group();
     exits = game.add.group();
+    coins = game.add.group();
     
     loadLevelsFromFile();
     
     let selector = $('#level-select');
     currentLevelNum = startingLevelNum;
+    currentScore = 0;
 
     graphics = game.add.graphics();
 
@@ -110,13 +114,11 @@ function clearLevel(){
 	shockers.removeAll(true);
 	gravObjects.removeAll(true);
     exits.removeAll(true);
+    coins.removeAll(true);
 
 	// player is undefined on first run
 	if (player != undefined)
 	    player.kill();
-    // exit is undefined on first run
-    if (exit != undefined)
-        exit.kill();
 }
 
 function selectLevel(){
@@ -171,6 +173,10 @@ function loadLevel(){
                 exits.add(exit);
                 exit.body.immovable = true;
                 break;
+            case 'coin':
+                let coin = game.add.sprite(objectX, objectY, objectName);
+                coin.anchor.set(.5,.5);
+                coins.add(coin);
             case 'player':
                 player_startX = objectX;
                 player_startY = objectY;
@@ -195,6 +201,7 @@ function update() {
         currentLevelNum ++;
         loadLevel();
     }, null);
+    game.physics.arcade.overlap(player, coins, coinCollisonHandler, null, this);
     
     
     if (! game.physics.arcade.isPaused){
@@ -266,6 +273,13 @@ function update() {
     player.body.acceleration.y = -yGravCoef;
 }
 
+function coinCollisonHandler(player, coin) {
+    currentScore++;
+    if (coin.frame == 17) {
+        coin.kill();
+    }
+}
+
 function render() {
     graphics.clear();
     for (let i = 0; i < gravObjects.children.length; i++) {
@@ -292,6 +306,7 @@ function drawGravObjCircle(gravObj) {
 function restart() {
 
     // Reload player
+    currentScore = 0;
     if (player != undefined)
         player.kill();
     let gheight = game.world.bounds.height;
