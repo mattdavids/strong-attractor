@@ -7,6 +7,7 @@ let game;
 let graphic;
 let bounds;
 let walls;
+let coins;
 let shockers;
 let gravObj_offs;
 let gravObj_ons;
@@ -16,10 +17,8 @@ let gravObj_off;
 let gravObj_on;
 let level;
 let player_start;
-let currentSelectedObj;
 
 let zoom = false;
-let clicked = false;
 
 let blockFullSize=30;
 let blockHalfSize=blockFullSize/2;
@@ -81,6 +80,7 @@ $('#start').click(function() {
 
 function preload() {
     game.load.image('wall', 'assets/bricks_gray.png');
+    game.load.image('coin', 'assets/coin.png');
     game.load.image('gravObj', 'assets/gravObj.png');
     game.load.spritesheet('shocker', 'assets/electricity_sprites.png', 30, 30, 3);
     game.load.image('exit', 'assets/exit.png');
@@ -123,6 +123,7 @@ function create() {
     }
     
     walls = game.add.group();
+    coins = game.add.group();
     gravObj_offs = game.add.group();
     gravObj_ons = game.add.group();
     shockers = game.add.group();
@@ -167,6 +168,10 @@ function create() {
                     obj = game.add.sprite(objectX, objectY, objectName);
                     exits.add(obj);
                     break;
+                case 'coin':
+                    obj = game.add.sprite(objectX, objectY, objectName);
+                    coins.add(obj);
+                    break;
                 case 'player':
                     player_start = game.add.sprite(objectX, objectY, objectName);
                     obj = player_start;
@@ -203,14 +208,7 @@ function create() {
     let adders = $('.adders');
     adders.show();
     adders.click(function() {
-        currentSelectedObj = $(this).attr('id');
-        if ($(this).attr('class') != 'adders current') {
-            adders.removeClass('current');
-            $(this).addClass('current');
-        } else {
-            adders.removeClass('current');
-            currentSelectedObj = null;
-        }
+        initializeObj($(this).attr('id'));
     });           
     
     // Display string representation of canvas
@@ -237,6 +235,10 @@ function create() {
         
         exits.children.forEach(function(obj) {
             result += 'exit,' + obj.position.x + ',' + obj.position.y + '\n'
+        });
+        
+        coins.children.forEach(function(obj) {
+            result += 'coin,' + obj.position.x + ',' + obj.position.y + '\n'
         });
         
         result += 'player,' + player_start.position.x + ',' + player_start.position.y + '\n';
@@ -272,25 +274,19 @@ function initializeObj(objectName) {
 
     // Default spawn at center of area
     // Change this if spawning on click / from mouse position
-    let spawnPosX = game.input.activePointer.position.x;
-    let spawnPosY = game.input.activePointer.position.y;
+    let spawnPosX = width/2;
+    let spawnPosY = height/2;
 
     // Move spawn positions to fit major gridlines
-    //spawnPosX -= spawnPosX%blockFullSize + blockHalfSize;
-    //spawnPosY -= spawnPosY%blockFullSize + blockHalfSize;
+    spawnPosX -= spawnPosX%blockFullSize + blockHalfSize;
+    spawnPosY -= spawnPosY%blockFullSize + blockHalfSize;
 
     if (objectName == 'gravObj_off') {
         obj = game.add.sprite(spawnPosX, spawnPosY, 'gravObj');
         obj.tint = 0xffffff;
-        gravObj_offs.add(obj);
-        obj.gravMin = parseInt($('#gravMin')[0].value);
-        obj.gravMax = parseInt($('#gravMax')[0].value);
     } else if (objectName == 'gravObj_on') {
         obj = game.add.sprite(spawnPosX, spawnPosY, 'gravObj');
         obj.tint = 0x351777;
-        gravObj_ons.add(obj);
-        obj.gravMin = parseInt($('#gravMin')[0].value);
-        obj.gravMax = parseInt($('#gravMax')[0].value);
     } else {
         obj = game.add.sprite(spawnPosX, spawnPosY, objectName);
     }
@@ -303,11 +299,20 @@ function initializeObj(objectName) {
     obj.events.onInputUp.add(inputUp, this);
     
     obj.input.boundsRect = bounds;
-    inputUp(obj);
     
     switch(objectName){
         case 'wall':
             walls.add(obj);
+            break;
+        case 'gravObj_off':
+            gravObj_offs.add(obj);
+            obj.gravMin = parseInt($('#gravMin')[0].value);
+            obj.gravMax = parseInt($('#gravMax')[0].value);
+            break;
+        case 'gravObj_on':
+            gravObj_ons.add(obj);
+            obj.gravMin = parseInt($('#gravMin')[0].value);
+            obj.gravMax = parseInt($('#gravMax')[0].value);
             break;
         case 'shocker':
             shockers.add(obj);
@@ -316,6 +321,9 @@ function initializeObj(objectName) {
             break;
         case 'exit':
             exits.add(obj);
+            break;
+        case 'coin':
+            coins.add(obj);
             break;
         default:
             break;
@@ -359,7 +367,6 @@ function makeWall(x, y){
 
 function deleteObject(obj) {
     obj.body.immovable = false;
-    clickedObj = obj;
     if (game.input.activePointer.rightButton.isDown) {
         walls.remove(obj);
 	    shockers.remove(obj);
@@ -368,8 +375,9 @@ function deleteObject(obj) {
         if (obj !== player_start) {
             obj.kill();
         }
-        clickedObj = null;
     }
+    
+    clickedObj = obj;
     
 }
 
@@ -391,14 +399,4 @@ function update() {
         clickedObj.body.velocity.x = 20 * (game.input.activePointer.position.x - clickedObj.position.x)
         clickedObj.body.velocity.y = 20 * (game.input.activePointer.position.y - clickedObj.position.y)
     }
-    
-    if (game.input.activePointer.leftButton.isDown && clickedObj == null && ! clicked) {
-        initializeObj(currentSelectedObj);
-        clicked = true;
-    }
-    
-    if (game.input.activePointer.leftButton.isUp && clickedObj == null) {
-        clicked = false;
-    }
-    
 }
