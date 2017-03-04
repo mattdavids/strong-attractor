@@ -17,9 +17,10 @@ let gravObj_on;
 let level;
 let player_start;
 let currentSelectedObj;
+let mousePosition;
 
 let zoom = false;
-let clicked = false;
+let leftClicked = false;
 
 let blockFullSize=30;
 let blockHalfSize=blockFullSize/2;
@@ -264,7 +265,6 @@ function create() {
         zoom = ! zoom;
     });
     
-    
 }
 
 function initializeObj(objectName) {
@@ -392,13 +392,14 @@ function update() {
         clickedObj.body.velocity.y = 20 * (game.input.activePointer.position.y - clickedObj.position.y)
     }
     
-    if (game.input.activePointer.leftButton.isDown && clickedObj == null && ! clicked) {
+    if ((game.input.activePointer.leftButton.isDown && clickedObj == null && ! leftClicked) || (mousePosition != null && (Math.abs(game.input.activePointer.position.x - mousePosition.x) > 28 || Math.abs(game.input.activePointer.position.y - mousePosition.y) > 28))) {
         initializeObj(currentSelectedObj);
-        clicked = true;
+        leftClicked = true;
+        mousePosition = new Phaser.Point(game.input.activePointer.position.x, game.input.activePointer.position.y);
     }
     
     if (game.input.activePointer.leftButton.isUp && clickedObj == null) {
-        clicked = false;
+        leftClicked = false;
+        mousePosition = null;
     }
-    
 }
