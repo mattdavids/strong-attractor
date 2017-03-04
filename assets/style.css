@@ -1,0 +1,8 @@
+.current {
+    background-color: steelblue;
+    color: white;
+}
+
+input[type="button"] {
+    border-width: 0px;
+}
