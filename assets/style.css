@@ -6,3 +6,16 @@
 input[type="button"] {
     border-width: 0px;
 }
+
+.list {
+    display: none;
+}
+
+.show {
+    display: block;
+    margin-left: 225px;
+}
+
+.show .adders {
+    display: block;
+}
