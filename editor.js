@@ -370,6 +370,7 @@ function deleteObject(obj) {
     if (game.input.activePointer.rightButton.isDown) {
         walls.remove(obj);
 	    shockers.remove(obj);
+        coins.remove(obj);
 	    gravObj_ons.remove(obj);
         gravObj_offs.remove(obj);
         if (obj !== player_start) {
