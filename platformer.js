@@ -47,7 +47,8 @@ function preload() {
 
     //game.load.image('slider', 'assets/slider.png');
     //game.load.text('levelsExternal', 'assets/levels.txt');
-    game.load.text('levelsNew', 'assets/levelsNew.txt');
+    game.load.text('levels', 'assets/levelsNew.txt');
+    //game.load.text('levels', 'assets/tutorialLevels.txt')
 }
 
 function create() {
@@ -98,7 +99,7 @@ function create() {
 
 function loadLevelsFromFile(){
     
-    let levelsAll = game.cache.getText('levelsNew').split(';');
+    let levelsAll = game.cache.getText('levels').split(';');
     levels = [levelsAll.length];
     for (let i = 0; i < levelsAll.length; i++) {
         levels[i] = levelsAll[i].split('\n')
@@ -131,7 +132,7 @@ function loadLevel(){
     
     let level = levels[currentLevelNum];
     if (level == undefined) {
-        level = ['', '810,420','gravObj_on,405,210','wall,795,405','wall,765,405','wall,735,405','wall,735,375','wall,735,345', 'wall,765,345','wall,795,345', 'wall,795,375','exit,705,390', 'player,765,375'];
+        level = ['', '810,420','gravObj_flux,405,210, 0, 300000','wall,795,405','wall,765,405','wall,735,405','wall,735,375','wall,735,345', 'wall,765,345','wall,795,345', 'wall,795,375','exit,705,390', 'player,765,375'];
         console.log("Attempted to load undefined level");
     }
     
@@ -153,10 +154,13 @@ function loadLevel(){
                 wall.anchor.set(.5,.5);
                 break;
             case 'gravObj_off':
-                initializeGravObj(objectX, objectY, parseFloat(objectInfo[3]), parseFloat(objectInfo[4]), false);
+                initializeGravObj(objectX, objectY, parseFloat(objectInfo[3]), parseFloat(objectInfo[4]), false, false);
                 break;
             case 'gravObj_on':
-                initializeGravObj(objectX, objectY, parseFloat(objectInfo[3]), parseFloat(objectInfo[4]), true);
+                initializeGravObj(objectX, objectY, parseFloat(objectInfo[3]), parseFloat(objectInfo[4]), true, false);
+                break;
+            case 'gravObj_flux':
+                initializeGravObj(objectX, objectY, parseFloat(objectInfo[3]), parseFloat(objectInfo[4]), true, true);
                 break;
             case 'shocker':
                 let shocker = game.add.sprite(objectX, objectY, objectName);
@@ -259,6 +263,13 @@ function update() {
             yGravCoef += gravObj.gravWeight * diff.y / r;
         }
         
+        if (gravObj.flux) {
+            gravObj.gravWeight += 2000 * gravObj.fluxConst;
+            if (gravObj.gravWeight >= gravObj.gravMax || gravObj.gravWeight <= gravObj.gravMin) {
+                gravObj.fluxConst *= -1;
+            }
+        }
+        
         //displays weight of gravity objects
         //game.debug.text(obj.gravWeight/1000, obj.position.x - 15, obj.position.y - 15);
     }
@@ -303,19 +314,24 @@ function restart() {
     // Reset any pick-ups or similar here
 }
 
-function initializeGravObj(x, y, gravMin, gravMax, gravOn) {
+function initializeGravObj(x, y, gravMin, gravMax, gravOn, flux) {
     let gravObj = game.add.sprite(x, y, 'gravObj');
 
     gravObj.anchor.set(.5, .5);
     gravObj.gravOn = true ;
-    gravObj.gravWeight = ((gravMin + gravMax)/2) * gravOn;
+    gravObj.gravWeight = ((gravMin + gravMax)/2) * gravOn * (1 - flux);
     gravObj.gravMin = gravMin;
     gravObj.gravMax = gravMax;
     gravObjects.add(gravObj);
     gravObj.body.immovable = true;
     gravObj.inputEnabled = true;
-    gravObj.events.onInputDown.add(startGravityClick, this);
-    gravObj.events.onInputUp.add(endGravityClick, this);
+    gravObj.flux = flux;
+    if (! flux) {
+        gravObj.events.onInputDown.add(startGravityClick, this);
+        gravObj.events.onInputUp.add(endGravityClick, this);
+    } else {
+        gravObj.fluxConst = 1;
+    }
     gravObj.tint = 0x351777;
 }
 

@@ -10,6 +10,7 @@ let walls;
 let shockers;
 let gravObj_offs;
 let gravObj_ons;
+let gravObj_fluxes;
 let clickedObj;
 let gravObj;
 let gravObj_off;
@@ -126,6 +127,7 @@ function create() {
     walls = game.add.group();
     gravObj_offs = game.add.group();
     gravObj_ons = game.add.group();
+    gravObj_fluxes = game.add.group();
     shockers = game.add.group();
     exits = game.add.group();
 
@@ -157,6 +159,13 @@ function create() {
                     obj.gravMax = parseFloat(objectInfo[4]);
                     gravObj_ons.add(obj);
                     obj.tint = 0x351777;
+                    break;
+                case 'gravObj_flux':
+                    obj = game.add.sprite(objectX, objectY, 'gravObj');
+                    obj.gravMin = parseFloat(objectInfo[3]);
+                    obj.gravMax = parseFloat(objectInfo[4]);
+                    gravObj_fluxes.add(obj);
+                    obj.tint = 0xb0e0e6;
                     break;
                 case 'shocker':
                     obj = game.add.sprite(objectX, objectY, objectName);
@@ -199,7 +208,7 @@ function create() {
         player_start.events.onInputUp.add(inputUp, this);
         player_start.input.boundsRect = bounds;
     }
-
+    
     // Buttons for adding objects to canvas
     let adders = $('.adders');
     adders.show();
@@ -211,6 +220,14 @@ function create() {
         } else {
             adders.removeClass('current');
             currentSelectedObj = null;
+        }
+        
+        if (currentSelectedObj == 'gravObj_on' || currentSelectedObj == 'gravObj_flux' || currentSelectedObj == 'gravObj_move') {
+            $(".list").addClass('show');
+            $(".break").hide();
+        } else {
+            $(".list").removeClass('show');
+            $(".break").show();
         }
     });           
     
@@ -235,6 +252,10 @@ function create() {
             let obj = gravObj_ons.children[i];
             result += 'gravObj_on,' + obj.position.x + ',' + obj.position.y + ',' + obj.gravMin + ',' + obj.gravMax + '\n'
         }
+        
+        gravObj_fluxes.forEach(function(obj) {
+            result += 'gravObj_flux,' + obj.position.x + ',' + obj.position.y + ',' + obj.gravMin + ',' + obj.gravMax + '\n'
+        });
         
         exits.children.forEach(function(obj) {
             result += 'exit,' + obj.position.x + ',' + obj.position.y + '\n'
@@ -289,6 +310,12 @@ function initializeObj(objectName) {
         obj = game.add.sprite(spawnPosX, spawnPosY, 'gravObj');
         obj.tint = 0x351777;
         gravObj_ons.add(obj);
+        obj.gravMin = parseInt($('#gravMin')[0].value);
+        obj.gravMax = parseInt($('#gravMax')[0].value);
+    } else if (objectName == 'gravObj_flux') {
+        obj = game.add.sprite(spawnPosX, spawnPosY, 'gravObj');
+        obj.tint = 0xb0e0e6;
+        gravObj_fluxes.add(obj);
         obj.gravMin = parseInt($('#gravMin')[0].value);
         obj.gravMax = parseInt($('#gravMax')[0].value);
     } else {
