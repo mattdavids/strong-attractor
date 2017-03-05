@@ -273,7 +273,7 @@ function create() {
     $('#zoom').click(function() {
         if (! zoom) {
             game.scale.maxWidth = window.innerWidth - 15;
-            game.scale.maxHeight = window.innerHeight - 100;
+            game.scale.maxHeight = window.innerHeight - 170;
             game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
             $(this)[0].value = 'Zoom In';
             
@@ -392,6 +392,8 @@ function deleteObject(obj) {
 	    shockers.remove(obj);
 	    gravObj_ons.remove(obj);
         gravObj_offs.remove(obj);
+        gravObj_fluxes.remove(obj);
+        exits.remove(obj);
         if (obj !== player_start) {
             obj.kill();
         }
