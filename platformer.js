@@ -154,13 +154,19 @@ function loadLevel(){
                 wall.anchor.set(.5,.5);
                 break;
             case 'gravObj_off':
-                initializeGravObj(objectX, objectY, parseFloat(objectInfo[3]), parseFloat(objectInfo[4]), false, false);
+                // x Location, y location, gravMin, gravMax, on?, flux?, moving?
+                initializeGravObj(objectX, objectY, parseFloat(objectInfo[3]), parseFloat(objectInfo[4]), false, false, false);
                 break;
             case 'gravObj_on':
-                initializeGravObj(objectX, objectY, parseFloat(objectInfo[3]), parseFloat(objectInfo[4]), true, false);
+                initializeGravObj(objectX, objectY, parseFloat(objectInfo[3]), parseFloat(objectInfo[4]), true, false, false);
                 break;
             case 'gravObj_flux':
-                initializeGravObj(objectX, objectY, parseFloat(objectInfo[3]), parseFloat(objectInfo[4]), true, true);
+                initializeGravObj(objectX, objectY, parseFloat(objectInfo[3]), parseFloat(objectInfo[4]), true, true, false);
+                break;
+            case 'gravObj_move':
+                //list in format x1#y1-x2#y2-x3#y3...
+                let movementList = objectInfo[5].split('-');
+                initializeGravObj(objectX, objectY, parseFloat(objectInfo[3]), parseFloat(objectInfo[4]), true, false, true, movementList);
                 break;
             case 'shocker':
                 let shocker = game.add.sprite(objectX, objectY, objectName);
@@ -270,6 +276,21 @@ function update() {
             }
         }
         
+        if (gravObj.moving) {
+            let loc = gravObj.body.position;
+            let movementList = gravObj.movementList;
+            let movementIndex = gravObj.movementIndex;
+            let movingToX = movementList[movementIndex].split('#')[0] - 15;
+            let movingToY = movementList[movementIndex].split('#')[1] - 15;
+            
+            if (parseInt(loc.x) == movingToX && parseInt(loc.y) == movingToY) {
+                gravObj.movementIndex = (movementIndex + 1) % movementList.length;
+            } else {
+                gravObj.body.velocity.x = (loc.x < movingToX) * 30 - (loc.x > movingToX) * 30;
+                gravObj.body.velocity.y = (loc.y < movingToY) * 30 - (loc.y > movingToY) * 30;                
+            }
+        }
+        
         //displays weight of gravity objects
         //game.debug.text(obj.gravWeight/1000, obj.position.x - 15, obj.position.y - 15);
     }
@@ -314,9 +335,8 @@ function restart() {
     // Reset any pick-ups or similar here
 }
 
-function initializeGravObj(x, y, gravMin, gravMax, gravOn, flux) {
+function initializeGravObj(x, y, gravMin, gravMax, gravOn, flux, moving, movementList) {
     let gravObj = game.add.sprite(x, y, 'gravObj');
-
     gravObj.anchor.set(.5, .5);
     gravObj.gravOn = true ;
     gravObj.gravWeight = ((gravMin + gravMax)/2) * gravOn * (1 - flux);
@@ -326,10 +346,13 @@ function initializeGravObj(x, y, gravMin, gravMax, gravOn, flux) {
     gravObj.body.immovable = true;
     gravObj.inputEnabled = true;
     gravObj.flux = flux;
-    if (! flux) {
+    gravObj.moving = moving;
+    gravObj.movementList = movementList;
+    gravObj.movementIndex = 0;
+    if (! flux && ! moving) {
         gravObj.events.onInputDown.add(startGravityClick, this);
         gravObj.events.onInputUp.add(endGravityClick, this);
-    } else {
+    } else if(flux) {
         gravObj.fluxConst = 1;
     }
     gravObj.tint = 0x351777;
