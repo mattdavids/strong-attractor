@@ -11,6 +11,7 @@ let shockers;
 let gravObj_offs;
 let gravObj_ons;
 let gravObj_fluxes;
+let gravObj_movers;
 let clickedObj;
 let gravObj;
 let gravObj_off;
@@ -22,6 +23,8 @@ let mousePosition;
 
 let zoom = false;
 let leftClicked = false;
+let pathing = false;
+let pathedObj;
 
 let blockFullSize=30;
 let blockHalfSize=blockFullSize/2;
@@ -86,7 +89,8 @@ function preload() {
     game.load.image('gravObj', 'assets/gravObj.png');
     game.load.spritesheet('shocker', 'assets/electricity_sprites.png', 30, 30, 3);
     game.load.image('exit', 'assets/exit.png');
-    game.load.image('player', 'assets/player.png')
+    game.load.image('player', 'assets/player.png');
+    game.load.image('path', 'assets/path.png');
 }
 
 function create() {
@@ -128,6 +132,7 @@ function create() {
     gravObj_offs = game.add.group();
     gravObj_ons = game.add.group();
     gravObj_fluxes = game.add.group();
+    gravObj_movers = game.add.group();
     shockers = game.add.group();
     exits = game.add.group();
 
@@ -167,6 +172,30 @@ function create() {
                     gravObj_fluxes.add(obj);
                     obj.tint = 0xb0e0e6;
                     break;
+                case 'gravObj_move':
+                    obj = game.add.sprite(objectX, objectY, 'gravObj');
+                    obj.gravMin = parseFloat(objectInfo[3]);
+                    obj.gravMax = parseFloat(objectInfo[4]);
+                    gravObj_movers.add(obj);
+                    obj.tint = 0x351777;
+                    obj.movementPathing = game.add.group();
+                    obj.currentNumber = 1;
+                    let movementList = objectInfo[5].split('-');
+                    movementList.splice(1, movementList.length).forEach(function(ele){
+                        let loc = ele.split('#');
+                        let path = game.add.sprite(parseFloat(loc[0]), parseFloat(loc[1]), 'path');
+                        path.anchor.set(.5, .5);
+                        obj.movementPathing.add(path);
+                        path.inputEnabled = true;
+                        path.events.onInputDown.add(deleteObject, this);
+                        path.events.onInputUp.add(inputUp, this);
+                        path.input.boundsRect = bounds;
+                        let num = game.add.text(path.position.x, path.position.y + 3, obj.currentNumber, {fill: "#000", fontSize: '16px'});
+                        num.anchor.set(.5, .5);
+                        obj.currentNumber += 1;
+                        path.number = num;
+                    });
+                    break;                    
                 case 'shocker':
                     obj = game.add.sprite(objectX, objectY, objectName);
                     shockers.add(obj);
@@ -257,6 +286,14 @@ function create() {
             result += 'gravObj_flux,' + obj.position.x + ',' + obj.position.y + ',' + obj.gravMin + ',' + obj.gravMax + '\n'
         });
         
+        gravObj_movers.forEach(function(obj) {
+            result += 'gravObj_move,' + obj.position.x + ',' + obj.position.y + ',' + obj.gravMin + ',' + obj.gravMax + ',' + obj.position.x + '#' + obj.position.y + '-'
+            obj.movementPathing.forEach(function(ele) {
+                result += ele.position.x + '#' + ele.position.y + '-'
+            });
+            result = result.slice(0, -1) + '\n';
+        });
+        
         exits.children.forEach(function(obj) {
             result += 'exit,' + obj.position.x + ',' + obj.position.y + '\n'
         });
@@ -318,6 +355,17 @@ function initializeObj(objectName) {
         gravObj_fluxes.add(obj);
         obj.gravMin = parseInt($('#gravMin')[0].value);
         obj.gravMax = parseInt($('#gravMax')[0].value);
+    } else if (objectName == 'gravObj_move') {
+        obj = game.add.sprite(spawnPosX, spawnPosY, 'gravObj');
+        obj.tint = 0x351777;
+        gravObj_movers.add(obj);
+        obj.gravMin = parseInt($('#gravMin')[0].value);
+        obj.gravMax = parseInt($('#gravMax')[0].value);
+        obj.movementPathing = game.add.group();
+        obj.currentNumber = 1;
+        pathing = true;
+        currentSelectedObj = 'path';
+        pathedObj = obj;
     } else {
         obj = game.add.sprite(spawnPosX, spawnPosY, objectName);
     }
@@ -344,6 +392,13 @@ function initializeObj(objectName) {
         case 'exit':
             exits.add(obj);
             break;
+        case 'path':
+            pathedObj.movementPathing.add(obj);
+            let num = game.add.text(obj.position.x, obj.position.y + 3, pathedObj.currentNumber, {fill: "#000", fontSize: '16px'});
+            num.anchor.set(.5, .5);
+            pathedObj.currentNumber += 1;
+            obj.number = num;
+            break;
         default:
             break;
     }
@@ -363,6 +418,14 @@ function inputUp(obj) {
     if(diff >blockQuarterSize)
         diff -=blockHalfSize;
     obj.y-=diff;
+    
+    // If the object has a number on top of it, keep them together
+    if (obj.number) {
+        obj.number.body.velocity.x = 0;
+        obj.number.body.velocity.y = 0;
+        obj.number.x = obj.x;
+        obj.number.y = obj.y + 3;
+    }
 
     // Only relevant for collision detection, makes object still on collision
     //obj.body.immovable = true;
@@ -393,6 +456,15 @@ function deleteObject(obj) {
 	    gravObj_ons.remove(obj);
         gravObj_offs.remove(obj);
         gravObj_fluxes.remove(obj);
+        gravObj_movers.remove(obj);
+        if (pathedObj) {
+            pathedObj.movementPathing.remove(obj);
+        }
+        if (obj.number) {
+            pathedObj.currentNumber -= 1;
+            obj.number.kill();
+        }
+        
         exits.remove(obj);
         if (obj !== player_start) {
             obj.kill();
@@ -419,9 +491,15 @@ function update() {
     if (game.input.activePointer.leftButton.isDown && clickedObj != null) {
         clickedObj.body.velocity.x = 20 * (game.input.activePointer.position.x - clickedObj.position.x)
         clickedObj.body.velocity.y = 20 * (game.input.activePointer.position.y - clickedObj.position.y)
+        
+        if(clickedObj.number) {
+            clickedObj.number.body.velocity.x = 20 * (game.input.activePointer.position.x - clickedObj.position.x)
+            clickedObj.number.body.velocity.y = 20 * (game.input.activePointer.position.y - clickedObj.position.y)
+        }
     }
     
     if ((game.input.activePointer.leftButton.isDown && clickedObj == null && ! leftClicked) || (mousePosition != null && (Math.abs(game.input.activePointer.position.x - mousePosition.x) > 28 || Math.abs(game.input.activePointer.position.y - mousePosition.y) > 28))) {
+        
         initializeObj(currentSelectedObj);
         leftClicked = true;
         mousePosition = new Phaser.Point(game.input.activePointer.position.x, game.input.activePointer.position.y);
@@ -430,5 +508,9 @@ function update() {
     if (game.input.activePointer.leftButton.isUp && clickedObj == null) {
         leftClicked = false;
         mousePosition = null;
+    }
+    
+    if(currentSelectedObj != 'path') {
+        pathedObj = null;
     }
 }
