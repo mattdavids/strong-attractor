@@ -1,24 +1,6 @@
-let heightBlocks = 14;
-let widthBlocks = 27;
-let height = heightBlocks * 30;
-let width = widthBlocks * 30;
-
 let game = new Phaser.Game(width, height);
 game.state.add('main', {preload: preload, create: create, update: update, render: render});
 game.state.start('main');
-
-const gravCoef = 150000;
-const frictionCoef = 0.5;
-const groundAcceleration = 30;
-const airAcceleration = 5;
-const maxHorizontalVelocity = 250;
-const jumpVelocity = 300;
-const jumpFrames = 10;
-const startingLevelNum = 6;
-const gravObjAttractionMin = 0;
-const gravObjAttractionMax = 2 * gravCoef;
-const gravObjStartColor = 0xffffff;
-const gravObjEndColor = 0x351777;
 
 let player;
 let exit;
@@ -45,10 +27,7 @@ function preload() {
 
     game.load.spritesheet('shocker', 'assets/electricity_sprites.png', 30, 30, 3);
 
-    //game.load.image('slider', 'assets/slider.png');
-    //game.load.text('levelsExternal', 'assets/levels.txt');
     game.load.text('levels', 'assets/levelsNew.txt');
-    //game.load.text('levels', 'assets/tutorialLevels.txt')
 }
 
 function create() {
@@ -57,7 +36,7 @@ function create() {
     game.world.enableBody = true;
     game.canvas.oncontextmenu = function (e) {
         e.preventDefault(); 
-    }
+    };
 
     pauseBtn = game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
     pauseBtn.onDown.add(function() {
@@ -191,7 +170,7 @@ function loadLevel(){
     }
 
     player = game.add.sprite(player_startX, player_startY, 'player');
-    player.anchor.set(.5, .5)
+    player.anchor.set(.5, .5);
     player.body.gravity.y = gravCoef / 60;
     game.camera.follow(player);
 }
@@ -270,10 +249,10 @@ function update() {
         }
         
         if (gravObj.flux) {
-            gravObj.gravWeight += 2000 * gravObj.fluxConst;
             if (gravObj.gravWeight >= gravObj.gravMax || gravObj.gravWeight <= gravObj.gravMin) {
                 gravObj.fluxConst *= -1;
             }
+            gravObj.gravWeight += 2000 * gravObj.fluxConst;
         }
         
         if (gravObj.moving) {
@@ -290,9 +269,6 @@ function update() {
                 gravObj.body.velocity.y = (loc.y < movingToY) * 30 - (loc.y > movingToY) * 30;                
             }
         }
-        
-        //displays weight of gravity objects
-        //game.debug.text(obj.gravWeight/1000, obj.position.x - 15, obj.position.y - 15);
     }
     player.body.acceleration.x = -xGravCoef;
     player.body.acceleration.y = -yGravCoef;
@@ -309,9 +285,9 @@ function drawGravObjCircle(gravObj) {
     // these are heuristic constants which look okay
     if (gravObj.gravOn) {
         let radius = (gravObj.gravWeight / gravCoef) * 500;
-        let subAmount = (gravObjAttractionMax / gravCoef) * 25;
+        let subAmount = 50;
         let alpha = 0.1;
-        let fillColor = gravObj.gravOn ? 0x351777 : 0x808080;
+        let fillColor = gravObj.gravOn ? gravObjColor : 0x808080;
         while (radius > 0) {
             graphics.beginFill(fillColor, alpha);
             graphics.drawCircle(gravObj.x, gravObj.y, radius);
@@ -326,9 +302,8 @@ function restart() {
     // Reload player
     if (player != undefined)
         player.kill();
-    let gheight = game.world.bounds.height;
     player = game.add.sprite(player_startX, player_startY, 'player');
-    player.anchor.set(.5, .5)
+    player.anchor.set(.5, .5);
     player.body.gravity.y = gravCoef / 60;
     game.camera.follow(player);
 
@@ -355,15 +330,8 @@ function initializeGravObj(x, y, gravMin, gravMax, gravOn, flux, moving, movemen
     } else if(flux) {
         gravObj.fluxConst = 1;
     }
-    gravObj.tint = 0x351777;
-}
-
-function toggleGravityAll() {
-
-    for (let i = 0;  i < gravObjects.children.length; i++) {
-        let gravObj = gravObjects.children[i];
-        gravObj.gravOn = !gravObj.gravOn;
-    }
+    // TODO: make new grav obj sprite
+    gravObj.tint = gravObjColor;
 }
 
 function startGravityClick(gravObj) {
@@ -385,6 +353,6 @@ function startGravityClick(gravObj) {
     clickedObj = gravObj;
 }
 
-function endGravityClick(gravObj) {
+function endGravityClick() {
     clickedObj = null;
 }
