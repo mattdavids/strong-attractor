@@ -2,25 +2,6 @@ let game = new Phaser.Game(width, height);
 game.state.add('main', {preload: preload, create: create, update: update, render: render});
 game.state.start('main');
 
-let player;
-let exit;
-let exits;
-let walls;
-let gravObjects;
-let shockers;
-
-let player_startX;
-let player_startY;
-let levels;
-let currentLevelNum;
-let graphics;
-let clickedObj;
-let jumpCount;
-let pauseBtn;
-let pauseText;
-
-
-
 function preload() {
     game.load.image('player', 'assets/player.png');
     game.load.image('exit', 'assets/exit.png');
@@ -152,10 +133,10 @@ function update() {
         }
 
         if (gravObj.flux) {
+            gravObj.gravWeight += 2000 * gravObj.fluxConst;
             if (gravObj.gravWeight >= gravObj.gravMax || gravObj.gravWeight <= gravObj.gravMin) {
                 gravObj.fluxConst *= -1;
             }
-            gravObj.gravWeight += 2000 * gravObj.fluxConst;
         }
 
         if (gravObj.moving) {

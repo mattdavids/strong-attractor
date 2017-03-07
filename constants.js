@@ -16,3 +16,20 @@ const jumpVelocity = 300;
 // Other
 const jumpFrames = 10;
 const startingLevelNum = 6;
+
+let player;
+let exit;
+let exits;
+let walls;
+let gravObjects;
+let shockers;
+
+let player_startX;
+let player_startY;
+let levels;
+let currentLevelNum;
+let graphics;
+let clickedObj;
+let jumpCount;
+let pauseBtn;
+let pauseText;
