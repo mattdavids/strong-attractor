@@ -141,9 +141,11 @@ function update() {
             let diff = Phaser.Point.subtract(player.position, gravObj.position);
             let r = diff.getMagnitude();
             diff.normalize();
-
-            xGravCoef += gravObj.gravWeight * diff.x / r;
-            yGravCoef += gravObj.gravWeight * diff.y / r;
+            
+            if ( r < (gravObj.gravWeight / gravCoef) * circleRadius) {
+                xGravCoef += gravObj.gravWeight * diff.x / r;
+                yGravCoef += gravObj.gravWeight * diff.y / r;
+            }
         }
 
         if (gravObj.flux) {
@@ -176,7 +178,7 @@ function render() {
     function drawGravObjCircle(gravObj) {
         // these are heuristic constants which look okay
         if (gravObj.gravOn) {
-            let radius = (gravObj.gravWeight / gravCoef) * 500;
+            let radius = (gravObj.gravWeight / gravCoef) * (circleRadius * 2);
             let subAmount = 50;
             let alpha = 0.1;
             let fillColor = gravObj.gravOn ? gravObjColor : 0x808080;

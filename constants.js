@@ -4,6 +4,7 @@ const widthBlocks = 27;
 const height = heightBlocks * 30;
 const width = widthBlocks * 30;
 const gravObjColor = 0x351777;
+const circleRadius = 259;
 
 // Physics
 const gravCoef = 150000;
