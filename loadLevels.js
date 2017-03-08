@@ -1,3 +1,5 @@
+var levelCount;
+
 function loadLevel() {
     clearLevel();
 

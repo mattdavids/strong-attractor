@@ -1,29 +1,14 @@
-let game = new Phaser.Game(width, height);
-game.state.add('main', {preload: preload, create: create, update: update, render: render});
-game.state.start('main');
-
-function preload() {
-    game.load.image('player', 'assets/player.png');
-    game.load.image('exit', 'assets/exit.png');
-    game.load.image('wall', 'assets/bricks_gray.png');
-    game.load.image('gravObj', 'assets/gravObj.png');
-
-    game.load.spritesheet('shocker', 'assets/electricity_sprites.png', 30, 30, 3);
-
-    //game.load.text('levels', 'assets/levels/levelsNew.txt');
-    game.load.text('levelList', 'assets/levels/levelList.txt');
-}
+var currentLevel = 1;
 
 function create() {
     game.stage.backgroundColor = '#faebd7';
-    game.physics.startSystem(Phaser.Physics.ARCADE);
     game.world.enableBody = true;
     game.canvas.oncontextmenu = function (e) {
         e.preventDefault();
     };
 
     setupPauseButton();
-
+    
     walls = game.add.group();
     gravObjects = game.add.group();
     shockers = game.add.group();
@@ -31,10 +16,6 @@ function create() {
 
     graphics = game.add.graphics();
 
-
-    //loadLevelsFromFile();
-    loadLevelsFromList();
-    currentLevelNum = startingLevelNum;
     makeLevelSelector();
     //loadLevel();
     //loading=false;
@@ -70,6 +51,10 @@ function makeLevelSelector(){
     }
 }
 
+function exitDecider(){
+    game.state.start('win');
+}
+
 function update() {
     if(loading)
         return;
@@ -82,6 +67,7 @@ function update() {
         currentLevelNum ++;
         loadLevel();
     }, null);
+    
 
 
     if (! game.physics.arcade.isPaused){
