@@ -21,6 +21,23 @@ function create() {
         e.preventDefault();
     };
 
+    setupPauseButton();
+
+    walls = game.add.group();
+    gravObjects = game.add.group();
+    shockers = game.add.group();
+    exits = game.add.group();
+
+    graphics = game.add.graphics();
+
+
+    loadLevelsFromFile();
+    currentLevelNum = startingLevelNum;
+    makeLevelSelector();
+    loadLevel();
+}
+
+function setupPauseButton(){
     pauseBtn = game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
     pauseBtn.onDown.add(function() {
         if (game.physics.arcade.isPaused) {
@@ -31,18 +48,11 @@ function create() {
         }
         game.physics.arcade.isPaused = ! game.physics.arcade.isPaused;
     }, this);
+}
 
-    walls = game.add.group();
-    gravObjects = game.add.group();
-    shockers = game.add.group();
-    exits = game.add.group();
-
-    loadLevelsFromFile();
+function makeLevelSelector(){
 
     let selector = $('#level-select');
-    currentLevelNum = startingLevelNum;
-
-    graphics = game.add.graphics();
 
     let atrSelected;
     for(let i = 0; i < levels.length; i++) {
@@ -55,8 +65,6 @@ function create() {
 
         selector.append('<option ' + atrSelected + ' value="' + i + '">' + i + '</option>');
     }
-
-    loadLevel();
 }
 
 function update() {
