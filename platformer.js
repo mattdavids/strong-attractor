@@ -10,7 +10,7 @@ function preload() {
 
     game.load.spritesheet('shocker', 'assets/electricity_sprites.png', 30, 30, 3);
 
-    game.load.text('levels', 'assets/levelsNew.txt');
+    game.load.text('levels', 'assets/levels/levelsNew.txt');
 }
 
 function create() {
