@@ -11,6 +11,7 @@ function preload() {
     game.load.spritesheet('shocker', 'assets/electricity_sprites.png', 30, 30, 3);
 
     game.load.text('levels', 'assets/levels/levelsNew.txt');
+    game.load.text('levelList', 'assets/levels/levelList.txt');
 }
 
 function create() {
@@ -32,9 +33,11 @@ function create() {
 
 
     loadLevelsFromFile();
+    loadLevelsFromList();
     currentLevelNum = startingLevelNum;
     makeLevelSelector();
-    loadLevel();
+    //loadLevel();
+    //loading=false;
 }
 
 function setupPauseButton(){
@@ -55,7 +58,7 @@ function makeLevelSelector(){
     let selector = $('#level-select');
 
     let atrSelected;
-    for(let i = 0; i < levels.length; i++) {
+    for(let i = 0; i < levelCount; i++) {
 
         if ( i == currentLevelNum) {
             atrSelected = 'selected';
@@ -68,6 +71,9 @@ function makeLevelSelector(){
 }
 
 function update() {
+    if(loading)
+        return;
+
     game.physics.arcade.collide(player, walls);
     game.physics.arcade.collide(player, gravObjects);
 

@@ -76,6 +76,38 @@ function loadLevelsFromFile(){
     }
 }
 
+function loadLevelsFromList(){
+    let levelList = game.cache.getText('levelList').split(',');
+    levelCount = levelList.length;
+    levelNames = [levelCount];
+    for(let i=0; i<levelCount; i++){
+        levelNames[i]="assets/levels/"+levelList[i];
+
+        game.load.text("level"+i, levelNames[i]);
+    }
+    game.load.start();
+    game.load.onLoadComplete.add(finishLoadingLevels, this);
+
+}
+
+function finishLoadingLevels(){
+    // This ensures we don't load levels more than once
+    if(loading=false)
+        return;
+
+    for(let i=0; i<levelCount; i++){
+        levels[i]=game.cache.getText("level"+i).split('\n');
+    }
+
+    // Load first level here, once all levels are in memory
+    loadLevel();
+
+    // Allow game to run, now that the world is loaded
+    loading=false;
+
+}
+
+
 function clearLevel(){
     walls.removeAll(true);
     shockers.removeAll(true);

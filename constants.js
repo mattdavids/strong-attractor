@@ -39,3 +39,5 @@ let player_startY;
 let graphics;
 let clickedObj;
 let jumpCount;
+
+let loading=true;
