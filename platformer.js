@@ -10,7 +10,7 @@ function preload() {
 
     game.load.spritesheet('shocker', 'assets/electricity_sprites.png', 30, 30, 3);
 
-    game.load.text('levels', 'assets/levels/levelsNew.txt');
+    //game.load.text('levels', 'assets/levels/levelsNew.txt');
     game.load.text('levelList', 'assets/levels/levelList.txt');
 }
 
@@ -32,7 +32,7 @@ function create() {
     graphics = game.add.graphics();
 
 
-    loadLevelsFromFile();
+    //loadLevelsFromFile();
     loadLevelsFromList();
     currentLevelNum = startingLevelNum;
     makeLevelSelector();

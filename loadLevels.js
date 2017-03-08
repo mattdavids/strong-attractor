@@ -80,6 +80,7 @@ function loadLevelsFromList(){
     let levelList = game.cache.getText('levelList').split(',');
     levelCount = levelList.length;
     levelNames = [levelCount];
+    levels = [levelCount];
     for(let i=0; i<levelCount; i++){
         levelNames[i]="assets/levels/"+levelList[i];
 
