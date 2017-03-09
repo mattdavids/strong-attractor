@@ -35,7 +35,6 @@ wall,495,15
 wall,525,15
 wall,555,15
 wall,585,15
-wall,585,405
 wall,615,15
 wall,615,405
 wall,645,15
@@ -78,11 +77,14 @@ wall,15,375
 wall,795,375
 wall,15,405
 wall,795,405
-wall,255,375
+wall,225,375
 wall,465,375
 wall,465,345
+wall,435,375
+wall,435,345
 shocker,555,405
 shocker,525,405
 shocker,495,405
+shocker,585,405
 exit,765,360
 player,37.5,382.5
