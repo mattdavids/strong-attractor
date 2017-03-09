@@ -1,6 +1,18 @@
 let game = new Phaser.Game(width, height);
+
+game.state.add('boot', {preload:boot, create:postBoot});
 game.state.add('main', {preload: preload, create: create, update: update, render: render});
-game.state.start('main');
+game.state.start('boot');
+
+
+function boot(){
+    // Load file lists here
+    game.load.text('levelList', 'assets/levels/levelList.txt');
+}
+function postBoot(){
+    // Immediately run main game once boot-loading is finished
+    game.state.start('main');
+}
 
 function preload() {
     game.load.image('player', 'assets/player.png');
@@ -9,9 +21,7 @@ function preload() {
     game.load.image('gravObj', 'assets/gravObj.png');
 
     game.load.spritesheet('shocker', 'assets/electricity_sprites.png', 30, 30, 3);
-
-    //game.load.text('levels', 'assets/levels/levelsNew.txt');
-    game.load.text('levelList', 'assets/levels/levelList.txt');
+    queueLevelsFromList();
 }
 
 function create() {
@@ -31,14 +41,14 @@ function create() {
 
     graphics = game.add.graphics();
 
-
-    //loadLevelsFromFile();
-    loadLevelsFromList();
     currentLevelNum = startingLevelNum;
+    for(let i=0; i<levelCount; i++){
+        levels[i]=game.cache.getText("level"+i).split('\n');
+    }
     makeLevelSelector();
-    //loadLevel();
-    //loading=false;
+    loadLevel();
 }
+
 
 function setupPauseButton(){
     pauseBtn = game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
@@ -71,8 +81,6 @@ function makeLevelSelector(){
 }
 
 function update() {
-    if(loading)
-        return;
 
     game.physics.arcade.collide(player, walls);
     game.physics.arcade.collide(player, gravObjects);
