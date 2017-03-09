@@ -15,30 +15,30 @@ const maxHorizontalVelocity = 250;
 const jumpVelocity = 300;
 
 // Levels
-let levels;
-let levelCount;
-let currentLevelNum;
+var levels;
+var levelCount;
+var currentLevelNum;
 
 // Displayed objects
-let player;
-let exit;
-let exits;
-let walls;
-let gravObjects;
-let shockers;
+var player;
+var exit;
+var exits;
+var walls;
+var gravObjects;
+var shockers;
 
 // Pausing
-let pauseBtn;
-let pauseText;
+var pauseBtn;
+var pauseText;
 
 // Other
 const jumpFrames = 10;
 const startingLevelNum = 0;
 
-let player_startX;
-let player_startY;
-let graphics;
-let clickedObj;
-let jumpCount;
+var player_startX;
+var player_startY;
+var graphics;
+var clickedObj;
+var jumpCount;
 
-let loading=true;
+var loading=true;

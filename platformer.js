@@ -1,5 +1,3 @@
-var currentLevel = 1;
-
 function create() {
     game.stage.backgroundColor = '#faebd7';
     game.world.enableBody = true;
@@ -52,7 +50,12 @@ function makeLevelSelector(){
 }
 
 function exitDecider(){
-    game.state.start('win');
+    if (currentLevelNum = levelCount) {
+        game.state.start('win');
+    } else {
+        currentLevelNum ++;
+        loadLevel();
+    }
 }
 
 function update() {
@@ -63,10 +66,7 @@ function update() {
     game.physics.arcade.collide(player, gravObjects);
 
     game.physics.arcade.overlap(player, shockers, restart, null, this);
-    game.physics.arcade.overlap(player, exits, function() {
-        currentLevelNum ++;
-        loadLevel();
-    }, null);
+    game.physics.arcade.overlap(player, exits, exitDec er(), null);
     
 
 
