@@ -8,9 +8,9 @@ function loadLevel() {
     }
 
 
-    let bounds = level[1].split(',');
+    let bounds = level[0].split(',');
     game.world.setBounds(0,0,parseInt(bounds[0]), parseInt(bounds[1]));
-    for (let i = 2; i < level.length; i++) {
+    for (let i = 1; i < level.length; i++) {
         let element = level[i];
         let objectInfo = element.split(',');
         let objectName = objectInfo[0];
