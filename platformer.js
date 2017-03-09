@@ -1,15 +1,16 @@
 let game = new Phaser.Game(width, height);
 
-game.state.add('boot', {preload:boot, create:postBoot});
+game.state.add('load', {preload:load, create:postLoad});
 game.state.add('main', {preload: preload, create: create, update: update, render: render});
-game.state.start('boot');
+
+game.state.start('load');
 
 
-function boot(){
+function load(){
     // Load file lists here
     game.load.text('levelList', 'assets/levels/levelList.txt');
 }
-function postBoot(){
+function postLoad(){
     // Immediately run main game once boot-loading is finished
     game.state.start('main');
 }
