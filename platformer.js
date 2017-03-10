@@ -4,7 +4,6 @@ game.state.add('boot', {preload:boot, create:postBoot});
 game.state.add('main', {preload: preload, create: create, update: update, render: render});
 game.state.start('boot');
 
-
 function boot(){
     // Load file lists here
     game.load.text('levelList', 'assets/levels/levelList.txt');
@@ -19,6 +18,7 @@ function preload() {
     game.load.image('exit', 'assets/art/exit.png');
     game.load.image('wall', 'assets/art/bricks_gray.png');
     game.load.image('gravObj', 'assets/art/gravObj.png');
+    game.load.image('shadow', 'assets/art/shadow.png');
 
     game.load.spritesheet('shocker', 'assets/art/electricity_sprites.png', 30, 30, 3);
     queueLevelsFromList();
@@ -82,7 +82,23 @@ function makeLevelSelector(){
 
 function update() {
 
+    isTouchingRight = false;
+    isTouchingLeft = false;
+    
+    playerShadowLeft.body.position.x = player.body.position.x - 2;
+    playerShadowLeft.body.position.y = player.body.position.y;   
+    playerShadowRight.body.position.x = player.body.position.x;
+    playerShadowRight.body.position.y = player.body.position.y;
+    
     game.physics.arcade.collide(player, walls);
+    game.physics.arcade.overlap(playerShadowLeft, walls, function() {
+        isTouchingLeft = true;
+    }, null, this);
+    
+    game.physics.arcade.overlap(playerShadowRight, walls, function() {
+        isTouchingRight = true;
+    }, null, this);
+    
     game.physics.arcade.collide(player, gravObjects);
 
     game.physics.arcade.overlap(player, shockers, restart, null, this);
@@ -91,19 +107,21 @@ function update() {
         loadLevel();
     }, null);
 
-
-    if (! game.physics.arcade.isPaused){
+    if (! game.physics.arcade.isPaused){     
+        
         if (game.input.keyboard.isDown(Phaser.KeyCode.A)) {
             if (player.body.touching.down) {
                 player.body.velocity.x = Math.max(-maxHorizontalVelocity, player.body.velocity.x - groundAcceleration);
             } else {
                 player.body.velocity.x -= airAcceleration;
+                player.body.velocity.x *= (1 - isTouchingLeft);
             }
         } else if (game.input.keyboard.isDown(Phaser.KeyCode.D)) {
             if (player.body.touching.down) {
                 player.body.velocity.x = Math.min(maxHorizontalVelocity, player.body.velocity.x + groundAcceleration);
             } else {
                 player.body.velocity.x += airAcceleration;
+                player.body.velocity.x *= (1 - isTouchingRight);
             }
         } else {
             if (player.body.touching.down) {
@@ -122,7 +140,6 @@ function update() {
             } else {
                 jumpCount = jumpFrames;
             }
-
         }
 
         jumpCount += 1;
@@ -135,8 +152,6 @@ function update() {
     if (game.input.activePointer.rightButton.isDown && clickedObj != null) {
         clickedObj.gravWeight = Math.max(clickedObj.gravMin, clickedObj.gravWeight - 5000)
     }
-
-
 
     let xGravCoef = 0;
     let yGravCoef = 0;
@@ -178,7 +193,13 @@ function update() {
             }
         }
     }
-    player.body.acceleration.x = -xGravCoef;
+    
+    if (xGravCoef > 0) {
+        player.body.acceleration.x = (-xGravCoef) * (1 - isTouchingLeft);
+    } else {
+        player.body.acceleration.x = (-xGravCoef) * (1 - isTouchingRight);
+    }
+    
     player.body.acceleration.y = -yGravCoef;
 }
 
@@ -257,6 +278,5 @@ function startGravityClick(gravObj) {
             gravObj.gravWeight = 0;
         }
     }
-
     clickedObj = gravObj;
 }
