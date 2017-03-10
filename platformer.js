@@ -1,20 +1,43 @@
 let game = new Phaser.Game(width, height);
 
-game.state.add('load', {preload:load, create:postLoad});
+game.state.add('load', {preload: load, create: postLoad});
+game.state.add('menu', {preload: loadMenu, create: createMenu, update: onStartButtonPush}); 
 game.state.add('main', {preload: preload, create: create, update: update, render: render});
 
 game.state.start('load');
 
-
+// LOAD STATE
 function load(){
     // Load file lists here
     game.load.text('levelList', 'assets/levels/levelList.txt');
 }
 function postLoad(){
-    // Immediately run main game once boot-loading is finished
-    game.state.start('main');
+    // Immediately run menu once boot-loading is finished
+    game.state.start('menu');
 }
 
+// MENU STATE
+function loadMenu() {
+    game.load.image('background', 'assets/art/MenuBackground.png');
+    game.load.image('startBtn', 'assets/art/startButton.png');
+    createMenu();
+}
+
+function createMenu() {
+    background = game.add.sprite(405,210, 'background');
+    background.anchor.set(0.5,0.5);
+    background.immovable = true;
+    startBtn = game.add.sprite(width/2, height/2, 'startBtn');
+    startBtn.anchor.set(0.5,0.5);
+    startBtn.inputEnabled = true;
+}
+function onStartButtonPush() {
+    startBtn.events.onInputDown.add(function() {
+        game.state.start('main');
+    }, this);  
+}
+
+// GAME STATE
 function preload() {
     game.load.image('player', 'assets/art/player.png');
     game.load.image('exit', 'assets/art/exit.png');

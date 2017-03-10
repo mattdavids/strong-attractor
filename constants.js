@@ -31,6 +31,10 @@ let shockers;
 let pauseBtn;
 let pauseText;
 
+// Menu
+let background;
+let startBtn;
+
 // Other
 const jumpFrames = 10;
 const startingLevelNum = 0;
