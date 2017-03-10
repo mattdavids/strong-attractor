@@ -1,4 +1,4 @@
-let game = new Phaser.Game(width, height);
+let game = new Phaser.Game(width, height, Phaser.WEBGL, 'gameWindow');
 
 game.state.add('boot', {preload: boot, create: postBoot});
 game.state.add('menu', {preload: loadMenu, create: createMenu, update: onStartButtonPush}); 
