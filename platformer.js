@@ -1,17 +1,18 @@
 let game = new Phaser.Game(width, height);
 
-game.state.add('load', {preload: load, create: postLoad});
+game.state.add('boot', {preload: boot, create: postBoot});
 game.state.add('menu', {preload: loadMenu, create: createMenu, update: onStartButtonPush}); 
 game.state.add('main', {preload: preload, create: create, update: update, render: render});
+//game.state.add('win', {preload: loadWin, create: displayWinMessage, update: backtoMenu});
 
-game.state.start('load');
+game.state.start('boot');
 
 // LOAD STATE
-function load(){
+function boot(){
     // Load file lists here
     game.load.text('levelList', 'assets/levels/levelList.txt');
 }
-function postLoad(){
+function postBoot(){
     // Immediately run menu once boot-loading is finished
     game.state.start('menu');
 }
@@ -106,7 +107,17 @@ function makeLevelSelector(){
 
 function update() {
 
+    isTouchingRight = false;
+    isTouchingLeft = false;
+    
+    playerShadowLeft.body.position.x = player.body.position.x - 2;
+    playerShadowLeft.body.position.y = player.body.position.y;
+    playerShadowRight.body.position.x = player.body.position.x;
+    playerShadowRight.body.position.y = player.body.position.y;
     game.physics.arcade.collide(player, walls);
+    game.physics.arcade.overlap(playerShadowRight, walls, function() {
+        isTouchingRight = true;
+    }, null, this);
     game.physics.arcade.collide(player, gravObjects);
 
     game.physics.arcade.overlap(player, shockers, restart, null, this);
@@ -284,3 +295,5 @@ function startGravityClick(gravObj) {
 
     clickedObj = gravObj;
 }
+
+// WIN STATE
