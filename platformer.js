@@ -133,19 +133,24 @@ function update() {
                 player.body.velocity.x = Math.max(-maxHorizontalVelocity, player.body.velocity.x - groundAcceleration);
             } else {
                 player.body.velocity.x -= airAcceleration;
-                player.body.velocity.x *= (1 - isTouchingLeft);
             }
         } else if (game.input.keyboard.isDown(Phaser.KeyCode.D)) {
             if (player.body.touching.down) {
                 player.body.velocity.x = Math.min(maxHorizontalVelocity, player.body.velocity.x + groundAcceleration);
             } else {
                 player.body.velocity.x += airAcceleration;
-                player.body.velocity.x *= (1 - isTouchingRight);
             }
         } else {
             if (player.body.touching.down) {
                 player.body.velocity.x = player.body.velocity.x * frictionCoef;
             }
+        }
+
+        if (player.body.velocity.x < 0 && isTouchingLeft) {
+            player.body.velocity.x = 0;
+        }
+        if (player.body.velocity.x > 0 && isTouchingRight) {
+            player.body.velocity.x = 0;
         }
 
         if (game.input.keyboard.isDown(Phaser.KeyCode.W) && player.body.touching.down) {
@@ -216,12 +221,10 @@ function update() {
         }
     }
     if (xGravCoef > 0) {
-        player.body.acceleration.x = -xGravCoef * (1 - isTouchingLeft);
+        player.body.acceleration.x = -xGravCoef * !isTouchingLeft;
     } else {
-        player.body.acceleration.x = -xGravCoef * (1 - isTouchingRight);
+        player.body.acceleration.x = -xGravCoef * !isTouchingRight;
     }
-    player.body.acceleration.x = -xGravCoef;
-    player.body.acceleration.y = -yGravCoef;
 }
 
 function render() {
