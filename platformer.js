@@ -225,6 +225,7 @@ function update() {
     } else {
         player.body.acceleration.x = -xGravCoef * !isTouchingRight;
     }
+    player.body.acceleration.y = -yGravCoef;
 }
 
 function render() {
