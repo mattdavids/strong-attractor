@@ -81,7 +81,7 @@ function loadLevel() {
 function queueLevelsFromList(){
     let levelList = game.cache.getText('levelList').split('\n');
     levelCount = levelList.length;
-    levelNames = [levelCount];
+    let levelNames = [levelCount];
     levels = [levelCount];
     for(let i=0; i<levelCount; i++){
         levelNames[i]="assets/levels/"+levelList[i];

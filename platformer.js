@@ -1,7 +1,7 @@
-let game = new Phaser.Game(width, height, Phaser.WEBGL, 'gameWindow');
+let game = new Phaser.Game(width, height, Phaser.AUTO, 'gameWindow');
 
 game.state.add('boot', {preload: boot, create: postBoot});
-game.state.add('menu', {preload: loadMenu, create: createMenu, update: onStartButtonPush}); 
+game.state.add('menu', {preload: loadMenu, create: createMenu});
 game.state.add('main', {preload: preload, create: create, update: update, render: render});
 //game.state.add('win', {preload: loadWin, create: displayWinMessage, update: backtoMenu});
 
@@ -31,11 +31,9 @@ function createMenu() {
     startBtn = game.add.sprite(width/2, height/2, 'startBtn');
     startBtn.anchor.set(0.5,0.5);
     startBtn.inputEnabled = true;
-}
-function onStartButtonPush() {
     startBtn.events.onInputDown.add(function() {
         game.state.start('main');
-    }, this);  
+    }, this);
 }
 
 // GAME STATE
@@ -108,13 +106,11 @@ function makeLevelSelector(){
 
 function update() {
 
-    isTouchingRight = false;
-    isTouchingLeft = false;
+    let isTouchingRight = false;
+    let isTouchingLeft = false;
     
-    playerShadowLeft.body.position.x = player.body.position.x - 2;
-    playerShadowLeft.body.position.y = player.body.position.y;
-    playerShadowRight.body.position.x = player.body.position.x;
-    playerShadowRight.body.position.y = player.body.position.y;
+    playerShadowLeft.body.position.set(player.body.position.x - 2, player.body.position.y);
+    playerShadowRight.body.position.set(player.body.position.x, player.body.position.y);
     game.physics.arcade.collide(player, walls);
     game.physics.arcade.overlap(playerShadowRight, walls, function() {
         isTouchingRight = true;
@@ -126,7 +122,7 @@ function update() {
 
     game.physics.arcade.overlap(player, shockers, restart, null, this);
     game.physics.arcade.overlap(player, exits, function() {
-        currentLevelNum ++;
+        currentLevelNum++;
         loadLevel();
     }, null);
 
@@ -229,7 +225,7 @@ function update() {
 }
 
 function render() {
-    function drawGravObjCircle(gravObj) {
+    let drawGravObjCircle = function(gravObj) {
         // these are heuristic constants which look okay
         if (gravObj.gravOn) {
             let radius = (gravObj.gravWeight / gravCoef) * (circleRadius * 2);
@@ -243,7 +239,7 @@ function render() {
                 radius -= subAmount;
             }
         }
-    }
+    };
     graphics.clear();
     for (let i = 0; i < gravObjects.children.length; i++) {
         drawGravObjCircle(gravObjects.children[i]);
