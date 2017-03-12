@@ -3,7 +3,7 @@ let game = new Phaser.Game(width, height, Phaser.AUTO, 'gameWindow');
 game.state.add('boot', {preload: boot, create: postBoot});
 game.state.add('menu', {preload: loadMenu, create: createMenu});
 game.state.add('main', {preload: preload, create: create, update: update, render: render});
-//game.state.add('win', {preload: loadWin, create: displayWinMessage, update: backtoMenu});
+game.state.add('win', {preload: loadWin, create: displayWinMessage, update: backtoMenu});
 
 game.state.start('boot');
 
@@ -121,10 +121,7 @@ function update() {
     game.physics.arcade.collide(player, gravObjects);
 
     game.physics.arcade.overlap(player, shockers, restart, null, this);
-    game.physics.arcade.overlap(player, exits, function() {
-        currentLevelNum++;
-        loadLevel();
-    }, null);
+    game.physics.arcade.overlap(player, exits, exitDecider, null);
 
 
     if (! game.physics.arcade.isPaused){
@@ -228,6 +225,15 @@ function update() {
     player.body.acceleration.y = -yGravCoef;
 }
 
+function exitDecider() {
+    if (currentLevelNum + 1 == levelCount) {
+        game.state.start('win');
+    } else {
+        currentLevelNum++;
+        loadLevel();
+    }
+}
+
 function render() {
     let drawGravObjCircle = function(gravObj) {
         // these are heuristic constants which look okay
@@ -308,3 +314,24 @@ function startGravityClick(gravObj) {
 }
 
 // WIN STATE
+function loadWin() {
+    game.load.image('winScreen', 'assets/art/winScreen.png');
+    game.load.image('restartBtn', 'assets/art/restartButton.png');
+    displayWinMessage();
+}
+
+function displayWinMessage() {
+    winScr = game.add.sprite(405,210, 'winScreen');
+    winScr.anchor.set(0.5,0.5);
+    winScr.immovable = true;
+    restartBtn = game.add.sprite(width/2, height/2 + 90, 'restartBtn');
+    restartBtn.anchor.set(0.5,0.5);
+    restartBtn.inputEnabled = true;
+}
+
+function backToMenu() {
+    restartBtn.events.onInputDown.add(function() {
+        currentLevelNum = startingLevelNum;
+        game.state.start('main');
+    }, this);
+}
