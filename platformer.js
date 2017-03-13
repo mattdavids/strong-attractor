@@ -229,7 +229,7 @@ function update() {
 }
 
 function exitDecider() {
-    if (currentLevelNum + 2 == levelCount) {
+    if (currentLevelNum + 1 == levelCount) {
         game.state.start('win');
     } else {
         currentLevelNum++;
