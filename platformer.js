@@ -1,7 +1,7 @@
 let game = new Phaser.Game(width, height, Phaser.AUTO, 'gameWindow');
 
 game.state.add('boot', {preload: boot, create: postBoot});
-game.state.add('menu', {preload: loadMenu, create: createMenu});
+game.state.add('menu', {preload: loadMenu, create: createMenu, update: onStartButtonPush});
 game.state.add('main', {preload: preload, create: create, update: update, render: render});
 game.state.add('win', {preload: loadWin, create: displayWinMessage, update: backtoMenu});
 
@@ -31,9 +31,12 @@ function createMenu() {
     startBtn = game.add.sprite(width/2, height/2, 'startBtn');
     startBtn.anchor.set(0.5,0.5);
     startBtn.inputEnabled = true;
+}
+
+function onStartButtonPush() {
     startBtn.events.onInputDown.add(function() {
         game.state.start('main');
-    }, this);
+        }, this);
 }
 
 // GAME STATE
