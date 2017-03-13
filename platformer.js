@@ -3,7 +3,7 @@ let game = new Phaser.Game(width, height, Phaser.AUTO, 'gameWindow');
 game.state.add('boot', {preload: boot, create: postBoot});
 game.state.add('menu', {preload: loadMenu, create: createMenu, update: onStartButtonPush});
 game.state.add('main', {preload: preload, create: create, update: update, render: render});
-game.state.add('win', {preload: loadWin, create: displayWinMessage, update: backtoMenu});
+game.state.add('win', {preload: loadWin, create: displayWinMessage, update: backToMenu});
 
 game.state.start('boot');
 
@@ -229,7 +229,7 @@ function update() {
 }
 
 function exitDecider() {
-    if (currentLevelNum + 1 == levelCount) {
+    if (currentLevelNum + 2 == levelCount) {
         game.state.start('win');
     } else {
         currentLevelNum++;
