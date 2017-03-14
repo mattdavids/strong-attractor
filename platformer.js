@@ -42,7 +42,7 @@ function preload() {
     game.load.image('exit', 'assets/art/exit.png');
     game.load.image('wall', 'assets/art/bricks_gray.png');
     game.load.image('gravObj', 'assets/art/gravObj.png');
-    game.load.image('shadow', 'assets/art/shadow.png');
+    game.load.image('shadow', 'assets/art/player.png');
 
     game.load.spritesheet('shocker', 'assets/art/electricity_sprites.png', 30, 30, 3);
     queueLevelsFromList();
@@ -108,16 +108,25 @@ function update() {
 
     let isTouchingRight = false;
     let isTouchingLeft = false;
-    
-    playerShadowLeft.body.position.set(player.body.position.x - 2, player.body.position.y);
-    playerShadowRight.body.position.set(player.body.position.x, player.body.position.y);
-    game.physics.arcade.collide(player, walls);
-    game.physics.arcade.overlap(playerShadowRight, walls, function() {
+
+    //playerShadowLeft.body.position.set(player.body.position.x, player.body.position.y);
+    //playerShadowRight.body.position.set(player.body.position.x, player.body.position.y);
+    game.physics.arcade.collide(player, walls, null, function (playerSprite, wallSprite) {
+        let isTouchingRight = false;
+        let isTouchingLeft = false;
+        if (playerSprite.top < wallSprite.bottom && playerSprite.bottom > wallSprite.top) {
+            isTouchingRight = playerSprite.right > wallSprite.left && playerSprite.left < wallSprite.left;
+            isTouchingLeft = playerSprite.left < wallSprite.right && playerSprite.right > wallSprite.right;
+        }
+        let retVal = !((isTouchingLeft || isTouchingRight) && playerSprite.bottom >= wallSprite.top);
+        return retVal;
+    }, this);
+    /*game.physics.arcade.overlap(playerShadowRight, walls, function() {
         isTouchingRight = true;
     }, null, this);
     game.physics.arcade.overlap(playerShadowLeft, walls, function() {
         isTouchingLeft = true;
-    }, null, this);
+    }, null, this);*/
     game.physics.arcade.collide(player, gravObjects);
 
     game.physics.arcade.overlap(player, shockers, restart, null, this);

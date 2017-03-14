@@ -69,13 +69,13 @@ function loadLevel() {
     player.body.gravity.y = gravCoef / 60;
     game.camera.follow(player);
     
-    playerShadowLeft = game.add.sprite(player.body.position.x, player.body.position.y, 'shadow');
+    /*playerShadowLeft = game.add.sprite(player.body.position.x, player.body.position.y, 'shadow');
     playerShadowLeft.anchor.set(.5, .5);
     playerShadowLeft.body.setSize(15, 1, 0, 8);
     
     playerShadowRight = game.add.sprite(player.body.position.x, player.body.position.y, 'shadow');
     playerShadowRight.anchor.set(.5, .5);
-    playerShadowRight.body.setSize(15, 1, 0, 8);
+    playerShadowRight.body.setSize(15, 1, 0, 8);*/
 }
 
 function queueLevelsFromList(){
