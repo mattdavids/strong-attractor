@@ -26,11 +26,8 @@ let exits;
 let walls;
 let gravObjects;
 let shockers;
-let playerShadowLeft;
-let playerShadowRight;
 
 // Pausing
-let pauseBtn;
 let pauseText;
 
 // Menu
@@ -40,8 +37,6 @@ let startBtn;
 // Other
 const jumpFrames = 10;
 const startingLevelNum = 0;
-let isTouchingLeft;
-let isTouchingRight;
 
 let player_startX;
 let player_startY;

@@ -42,7 +42,6 @@ function preload() {
     game.load.image('exit', 'assets/art/exit.png');
     game.load.image('wall', 'assets/art/bricks_gray.png');
     game.load.image('gravObj', 'assets/art/gravObj.png');
-    game.load.image('shadow', 'assets/art/player.png');
 
     game.load.spritesheet('shocker', 'assets/art/electricity_sprites.png', 30, 30, 3);
     queueLevelsFromList();
@@ -75,7 +74,7 @@ function create() {
 
 
 function setupPauseButton(){
-    pauseBtn = game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
+    let pauseBtn = game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
     pauseBtn.onDown.add(function() {
         if (game.physics.arcade.isPaused) {
             pauseText.kill();
@@ -104,29 +103,21 @@ function makeLevelSelector(){
     }
 }
 
+function within(a, b, delta) {
+    return a <= b + delta && a >= b - delta;
+}
+
 function update() {
-
-    let isTouchingRight = false;
-    let isTouchingLeft = false;
-
-    //playerShadowLeft.body.position.set(player.body.position.x, player.body.position.y);
-    //playerShadowRight.body.position.set(player.body.position.x, player.body.position.y);
     game.physics.arcade.collide(player, walls, null, function (playerSprite, wallSprite) {
-        let isTouchingRight = false;
-        let isTouchingLeft = false;
-        if (playerSprite.top < wallSprite.bottom && playerSprite.bottom > wallSprite.top) {
-            isTouchingRight = playerSprite.right > wallSprite.left && playerSprite.left < wallSprite.left;
-            isTouchingLeft = playerSprite.left < wallSprite.right && playerSprite.right > wallSprite.right;
+        let corner = false;
+        if (within(playerSprite.bottom, wallSprite.top, 5) || within(playerSprite.top, wallSprite.bottom, 5)) {
+            corner |= within(playerSprite.left, wallSprite.right, 2);
+            corner |= within(playerSprite.right, wallSprite.left, 2);
+
         }
-        let retVal = !((isTouchingLeft || isTouchingRight) && playerSprite.bottom >= wallSprite.top);
-        return retVal;
+        return !corner;
     }, this);
-    /*game.physics.arcade.overlap(playerShadowRight, walls, function() {
-        isTouchingRight = true;
-    }, null, this);
-    game.physics.arcade.overlap(playerShadowLeft, walls, function() {
-        isTouchingLeft = true;
-    }, null, this);*/
+
     game.physics.arcade.collide(player, gravObjects);
 
     game.physics.arcade.overlap(player, shockers, restart, null, this);
@@ -134,7 +125,6 @@ function update() {
         currentLevelNum++;
         loadLevel();
     }, null);
-
 
     if (! game.physics.arcade.isPaused){
         if (game.input.keyboard.isDown(Phaser.KeyCode.A)) {
@@ -153,13 +143,6 @@ function update() {
             if (player.body.touching.down) {
                 player.body.velocity.x = player.body.velocity.x * frictionCoef;
             }
-        }
-
-        if (player.body.velocity.x < 0 && isTouchingLeft) {
-            player.body.velocity.x = 0;
-        }
-        if (player.body.velocity.x > 0 && isTouchingRight) {
-            player.body.velocity.x = 0;
         }
 
         if (game.input.keyboard.isDown(Phaser.KeyCode.W) && player.body.touching.down) {
@@ -229,11 +212,7 @@ function update() {
             }
         }
     }
-    if (xGravCoef > 0) {
-        player.body.acceleration.x = -xGravCoef * !isTouchingLeft;
-    } else {
-        player.body.acceleration.x = -xGravCoef * !isTouchingRight;
-    }
+    player.body.acceleration.x = -xGravCoef;
     player.body.acceleration.y = -yGravCoef;
 }
 
