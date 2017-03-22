@@ -121,7 +121,7 @@ function update() {
     }, null, this);
     game.physics.arcade.collide(player, gravObjects);
 
-    game.physics.arcade.overlap(player, shockers, restart, null, this);
+    game.physics.arcade.overlap(player, shockers, loadLevel, null, this);
     game.physics.arcade.overlap(player, exits, exitDecider, null);
 
 
@@ -255,20 +255,6 @@ function render() {
     for (let i = 0; i < gravObjects.children.length; i++) {
         drawGravObjCircle(gravObjects.children[i]);
     }
-}
-
-
-function restart() {
-
-    // Reload player
-    if (player != undefined)
-        player.kill();
-    player = game.add.sprite(player_startX, player_startY, 'player');
-    player.anchor.set(.5, .5);
-    player.body.gravity.y = gravCoef / 60;
-    game.camera.follow(player);
-
-    // Reset any pick-ups or similar here
     
     if (game.physics.arcade.isPaused) {
         graphics.beginFill(0xa3c6ff, .5);
