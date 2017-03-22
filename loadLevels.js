@@ -63,20 +63,25 @@ function loadLevel() {
         }
     }
 
-    player = game.add.sprite(player_startX, player_startY, 'player');
-    player.anchor.set(.5, .5);
-    player.body.setSize(14, 14, 1, 1);
-    player.body.gravity.y = gravCoef / 60;
-    game.camera.follow(player);
     addPlayer();
     
     playerShadowLeft = game.add.sprite(player.body.position.x, player.body.position.y, 'shadow');
     playerShadowLeft.anchor.set(.5, .5);
-    playerShadowLeft.body.setSize(15, 1, 0, 8);
+    playerShadowLeft.body.setSize(5, 1, 0, 8);
     
     playerShadowRight = game.add.sprite(player.body.position.x, player.body.position.y, 'shadow');
     playerShadowRight.anchor.set(.5, .5);
     playerShadowRight.body.setSize(15, 1, 0, 8);
+    
+    playerShadowBottom = game.add.sprite(player.body.position.x, player.body.position.y, 'shadow');
+    playerShadowBottom.anchor.set(.5, .5);
+    playerShadowBottom.body.setSize(15, 1, 0, 14);
+    
+    playerShadowTop = game.add.sprite(player.body.position.x, player.body.position.y, 'shadow');
+    playerShadowTop.anchor.set(.5, .5);
+    playerShadowTop.body.setSize(13, 1, 0, 0);
+}
+
 function addPlayer() {
     player = game.add.sprite(player_startX, player_startY, 'player');
     player.anchor.set(.5, .5);

@@ -107,25 +107,46 @@ function makeLevelSelector(){
 
 function update() {
 
+    game.physics.arcade.collide(player, walls);
+    
     let isTouchingRight = false;
     let isTouchingLeft = false;
+    let isTouchingBottom = false;
+    let isTouchingTop = false;
     
     playerShadowLeft.body.position.set(player.body.position.x - 2, player.body.position.y);
-    playerShadowRight.body.position.set(player.body.position.x, player.body.position.y);
-    game.physics.arcade.collide(player, walls);
+    playerShadowRight.body.position.set(player.body.position.x + .5, player.body.position.y);
+    playerShadowBottom.body.position.set(player.body.position.x, player.body.position.y + 15);
+    playerShadowTop.body.position.set(player.body.position.x + 1, player.body.position.y - 17);
+    
     game.physics.arcade.overlap(playerShadowRight, walls, function() {
         isTouchingRight = true;
     }, null, this);
     game.physics.arcade.overlap(playerShadowLeft, walls, function() {
         isTouchingLeft = true;
     }, null, this);
+    game.physics.arcade.overlap(playerShadowBottom, walls, function() {
+        isTouchingBottom = true;
+    }, null, this);
+    game.physics.arcade.overlap(playerShadowTop, walls, function() {
+        isTouchingTop = true;
+    }, null, this);
+
     game.physics.arcade.collide(player, gravObjects);
 
     game.physics.arcade.overlap(player, shockers, loadLevel, null, this);
     game.physics.arcade.overlap(player, exits, exitDecider, null);
 
-
+    // Adjust attraction of clicked object
+    if (game.input.activePointer.leftButton.isDown && clickedObj != null) {
+        clickedObj.gravWeight = Math.min(clickedObj.gravMax, clickedObj.gravWeight + 5000)
+    }
+    if (game.input.activePointer.rightButton.isDown && clickedObj != null) {
+        clickedObj.gravWeight = Math.max(clickedObj.gravMin, clickedObj.gravWeight - 5000)
+    }
+    
     if (! game.physics.arcade.isPaused){
+        
         if (game.input.keyboard.isDown(Phaser.KeyCode.A)) {
             if (player.body.touching.down) {
                 player.body.velocity.x = Math.max(-maxHorizontalVelocity, player.body.velocity.x - groundAcceleration);
@@ -151,9 +172,25 @@ function update() {
             player.body.velocity.x = 0;
         }
 
-        if (game.input.keyboard.isDown(Phaser.KeyCode.W) && player.body.touching.down) {
+        //If just landed on top of a block under another, get out of the wall and keep moving
+        if ((player.body.touching.down || isTouchingBottom) && isJumping && (isTouchingLeft || isTouchingRight)) {
+            player.body.velocity.x = isTouchingLeft * groundAcceleration - isTouchingRight * groundAcceleration;
+            player.body.velocity.y = previous_velocity_y;
+        }
+        
+        //If stuck in a wall, get out of the wall and keep moving
+        if ((player.body.touching.down || isTouchingBottom) && isTouchingTop && isJumping) {
+            player.body.velocity.x = isTouchingLeft * groundAcceleration - isTouchingRight * groundAcceleration;
+            player.x = player.x + isTouchingLeft * ((blockSize/2) - (player.body.left % (blockSize/2))) - isTouchingRight * (player.body.right % (blockSize/2));
+            if (player.body.velocity.y == 0) {
+                player.body.velocity.y = previous_velocity_y;
+            }
+        }
+        
+        if (game.input.keyboard.isDown(Phaser.KeyCode.W) && isTouchingBottom && player.body.touching.down && ! isTouchingTop && ! isJumping) {
             player.body.velocity.y = -jumpVelocity;
             jumpCount = 0;
+            isJumping = true;
         }
         //Let user jump higher if they hold the button down
         if (jumpCount < jumpFrames) {
@@ -166,64 +203,60 @@ function update() {
         }
 
         jumpCount += 1;
-    }
+        
+        let xGravCoef = 0;
+        let yGravCoef = 0;
 
-    // Adjust attraction of clicked object
-    if (game.input.activePointer.leftButton.isDown && clickedObj != null) {
-        clickedObj.gravWeight = Math.min(clickedObj.gravMax, clickedObj.gravWeight + 5000)
-    }
-    if (game.input.activePointer.rightButton.isDown && clickedObj != null) {
-        clickedObj.gravWeight = Math.max(clickedObj.gravMin, clickedObj.gravWeight - 5000)
-    }
+        // Gravity object changes
+        for (let i = 0;  i < gravObjects.children.length; i++) {
+            let gravObj = gravObjects.children[i];
 
+            if (gravObj.gravOn) {
+                let diff = Phaser.Point.subtract(player.position, gravObj.position);
+                let r = diff.getMagnitude();
+                diff.normalize();
 
+                if ( r < (gravObj.gravWeight / gravCoef) * circleRadius) {
+                    xGravCoef += gravObj.gravWeight * diff.x / r;
+                    yGravCoef += gravObj.gravWeight * diff.y / r;
+                }
+            }
 
-    let xGravCoef = 0;
-    let yGravCoef = 0;
+            if (gravObj.flux) {
+                gravObj.gravWeight += 2000 * gravObj.fluxConst;
+                if (gravObj.gravWeight >= gravObj.gravMax || gravObj.gravWeight <= gravObj.gravMin) {
+                    gravObj.fluxConst *= -1;
+                }
+            }
 
-    // Gravity object changes
-    for (let i = 0;  i < gravObjects.children.length; i++) {
-        let gravObj = gravObjects.children[i];
+            if (gravObj.moving) {
+                let loc = gravObj.body.position;
+                let movementList = gravObj.movementList;
+                let movementIndex = gravObj.movementIndex;
+                let movingToX = movementList[movementIndex].split('#')[0] - 15;
+                let movingToY = movementList[movementIndex].split('#')[1] - 15;
 
-        if (gravObj.gravOn) {
-            let diff = Phaser.Point.subtract(player.position, gravObj.position);
-            let r = diff.getMagnitude();
-            diff.normalize();
-            
-            if ( r < (gravObj.gravWeight / gravCoef) * circleRadius) {
-                xGravCoef += gravObj.gravWeight * diff.x / r;
-                yGravCoef += gravObj.gravWeight * diff.y / r;
+                if (parseInt(loc.x) == movingToX && parseInt(loc.y) == movingToY) {
+                    gravObj.movementIndex = (movementIndex + 1) % movementList.length;
+                } else {
+                    gravObj.body.velocity.x = (loc.x < movingToX) * 30 - (loc.x > movingToX) * 30;
+                    gravObj.body.velocity.y = (loc.y < movingToY) * 30 - (loc.y > movingToY) * 30;
+                }
             }
         }
-
-        if (gravObj.flux) {
-            gravObj.gravWeight += 2000 * gravObj.fluxConst;
-            if (gravObj.gravWeight >= gravObj.gravMax || gravObj.gravWeight <= gravObj.gravMin) {
-                gravObj.fluxConst *= -1;
-            }
+        if (xGravCoef > 0) {
+            player.body.acceleration.x = -xGravCoef * !isTouchingLeft;
+        } else {
+            player.body.acceleration.x = -xGravCoef * !isTouchingRight;
         }
-
-        if (gravObj.moving) {
-            let loc = gravObj.body.position;
-            let movementList = gravObj.movementList;
-            let movementIndex = gravObj.movementIndex;
-            let movingToX = movementList[movementIndex].split('#')[0] - 15;
-            let movingToY = movementList[movementIndex].split('#')[1] - 15;
-
-            if (parseInt(loc.x) == movingToX && parseInt(loc.y) == movingToY) {
-                gravObj.movementIndex = (movementIndex + 1) % movementList.length;
-            } else {
-                gravObj.body.velocity.x = (loc.x < movingToX) * 30 - (loc.x > movingToX) * 30;
-                gravObj.body.velocity.y = (loc.y < movingToY) * 30 - (loc.y > movingToY) * 30;
-            }
-        }
+        
+        player.body.acceleration.y = -yGravCoef;
+        
+        previous_velocity_y = player.body.velocity.y;
+    
+        isJumping = ! isTouchingBottom;
+        
     }
-    if (xGravCoef > 0) {
-        player.body.acceleration.x = -xGravCoef * !isTouchingLeft;
-    } else {
-        player.body.acceleration.x = -xGravCoef * !isTouchingRight;
-    }
-    player.body.acceleration.y = -yGravCoef;
 }
 
 function exitDecider() {
