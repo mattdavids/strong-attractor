@@ -24,8 +24,15 @@
             <textarea id="levelText"></textarea>
             <br />
             <br />
-            <input id="start" value="Start Editing!" type="button"/>
+            <button onclick="editorStart()">Start Editing!</button>
+
             <input id="file" value="Upload File to Edit" type="file" />
+            <p>
+                <button onclick="loadFromLocal()">Load a previous level</button>
+                <select id="localLevels">
+                    <option value="lastLevel">Previous level</option>
+                </select>
+            </p>
         </div>
         
         <div class="firstSection">

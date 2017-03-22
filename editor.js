@@ -30,59 +30,93 @@ let blockFullSize=30;
 let blockHalfSize=blockFullSize/2;
 let blockQuarterSize=blockHalfSize/2;
 
+
+// Load locally stored levels
+if(localStorage.getItem("localLevels") == null){
+    console.warn("No local level storage found");
+    localStorage.setItem("localLevels", "");
+}
+let localLevelNames = localStorage.getItem("localLevels");
+let localLevelList = localLevelNames.split(",");
+let localLevelCount = localLevelList.length - 1; // First level name will always be blank/not a level
+let localLevelId; // This is only set on loading from localStorage
+
+let selector = $('#localLevels');
+
+for(let i = 0; i < localLevelCount; i++) {
+    selector.append('<option ' + ' value="custom' + i + '">' + "Custom level " + (i+1) + '</option>');
+}
+
+
 $('.firstSection').hide();
 
-$('#start').click(function() {
-    
+
+function editorStart() {
+
     let widthBlocks = $('#width')[0].value
     let heightBlocks = $('#height')[0].value
-    
-    
-    let input = $('#file')[0];
-    let reader = new FileReader();
-    if (input.files.length) {
-        let textFile = input.files[0];
-        
-        reader.readAsText(textFile);
-        
-        $(reader).on('load', function(e) {
-            let file = e.target.result;
-            
-            if(file && file.length) {
-                level = file.split('\n'); 
 
+    if(localLevelId){
+        let file = localStorage.getItem(localLevelId);
+        level = file.split('\n');
+        let boundary = level[0].split(',');
+        width = parseInt(boundary[0]);
+        height = parseInt(boundary[1]);
+        makePhaserGame();
+    } else {
+        let input = $('#file')[0];
+        let reader = new FileReader();
+
+        if (input.files.length) {
+            let textFile = input.files[0];
+
+            reader.readAsText(textFile);
+
+            $(reader).on('load', function(e) {
+                let file = e.target.result;
+
+                if(file && file.length) {
+                    level = file.split('\n');
+
+                    let boundary = level[0].split(',');
+                    width = parseInt(boundary[0]);
+                    height = parseInt(boundary[1]);
+                    makePhaserGame();
+                }
+            });
+        } else {
+
+            width = widthBlocks * 30;
+            height = heightBlocks * 30;
+
+            let levelText = $('#levelText')[0].value
+
+            if (levelText) {
+                level = levelText.split('\n');
                 let boundary = level[0].split(',');
                 width = parseInt(boundary[0]);
                 height = parseInt(boundary[1]);
-                game = new Phaser.Game(width, height, Phaser.CANVAS);
-                game.state.add('main', {preload: preload, create: create, update: update});
-                game.state.start('main');
             }
-        });
-    } else {
-        
-        width = widthBlocks * 30;
-        height = heightBlocks * 30;
-        
-        let levelText = $('#levelText')[0].value
-        
-        if (levelText) {
-            level = levelText.split('\n');
-            let boundary = level[0].split(',');
-            width = parseInt(boundary[0]);
-            height = parseInt(boundary[1]);
+
+            makePhaserGame();
         }
-        
-        game = new Phaser.Game(width, height, Phaser.CANVAS);
-        game.state.add('main', {preload: preload, create: create, update: update});
-        game.state.start('main');        
     }
-    
+
+
     $('.sizeSelect').hide();
-    $('.firstSection').show(); 
-});
+    $('.firstSection').show();
+}
 
+function makePhaserGame(){
+    game = new Phaser.Game(width, height, Phaser.CANVAS);
+    game.state.add('main', {preload: preload, create: create, update: update});
+    game.state.start('main');
+}
 
+function loadFromLocal(){
+    localLevelId = $("#localLevels").val();
+    editorStart();
+}
 
 function preload() {
     game.load.image('wall', 'assets/art/bricks_gray.png');
@@ -302,7 +336,12 @@ function create() {
         
         $(this).hide();
         $('.firstSection').remove();
-        $('#response').text(result.slice(0,-1));
+        let gameText = result.slice(0,-1)
+        $('#response').text(gameText);
+        localStorage.setItem("lastLevel", gameText);
+        let newLevelName = "custom"+localLevelCount;
+        localStorage.setItem("localLevels", localLevelNames+","+newLevelName);
+        localStorage.setItem(newLevelName, gameText);
         game.destroy();
         
     });
