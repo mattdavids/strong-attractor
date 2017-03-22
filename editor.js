@@ -115,6 +115,10 @@ function makePhaserGame(){
 
 function loadFromLocal(){
     localLevelId = $("#localLevels").val();
+    if(localLevelId == "lastLevel" && !(localStorage.getItem("lastLevel"))){
+        console.error("Err: no previous level to load");
+        return;
+    }
     editorStart();
 }
 
