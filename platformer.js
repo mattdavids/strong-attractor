@@ -80,13 +80,11 @@ function create() {
 function setupPauseButton(){
     pauseBtn = game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
     pauseBtn.onDown.add(function() {
-        if (game.physics.arcade.isPaused) {
-            pauseText.kill();
-        } else {
-            pauseText = game.add.text(player.body.position.x + 5, player.body.position.y - 15, "Paused", {fill: "#000"});
-            pauseText.anchor.set(.5, .5);
-        }
+        shockers.children.forEach(function(ele) {
+            ele.animations.paused = ! ele.animations.paused;
+        });
         game.physics.arcade.isPaused = ! game.physics.arcade.isPaused;
+
     }, this);
 }
 
@@ -271,6 +269,12 @@ function restart() {
     game.camera.follow(player);
 
     // Reset any pick-ups or similar here
+    
+    if (game.physics.arcade.isPaused) {
+        graphics.beginFill(0xa3c6ff, .5);
+        graphics.drawRect(0, 0, game.world.bounds.width, game.world.bounds.height);
+        graphics.endFill();
+    }
 }
 
 function initializeGravObj(x, y, gravMin, gravMax, gravOn, flux, moving, movementList) {
