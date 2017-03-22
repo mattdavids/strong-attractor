@@ -119,3 +119,29 @@ function selectLevel(){
     currentLevelNum = $("#level-select").val();
     loadLevel();
 }
+
+function initializeGravObj(x, y, gravMin, gravMax, gravOn, flux, moving, movementList) {
+    let gravObj = game.add.sprite(x, y, 'gravObj');
+    gravObj.anchor.set(.5, .5);
+    gravObj.gravOn = true ;
+    gravObj.gravWeight = ((gravMin + gravMax)/2) * gravOn * (1 - flux);
+    gravObj.gravMin = gravMin;
+    gravObj.gravMax = gravMax;
+    gravObjects.add(gravObj);
+    gravObj.body.immovable = true;
+    gravObj.inputEnabled = true;
+    gravObj.flux = flux;
+    gravObj.moving = moving;
+    gravObj.movementList = movementList;
+    gravObj.movementIndex = 0;
+    if (! flux && ! moving) {
+        gravObj.events.onInputDown.add(startGravityClick, this);
+        gravObj.events.onInputUp.add(function() {
+            clickedObj = null;
+        }, this);
+    } else if(flux) {
+        gravObj.fluxConst = 1;
+    }
+    // TODO: make new grav obj sprite
+    gravObj.tint = gravObjColor;
+}
