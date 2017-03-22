@@ -104,8 +104,6 @@ function clearLevel(){
 }
 
 function selectLevel(){
-    // This can be simpler with jquery
-    let levelSelector = document.getElementById("level-select");
-    currentLevelNum = levelSelector.options[levelSelector.selectedIndex].value;
+    currentLevelNum = $("#level-select").val();
     loadLevel();
 }
