@@ -3,10 +3,6 @@
     color: white;
 }
 
-input[type="button"] {
-    border-width: 0px;
-}
-
 .list {
     display: none;
 }
