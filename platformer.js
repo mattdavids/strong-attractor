@@ -95,7 +95,7 @@ function makeLevelSelector(){
     let atrSelected;
     for(let i = 0; i < levelCount; i++) {
 
-        if ( i == currentLevelNum) {
+        if ( i === currentLevelNum) {
             atrSelected = 'selected';
         } else {
             atrSelected = '';
@@ -138,10 +138,10 @@ function update() {
     game.physics.arcade.overlap(player, exits, exitDecider, null);
 
     // Adjust attraction of clicked object
-    if (game.input.activePointer.leftButton.isDown && clickedObj != null) {
+    if (game.input.activePointer.leftButton.isDown && clickedObj !== null) {
         clickedObj.gravWeight = Math.min(clickedObj.gravMax, clickedObj.gravWeight + 5000)
     }
-    if (game.input.activePointer.rightButton.isDown && clickedObj != null) {
+    if (game.input.activePointer.rightButton.isDown && clickedObj !== null) {
         clickedObj.gravWeight = Math.max(clickedObj.gravMin, clickedObj.gravWeight - 5000)
     }
     
@@ -182,7 +182,7 @@ function update() {
         if ((player.body.touching.down || isTouchingBottom) && isTouchingTop && isJumping) {
             player.body.velocity.x = isTouchingLeft * groundAcceleration - isTouchingRight * groundAcceleration;
             player.x = player.x + isTouchingLeft * ((blockSize/2) - (player.body.left % (blockSize/2))) - isTouchingRight * (player.body.right % (blockSize/2));
-            if (player.body.velocity.y == 0) {
+            if (player.body.velocity.y === 0) {
                 player.body.velocity.y = previous_velocity_y;
             }
         }
@@ -236,7 +236,7 @@ function update() {
                 let movingToX = movementList[movementIndex].split('#')[0] - 15;
                 let movingToY = movementList[movementIndex].split('#')[1] - 15;
 
-                if (parseInt(loc.x) == movingToX && parseInt(loc.y) == movingToY) {
+                if (parseInt(loc.x) === movingToX && parseInt(loc.y) === movingToY) {
                     gravObj.movementIndex = (movementIndex + 1) % movementList.length;
                 } else {
                     gravObj.body.velocity.x = (loc.x < movingToX) * 30 - (loc.x > movingToX) * 30;
@@ -260,7 +260,7 @@ function update() {
 }
 
 function exitDecider() {
-    if (currentLevelNum + 1 == levelCount) {
+    if (currentLevelNum + 1 === levelCount) {
         game.state.start('win');
     } else {
         currentLevelNum++;

@@ -32,7 +32,7 @@ let blockQuarterSize=blockHalfSize/2;
 
 
 // Load locally stored levels
-if(localStorage.getItem("localLevels") == null){
+if(localStorage.getItem("localLevels") === null){
     console.warn("No local level storage found");
     localStorage.setItem("localLevels", "");
 }
@@ -115,7 +115,7 @@ function makePhaserGame(){
 
 function loadFromLocal(){
     localLevelId = $("#localLevels").val();
-    if(localLevelId == "lastLevel" && !(localStorage.getItem("lastLevel"))){
+    if(localLevelId === "lastLevel" && !(localStorage.getItem("lastLevel"))){
         console.error("Err: no previous level to load");
         return;
     }
@@ -281,7 +281,7 @@ function create() {
     adders.show();
     adders.click(function() {
         currentSelectedObj = $(this).attr('id');
-        if ($(this).attr('class') != 'adders current') {
+        if ($(this).attr('class') !== 'adders current') {
             adders.removeClass('current');
             $(this).addClass('current');
         } else {
@@ -289,7 +289,7 @@ function create() {
             currentSelectedObj = null;
         }
         
-        if (currentSelectedObj == 'gravObj_on' || currentSelectedObj == 'gravObj_flux' || currentSelectedObj == 'gravObj_move') {
+        if (currentSelectedObj === 'gravObj_on' || currentSelectedObj === 'gravObj_flux' || currentSelectedObj === 'gravObj_move') {
             $(".list").addClass('show');
             $(".break").hide();
         } else {
@@ -340,7 +340,7 @@ function create() {
         
         $(this).hide();
         $('.firstSection').remove();
-        let gameText = result.slice(0,-1)
+        let gameText = result.slice(0,-1);
         $('#response').text(gameText);
         localStorage.setItem("lastLevel", gameText);
         let newLevelName = "custom"+localLevelCount;
@@ -380,25 +380,25 @@ function initializeObj(objectName) {
     //spawnPosX -= spawnPosX%blockFullSize + blockHalfSize;
     //spawnPosY -= spawnPosY%blockFullSize + blockHalfSize;
 
-    if (objectName == 'gravObj_off') {
+    if (objectName === 'gravObj_off') {
         obj = game.add.sprite(spawnPosX, spawnPosY, 'gravObj');
         obj.tint = 0xffffff;
         gravObj_offs.add(obj);
         obj.gravMin = parseInt($('#gravMin')[0].value);
         obj.gravMax = parseInt($('#gravMax')[0].value);
-    } else if (objectName == 'gravObj_on') {
+    } else if (objectName === 'gravObj_on') {
         obj = game.add.sprite(spawnPosX, spawnPosY, 'gravObj');
         obj.tint = 0x351777;
         gravObj_ons.add(obj);
         obj.gravMin = parseInt($('#gravMin')[0].value);
         obj.gravMax = parseInt($('#gravMax')[0].value);
-    } else if (objectName == 'gravObj_flux') {
+    } else if (objectName === 'gravObj_flux') {
         obj = game.add.sprite(spawnPosX, spawnPosY, 'gravObj');
         obj.tint = 0xb0e0e6;
         gravObj_fluxes.add(obj);
         obj.gravMin = parseInt($('#gravMin')[0].value);
         obj.gravMax = parseInt($('#gravMax')[0].value);
-    } else if (objectName == 'gravObj_move') {
+    } else if (objectName === 'gravObj_move') {
         obj = game.add.sprite(spawnPosX, spawnPosY, 'gravObj');
         obj.tint = 0x351777;
         gravObj_movers.add(obj);
@@ -531,29 +531,29 @@ function update() {
     game.physics.arcade.collide(shockers, shockers);
     //*/
     
-    if (game.input.activePointer.leftButton.isDown && clickedObj != null) {
-        clickedObj.body.velocity.x = 20 * (game.input.activePointer.position.x - clickedObj.position.x)
-        clickedObj.body.velocity.y = 20 * (game.input.activePointer.position.y - clickedObj.position.y)
+    if (game.input.activePointer.leftButton.isDown && clickedObj !== null) {
+        clickedObj.body.velocity.x = 20 * (game.input.activePointer.position.x - clickedObj.position.x);
+        clickedObj.body.velocity.y = 20 * (game.input.activePointer.position.y - clickedObj.position.y);
         
         if(clickedObj.number) {
-            clickedObj.number.body.velocity.x = 20 * (game.input.activePointer.position.x - clickedObj.position.x)
-            clickedObj.number.body.velocity.y = 20 * (game.input.activePointer.position.y - clickedObj.position.y)
+            clickedObj.number.body.velocity.x = 20 * (game.input.activePointer.position.x - clickedObj.position.x);
+            clickedObj.number.body.velocity.y = 20 * (game.input.activePointer.position.y - clickedObj.position.y);
         }
     }
     
-    if ((game.input.activePointer.leftButton.isDown && clickedObj == null && ! leftClicked) || (mousePosition != null && (Math.abs(game.input.activePointer.position.x - mousePosition.x) > 28 || Math.abs(game.input.activePointer.position.y - mousePosition.y) > 28))) {
+    if ((game.input.activePointer.leftButton.isDown && clickedObj === null && ! leftClicked) || (mousePosition !== null && (Math.abs(game.input.activePointer.position.x - mousePosition.x) > 28 || Math.abs(game.input.activePointer.position.y - mousePosition.y) > 28))) {
         
         initializeObj(currentSelectedObj);
         leftClicked = true;
         mousePosition = new Phaser.Point(game.input.activePointer.position.x, game.input.activePointer.position.y);
     }
     
-    if (game.input.activePointer.leftButton.isUp && clickedObj == null) {
+    if (game.input.activePointer.leftButton.isUp && clickedObj === null) {
         leftClicked = false;
         mousePosition = null;
     }
     
-    if(currentSelectedObj != 'path') {
+    if(currentSelectedObj !== 'path') {
         pathedObj = null;
     }
 }
