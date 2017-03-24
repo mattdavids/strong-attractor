@@ -25,11 +25,11 @@ function loadMenu() {
 }
 
 function createMenu() {
-    background = game.add.sprite(405,210, 'background');
-    background.anchor.set(0.5,0.5);
+    background = game.add.sprite(405, 210, 'background');
+    background.anchor.set(0.5, 0.5);
     background.immovable = true;
     startBtn = game.add.sprite(width/2, height/2, 'startBtn');
-    startBtn.anchor.set(0.5,0.5);
+    startBtn.anchor.set(0.5, 0.5);
     startBtn.inputEnabled = true;
 }
 
@@ -268,14 +268,20 @@ function exitDecider() {
     }
 }
 
+let t = 0;
 function render() {
+    let subAmount = 50;
+    t = (t + 0.5) % subAmount;
     let drawGravObjCircle = function(gravObj) {
         // these are heuristic constants which look okay
         if (gravObj.gravOn) {
             let radius = (gravObj.gravWeight / gravCoef) * (circleRadius * 2);
-            let subAmount = 50;
             let alpha = 0.1;
             let fillColor = gravObj.gravOn ? gravObjColor : 0x808080;
+            graphics.beginFill(fillColor, alpha);
+            graphics.drawCircle(gravObj.x, gravObj.y, radius);
+            graphics.endFill();
+            radius -= t;
             while (radius > 0) {
                 graphics.beginFill(fillColor, alpha);
                 graphics.drawCircle(gravObj.x, gravObj.y, radius);
