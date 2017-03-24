@@ -299,56 +299,7 @@ function create() {
     });           
     
     // Display string representation of canvas
-    $('#display').click(function(){
-        
-        let result = game.world.width + ',' + game.world.height + '\n';
-        
-        for (let i = 0; i < walls.children.length; i++) {
-            let obj = walls.children[i];
-            result += 'wall,' + obj.position.x + ',' + obj.position.y + '\n'
-        }
-        for (let i = 0; i < shockers.children.length; i++) {
-            let obj = shockers.children[i];
-            result += 'shocker,' + obj.position.x + ',' + obj.position.y + '\n'
-        }
-        for (let i = 0; i < gravObj_offs.children.length; i++) {
-            let obj = gravObj_offs.children[i];
-            result += 'gravObj_off,' + obj.position.x + ',' + obj.position.y + ',' + obj.gravMin + ',' + obj.gravMax + '\n'
-        }
-        for (let i = 0; i < gravObj_ons.children.length; i++) {
-            let obj = gravObj_ons.children[i];
-            result += 'gravObj_on,' + obj.position.x + ',' + obj.position.y + ',' + obj.gravMin + ',' + obj.gravMax + '\n'
-        }
-        
-        gravObj_fluxes.forEach(function(obj) {
-            result += 'gravObj_flux,' + obj.position.x + ',' + obj.position.y + ',' + obj.gravMin + ',' + obj.gravMax + '\n'
-        });
-        
-        gravObj_movers.forEach(function(obj) {
-            result += 'gravObj_move,' + obj.position.x + ',' + obj.position.y + ',' + obj.gravMin + ',' + obj.gravMax + ',' + obj.position.x + '#' + obj.position.y + '-'
-            obj.movementPathing.forEach(function(ele) {
-                result += ele.position.x + '#' + ele.position.y + '-'
-            });
-            result = result.slice(0, -1) + '\n';
-        });
-        
-        exits.children.forEach(function(obj) {
-            result += 'exit,' + obj.position.x + ',' + obj.position.y + '\n'
-        });
-        
-        result += 'player,' + player_start.position.x + ',' + player_start.position.y + '\n';
-        
-        $(this).hide();
-        $('.firstSection').remove();
-        let gameText = result.slice(0,-1)
-        $('#response').text(gameText);
-        localStorage.setItem("lastLevel", gameText);
-        let newLevelName = "custom"+localLevelCount;
-        localStorage.setItem("localLevels", localLevelNames+","+newLevelName);
-        localStorage.setItem(newLevelName, gameText);
-        game.destroy();
-        
-    });
+    $('#display').click(buildLevelString());
     
     $('#zoom').click(function() {
         if (! zoom) {
@@ -366,6 +317,56 @@ function create() {
         zoom = ! zoom;
     });
     
+}
+
+function buildLevelString(){
+    let result = game.world.width + ',' + game.world.height + '\n';
+
+    for (let i = 0; i < walls.children.length; i++) {
+        let obj = walls.children[i];
+        result += 'wall,' + obj.position.x + ',' + obj.position.y + '\n'
+    }
+    for (let i = 0; i < shockers.children.length; i++) {
+        let obj = shockers.children[i];
+        result += 'shocker,' + obj.position.x + ',' + obj.position.y + '\n'
+    }
+    for (let i = 0; i < gravObj_offs.children.length; i++) {
+        let obj = gravObj_offs.children[i];
+        result += 'gravObj_off,' + obj.position.x + ',' + obj.position.y + ',' + obj.gravMin + ',' + obj.gravMax + '\n'
+    }
+    for (let i = 0; i < gravObj_ons.children.length; i++) {
+        let obj = gravObj_ons.children[i];
+        result += 'gravObj_on,' + obj.position.x + ',' + obj.position.y + ',' + obj.gravMin + ',' + obj.gravMax + '\n'
+    }
+
+    gravObj_fluxes.forEach(function(obj) {
+        result += 'gravObj_flux,' + obj.position.x + ',' + obj.position.y + ',' + obj.gravMin + ',' + obj.gravMax + '\n'
+    });
+
+    gravObj_movers.forEach(function(obj) {
+        result += 'gravObj_move,' + obj.position.x + ',' + obj.position.y + ',' + obj.gravMin + ',' + obj.gravMax + ',' + obj.position.x + '#' + obj.position.y + '-'
+        obj.movementPathing.forEach(function(ele) {
+            result += ele.position.x + '#' + ele.position.y + '-'
+        });
+        result = result.slice(0, -1) + '\n';
+    });
+
+    exits.children.forEach(function(obj) {
+        result += 'exit,' + obj.position.x + ',' + obj.position.y + '\n'
+    });
+
+    result += 'player,' + player_start.position.x + ',' + player_start.position.y + '\n';
+
+    $(this).hide();
+    $('.firstSection').remove();
+    let gameText = result.slice(0,-1)
+    $('#response').text(gameText);
+    localStorage.setItem("lastLevel", gameText);
+    let newLevelName = "custom"+localLevelCount;
+    localStorage.setItem("localLevels", localLevelNames+","+newLevelName);
+    localStorage.setItem(newLevelName, gameText);
+    game.destroy();
+
 }
 
 function initializeObj(objectName) {
