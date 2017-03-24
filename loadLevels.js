@@ -4,7 +4,7 @@ function loadLevel() {
     let level = levels[currentLevelNum];
     if (level == undefined) {
         level = ['810,420','gravObj_flux,405,210, 0, 300000','wall,795,405','wall,765,405','wall,735,405','wall,735,375','wall,735,345', 'wall,765,345','wall,795,345', 'wall,795,375','exit,705,390', 'player,765,375'];
-        let text = pauseText = game.add.text(400, 170, "You're done!", {fill: "#000"});
+        let text = game.add.text(400, 170, "You're done!", {fill: "#000"});
         text.anchor.set(.5, .5);
         console.log("Attempted to load undefined level");
     }
