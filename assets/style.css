@@ -7,13 +7,13 @@
     background-color: steelblue;
 }
 
-input[type="button"], button {
+input[type="button"] {
     padding: 2px 4px;
     background-color: #c9c9c9;
     border-width: 0px;
 }
 
-input:hover, button:hover{
+input:hover{
     background-color: darkgrey;
 }
 
