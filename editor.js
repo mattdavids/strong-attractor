@@ -53,8 +53,8 @@ $('.firstSection').hide();
 
 function editorStart() {
 
-    let widthBlocks = $('#width')[0].value
-    let heightBlocks = $('#height')[0].value
+    let widthBlocks = $('#width')[0].value;
+    let heightBlocks = $('#height')[0].value;
 
     if(localLevelId){
         let file = localStorage.getItem(localLevelId);
@@ -89,7 +89,7 @@ function editorStart() {
             width = widthBlocks * 30;
             height = heightBlocks * 30;
 
-            let levelText = $('#levelText')[0].value
+            let levelText = $('#levelText')[0].value;
 
             if (levelText) {
                 level = levelText.split('\n');
@@ -345,7 +345,7 @@ function buildLevelString(){
 
     $(this).hide();
     $('.firstSection').remove();
-    let gameText = result.slice(0,-1)
+    let gameText = result.slice(0,-1);
     $('#response').text(gameText);
     localStorage.setItem("lastLevel", gameText);
     let newLevelName = "custom"+localLevelCount;
@@ -535,8 +535,8 @@ function update() {
     //*/
     
     if (game.input.activePointer.leftButton.isDown && clickedObj != null) {
-        clickedObj.body.velocity.x = 20 * (game.input.activePointer.position.x - clickedObj.position.x)
-        clickedObj.body.velocity.y = 20 * (game.input.activePointer.position.y - clickedObj.position.y)
+        clickedObj.body.velocity.x = 20 * (game.input.activePointer.position.x - clickedObj.position.x);
+        clickedObj.body.velocity.y = 20 * (game.input.activePointer.position.y - clickedObj.position.y);
         
         if(clickedObj.number) {
             clickedObj.number.body.velocity.x = 20 * (game.input.activePointer.position.x - clickedObj.position.x)
