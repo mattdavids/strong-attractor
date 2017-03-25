@@ -1,31 +1,63 @@
-.current {
-    background-color: steelblue;
-    color: white;
-}
-
-.current:hover {
-    background-color: steelblue;
-}
-
+/* Button style */
 input[type="button"] {
     padding: 2px 4px;
     background-color: #c9c9c9;
     border-width: 0px;
 }
 
-input:hover{
+input.current[type="button"] {
+     background-color: steelblue;
+     color: white;
+ }
+
+input[type="button"]:hover:not(.current){
     background-color: darkgrey;
 }
 
+/* Formatting for the hide/show of on-attractor options */
 .list {
     display: none;
 }
 
 .show {
     display: block;
-    margin-left: 225px;
+    margin-left: 196px;
 }
 
 .show .adders {
     display: block;
+}
+
+.break{
+    margin-top: 46px;
+}
+
+/* Format ui panel */
+.ui_panel{
+    float: right;
+    background-color: #eaeaea;
+    border: solid 2px dimgrey;
+    padding: 10px;
+    margin-right: 50px;
+    margin-bottom: 50px;
+}
+
+/* Format initial settings panel */
+.sizeSelect{
+    background-color: #eaeaea;
+    border: solid 2px dimgrey;
+    padding: 10px;
+    width: 467px;
+    margin: 50px auto auto;
+}
+
+div.firstSection>p{
+    margin-left: 425px;
+}
+
+/* Format canvas */
+canvas{
+    margin: auto;
+    border: solid 2px dimgrey;
+    border-bottom-width: 1px;
 }
