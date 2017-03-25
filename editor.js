@@ -330,7 +330,7 @@ function buildLevelString(){
     });
 
     gravObj_movers.forEach(function(obj) {
-        result += 'gravObj_move,' + obj.position.x + ',' + obj.position.y + ',' + obj.gravMin + ',' + obj.gravMax + ',' + obj.position.x + '#' + obj.position.y + '-'
+        result += 'gravObj_move,' + obj.position.x + ',' + obj.position.y + ',' + obj.gravMin + ',' + obj.gravMax + ',' + obj.position.x + '#' + obj.position.y + '-';
         obj.movementPathing.forEach(function(ele) {
             result += ele.position.x + '#' + ele.position.y + '-'
         });
