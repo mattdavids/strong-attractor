@@ -84,7 +84,7 @@ function setupPauseButton(){
             ele.animations.paused = ! ele.animations.paused;
         });
         game.physics.arcade.isPaused = ! game.physics.arcade.isPaused;
-        
+
         if (! game.physics.arcade.isPaused) {
             stopPauseAnimation = true;
             pausedSize = Math.max(game.width, game.height);
@@ -115,17 +115,17 @@ function makeLevelSelector(){
 function update() {
 
     game.physics.arcade.collide(player, walls);
-    
+
     let isTouchingRight = false;
     let isTouchingLeft = false;
     let isTouchingBottom = false;
     let isTouchingTop = false;
-    
+
     playerShadowLeft.body.position.set(player.body.position.x - 2, player.body.position.y);
     playerShadowRight.body.position.set(player.body.position.x + .5, player.body.position.y);
     playerShadowBottom.body.position.set(player.body.position.x, player.body.position.y + 15);
     playerShadowTop.body.position.set(player.body.position.x + 1, player.body.position.y - 17);
-    
+
     game.physics.arcade.overlap(playerShadowRight, walls, function() {
         isTouchingRight = true;
     }, null, this);
@@ -151,9 +151,9 @@ function update() {
     if (game.input.activePointer.rightButton.isDown && clickedObj !== null) {
         clickedObj.gravWeight = Math.max(clickedObj.gravMin, clickedObj.gravWeight - 5000)
     }
-    
+
     if (! game.physics.arcade.isPaused){
-        
+
         if (game.input.keyboard.isDown(Phaser.KeyCode.A)) {
             if (player.body.touching.down) {
                 player.body.velocity.x = Math.max(-maxHorizontalVelocity, player.body.velocity.x - groundAcceleration);
@@ -184,7 +184,7 @@ function update() {
             player.body.velocity.x = isTouchingLeft * groundAcceleration - isTouchingRight * groundAcceleration;
             player.body.velocity.y = previous_velocity_y;
         }
-        
+
         //If stuck in a wall, get out of the wall and keep moving
         if ((player.body.touching.down || isTouchingBottom) && isTouchingTop && isJumping) {
             player.body.velocity.x = isTouchingLeft * groundAcceleration - isTouchingRight * groundAcceleration;
@@ -193,7 +193,7 @@ function update() {
                 player.body.velocity.y = previous_velocity_y;
             }
         }
-        
+
         if (game.input.keyboard.isDown(Phaser.KeyCode.W) && isTouchingBottom && player.body.touching.down && ! isTouchingTop && ! isJumping) {
             player.body.velocity.y = -jumpVelocity;
             jumpCount = 0;
@@ -210,7 +210,7 @@ function update() {
         }
 
         jumpCount += 1;
-        
+
         let xGravCoef = 0;
         let yGravCoef = 0;
 
@@ -256,13 +256,13 @@ function update() {
         } else {
             player.body.acceleration.x = -xGravCoef * !isTouchingRight;
         }
-        
+
         player.body.acceleration.y = -yGravCoef;
-        
+
         previous_velocity_y = player.body.velocity.y;
-    
+
         isJumping = ! isTouchingBottom;
-        
+
     }
 }
 
@@ -275,20 +275,14 @@ function exitDecider() {
     }
 }
 
-let t = 0;
 function render() {
-    let subAmount = 50;
-    t = (t + 0.5) % subAmount;
     let drawGravObjCircle = function(gravObj) {
         // these are heuristic constants which look okay
         if (gravObj.gravOn) {
+            let subAmount = 50;
             let radius = (gravObj.gravWeight / gravCoef) * (circleRadius * 2);
             let alpha = 0.1;
             let fillColor = gravObj.gravOn ? gravObjColor : 0x808080;
-            graphics.beginFill(fillColor, alpha);
-            graphics.drawCircle(gravObj.x, gravObj.y, radius);
-            graphics.endFill();
-            radius -= t;
             while (radius > 0) {
                 graphics.beginFill(fillColor, alpha);
                 graphics.drawCircle(gravObj.x, gravObj.y, radius);
@@ -301,12 +295,12 @@ function render() {
     for (let i = 0; i < gravObjects.children.length; i++) {
         drawGravObjCircle(gravObjects.children[i]);
     }
-    
+
     if (game.physics.arcade.isPaused || stopPauseAnimation) {
         graphics.beginFill(0xa3c6ff, .5);
         graphics.drawRect(player.body.position.x - pausedSize, player.body.position.y - pausedSize, 2 * pausedSize, 2 * pausedSize);
         graphics.endFill();
-        
+
         if (stopPauseAnimation) {
             if (pausedSize > pauseAnimationSpeed) {
                 pausedSize -= pauseAnimationSpeed;
