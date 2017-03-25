@@ -299,23 +299,8 @@ function create() {
     });           
     
     // Display string representation of canvas
-    $('#display').click(buildLevelString());
+    $('#display').click(buildLevelString);
     
-    $('#zoom').click(function() {
-        if (! zoom) {
-            game.scale.maxWidth = window.innerWidth - 15;
-            game.scale.maxHeight = window.innerHeight - 170;
-            game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
-            $(this)[0].value = 'Zoom In';
-            
-        } else {
-            game.scale.maxWidth = width;
-            game.scale.maxHeight = height;
-            game.scale.scaleMode = Phaser.ScaleManager.NO_SCALE;
-            $(this)[0].value = 'Zoom Out';
-        }
-        zoom = ! zoom;
-    });
     
 }
 
@@ -367,6 +352,21 @@ function buildLevelString(){
     localStorage.setItem(newLevelName, gameText);
     game.destroy();
 
+}
+
+    if (! zoom) {
+        game.scale.maxWidth = window.innerWidth - 15;
+        game.scale.maxHeight = window.innerHeight - 170;
+        game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+        $(this)[0].value = 'Zoom In';
+
+    } else {
+        game.scale.maxWidth = width;
+        game.scale.maxHeight = height;
+        game.scale.scaleMode = Phaser.ScaleManager.NO_SCALE;
+        $(this)[0].value = 'Zoom Out';
+    }
+    zoom = ! zoom;
 }
 
 function initializeObj(objectName) {
