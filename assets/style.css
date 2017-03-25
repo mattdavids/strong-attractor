@@ -3,6 +3,14 @@
     color: white;
 }
 
+input[type="button"], button {
+    border-width: 0px;
+}
+
+input:hover, button:hover{
+    background-color: darkgrey;
+}
+
 .list {
     display: none;
 }
