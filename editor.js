@@ -301,6 +301,7 @@ function create() {
     // Display string representation of canvas
     $('#display').click(buildLevelString);
     
+    $('#zoom').click(zoomToggle);
     
 }
 
@@ -354,6 +355,7 @@ function buildLevelString(){
 
 }
 
+function zoomToggle() {
     if (! zoom) {
         game.scale.maxWidth = window.innerWidth - 15;
         game.scale.maxHeight = window.innerHeight - 170;
