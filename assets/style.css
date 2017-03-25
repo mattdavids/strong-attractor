@@ -8,6 +8,8 @@
 }
 
 input[type="button"], button {
+    padding: 2px 4px;
+    background-color: #c9c9c9;
     border-width: 0px;
 }
 
