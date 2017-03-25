@@ -24,11 +24,11 @@
             <textarea id="levelText"></textarea>
             <br />
             <br />
-            <button onclick="editorStart()">Start Editing!</button>
+            <input type="button" onclick="editorStart()" value="Start Editing!"/>
 
             <input id="file" value="Upload File to Edit" type="file" />
             <p>
-                <button onclick="loadFromLocal()">Load a previous level</button>
+                <input type="button" onclick="loadFromLocal()" value="Load a previous level"/>
                 <select id="localLevels">
                     <option value="lastLevel">Previous level</option>
                 </select>
@@ -39,29 +39,27 @@
             <p>
             Left click to add objects. Right click to delete objects.
             </p>
-            
-            <input class="adders" type="button" id="wall" value="Add Walls" />
-            <input class="adders" type="button" id="gravObj_off" value="Add Off Attractors" style="padding-left: 20px; padding-right: 20px;"/>
-            <input class="adders" type="button" id="gravObj_on" value="Add On Attractors" style="padding-left: 20px; padding-right: 20px;"/>
-            <input class="adders" type="button" id="shocker" value="Add Electricity" />
-            <input class="adders" type="button" id="exit" value="Add Exits" />
-                
-            <input type="button" id="display" value="Get String">
-            <input type="button" id="zoom" value="Zoom Out" />
-            <div class="break">
-                <p></p>
-                <p></p>
+
+            <div class="ui_panel">
+                <input class="adders" type="button" id="wall" value="Add Walls" />
+                <input class="adders" type="button" id="gravObj_off" value="Add Off Attractors" />
+                <input class="adders" type="button" id="gravObj_on" value="Add On Attractors" />
+                <input class="adders" type="button" id="shocker" value="Add Electricity" />
+                <input class="adders" type="button" id="exit" value="Add Exits" />
+
+                <input type="button" id="display" value="Get String">
+                <input type="button" id="zoom" value="Zoom Out" />
+                <div class="break"> </div>
+                <div class="list">
+                    <input class="adders" type="button" id="gravObj_flux" value="Add Fluctuating Attractors" />
+                    <input class="adders" type="button" id="gravObj_move" value="Add Moving Attractors" />
+                </div>
                 <br />
-            </div>
-            <div class="list">
-                <input class="adders" type="button" id="gravObj_flux" value="Add Fluctuating Attractors" style="padding-left: 20px; padding-right: 20px;"/>
-                <input class="adders" type="button" id="gravObj_move" value="Add Moving Attractors" style="padding-left: 20px; padding-right: 20px;"/>
-            </div>
-            <br />
-            <label for="gravMin" style="margin-left: 68px;">gravMin:</label>
-            <input type="number" min=0 max=10000000 id="gravMin" value=0 style="width: 70px;" />
-            <label for="gravMax" style="margin-left: 0px;">gravMax:</label>
-            <input type="number" min=0 max=10000000 id="gravMax" value=300000 style="width: 70px;"/>
+                <label for="gravMin" style="margin-left: 68px;">gravMin:</label>
+                <input type="number" min=0 max=10000000 id="gravMin" value=0 style="width: 70px;" />
+                <label for="gravMax" style="margin-left: 0px;">gravMax:</label>
+                <input type="number" min=0 max=10000000 id="gravMax" value=300000 style="width: 70px;"/>
+                </div>
             </div>
         </div>
             

@@ -84,6 +84,13 @@ function setupPauseButton(){
             ele.animations.paused = ! ele.animations.paused;
         });
         game.physics.arcade.isPaused = ! game.physics.arcade.isPaused;
+        
+        if (! game.physics.arcade.isPaused) {
+            stopPauseAnimation = true;
+            pausedSize = Math.max(game.width, game.height);
+        } else {
+            pausedSize = pauseAnimationSpeed;
+        }
 
     }, this);
 }
@@ -295,10 +302,20 @@ function render() {
         drawGravObjCircle(gravObjects.children[i]);
     }
     
-    if (game.physics.arcade.isPaused) {
+    if (game.physics.arcade.isPaused || stopPauseAnimation) {
         graphics.beginFill(0xa3c6ff, .5);
-        graphics.drawRect(0, 0, game.world.bounds.width, game.world.bounds.height);
+        graphics.drawRect(player.body.position.x - pausedSize, player.body.position.y - pausedSize, 2 * pausedSize, 2 * pausedSize);
         graphics.endFill();
+        
+        if (stopPauseAnimation) {
+            if (pausedSize > pauseAnimationSpeed) {
+                pausedSize -= pauseAnimationSpeed;
+            } else {
+                stopPauseAnimation = false;
+            }
+        } else if (pausedSize < Math.max(game.width, game.height)) {
+            pausedSize += pauseAnimationSpeed;
+        }
     }
 }
 

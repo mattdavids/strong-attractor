@@ -35,6 +35,9 @@ let playerShadowTop;
 // Pausing
 let pauseBtn;
 let pauseText;
+let pausedSize;
+let stopPauseAnimation;
+let pauseAnimationSpeed = 50;
 
 // Menu
 let background;

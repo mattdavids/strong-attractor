@@ -53,8 +53,8 @@ $('.firstSection').hide();
 
 function editorStart() {
 
-    let widthBlocks = $('#width')[0].value
-    let heightBlocks = $('#height')[0].value
+    let widthBlocks = $('#width')[0].value;
+    let heightBlocks = $('#height')[0].value;
 
     if(localLevelId){
         let file = localStorage.getItem(localLevelId);
@@ -89,7 +89,7 @@ function editorStart() {
             width = widthBlocks * 30;
             height = heightBlocks * 30;
 
-            let levelText = $('#levelText')[0].value
+            let levelText = $('#levelText')[0].value;
 
             if (levelText) {
                 level = levelText.split('\n');
@@ -299,73 +299,76 @@ function create() {
     });           
     
     // Display string representation of canvas
-    $('#display').click(function(){
-        
-        let result = game.world.width + ',' + game.world.height + '\n';
-        
-        for (let i = 0; i < walls.children.length; i++) {
-            let obj = walls.children[i];
-            result += 'wall,' + obj.position.x + ',' + obj.position.y + '\n'
-        }
-        for (let i = 0; i < shockers.children.length; i++) {
-            let obj = shockers.children[i];
-            result += 'shocker,' + obj.position.x + ',' + obj.position.y + '\n'
-        }
-        for (let i = 0; i < gravObj_offs.children.length; i++) {
-            let obj = gravObj_offs.children[i];
-            result += 'gravObj_off,' + obj.position.x + ',' + obj.position.y + ',' + obj.gravMin + ',' + obj.gravMax + '\n'
-        }
-        for (let i = 0; i < gravObj_ons.children.length; i++) {
-            let obj = gravObj_ons.children[i];
-            result += 'gravObj_on,' + obj.position.x + ',' + obj.position.y + ',' + obj.gravMin + ',' + obj.gravMax + '\n'
-        }
-        
-        gravObj_fluxes.forEach(function(obj) {
-            result += 'gravObj_flux,' + obj.position.x + ',' + obj.position.y + ',' + obj.gravMin + ',' + obj.gravMax + '\n'
-        });
-        
-        gravObj_movers.forEach(function(obj) {
-            result += 'gravObj_move,' + obj.position.x + ',' + obj.position.y + ',' + obj.gravMin + ',' + obj.gravMax + ',' + obj.position.x + '#' + obj.position.y + '-'
-            obj.movementPathing.forEach(function(ele) {
-                result += ele.position.x + '#' + ele.position.y + '-'
-            });
-            result = result.slice(0, -1) + '\n';
-        });
-        
-        exits.children.forEach(function(obj) {
-            result += 'exit,' + obj.position.x + ',' + obj.position.y + '\n'
-        });
-        
-        result += 'player,' + player_start.position.x + ',' + player_start.position.y + '\n';
-        
-        $(this).hide();
-        $('.firstSection').remove();
-        let gameText = result.slice(0,-1)
-        $('#response').text(gameText);
-        localStorage.setItem("lastLevel", gameText);
-        let newLevelName = "custom"+localLevelCount;
-        localStorage.setItem("localLevels", localLevelNames+","+newLevelName);
-        localStorage.setItem(newLevelName, gameText);
-        game.destroy();
-        
-    });
+    $('#display').click(buildLevelString);
     
-    $('#zoom').click(function() {
-        if (! zoom) {
-            game.scale.maxWidth = window.innerWidth - 15;
-            game.scale.maxHeight = window.innerHeight - 170;
-            game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
-            $(this)[0].value = 'Zoom In';
-            
-        } else {
-            game.scale.maxWidth = width;
-            game.scale.maxHeight = height;
-            game.scale.scaleMode = Phaser.ScaleManager.NO_SCALE;
-            $(this)[0].value = 'Zoom Out';
-        }
-        zoom = ! zoom;
-    });
+    $('#zoom').click(zoomToggle);
     
+}
+
+function buildLevelString(){
+    let result = game.world.width + ',' + game.world.height + '\n';
+
+    for (let i = 0; i < walls.children.length; i++) {
+        let obj = walls.children[i];
+        result += 'wall,' + obj.position.x + ',' + obj.position.y + '\n'
+    }
+    for (let i = 0; i < shockers.children.length; i++) {
+        let obj = shockers.children[i];
+        result += 'shocker,' + obj.position.x + ',' + obj.position.y + '\n'
+    }
+    for (let i = 0; i < gravObj_offs.children.length; i++) {
+        let obj = gravObj_offs.children[i];
+        result += 'gravObj_off,' + obj.position.x + ',' + obj.position.y + ',' + obj.gravMin + ',' + obj.gravMax + '\n'
+    }
+    for (let i = 0; i < gravObj_ons.children.length; i++) {
+        let obj = gravObj_ons.children[i];
+        result += 'gravObj_on,' + obj.position.x + ',' + obj.position.y + ',' + obj.gravMin + ',' + obj.gravMax + '\n'
+    }
+
+    gravObj_fluxes.forEach(function(obj) {
+        result += 'gravObj_flux,' + obj.position.x + ',' + obj.position.y + ',' + obj.gravMin + ',' + obj.gravMax + '\n'
+    });
+
+    gravObj_movers.forEach(function(obj) {
+        result += 'gravObj_move,' + obj.position.x + ',' + obj.position.y + ',' + obj.gravMin + ',' + obj.gravMax + ',' + obj.position.x + '#' + obj.position.y + '-';
+        obj.movementPathing.forEach(function(ele) {
+            result += ele.position.x + '#' + ele.position.y + '-'
+        });
+        result = result.slice(0, -1) + '\n';
+    });
+
+    exits.children.forEach(function(obj) {
+        result += 'exit,' + obj.position.x + ',' + obj.position.y + '\n'
+    });
+
+    result += 'player,' + player_start.position.x + ',' + player_start.position.y + '\n';
+
+    $(this).hide();
+    $('.firstSection').remove();
+    let gameText = result.slice(0,-1);
+    $('#response').text(gameText);
+    localStorage.setItem("lastLevel", gameText);
+    let newLevelName = "custom"+localLevelCount;
+    localStorage.setItem("localLevels", localLevelNames+","+newLevelName);
+    localStorage.setItem(newLevelName, gameText);
+    game.destroy();
+
+}
+
+function zoomToggle() {
+    if (! zoom) {
+        game.scale.maxWidth = window.innerWidth - 15;
+        game.scale.maxHeight = window.innerHeight - 170;
+        game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+        $(this)[0].value = 'Zoom In';
+
+    } else {
+        game.scale.maxWidth = width;
+        game.scale.maxHeight = height;
+        game.scale.scaleMode = Phaser.ScaleManager.NO_SCALE;
+        $(this)[0].value = 'Zoom Out';
+    }
+    zoom = ! zoom;
 }
 
 function initializeObj(objectName) {
@@ -532,8 +535,8 @@ function update() {
     //*/
     
     if (game.input.activePointer.leftButton.isDown && clickedObj != null) {
-        clickedObj.body.velocity.x = 20 * (game.input.activePointer.position.x - clickedObj.position.x)
-        clickedObj.body.velocity.y = 20 * (game.input.activePointer.position.y - clickedObj.position.y)
+        clickedObj.body.velocity.x = 20 * (game.input.activePointer.position.x - clickedObj.position.x);
+        clickedObj.body.velocity.y = 20 * (game.input.activePointer.position.y - clickedObj.position.y);
         
         if(clickedObj.number) {
             clickedObj.number.body.velocity.x = 20 * (game.input.activePointer.position.x - clickedObj.position.x)
