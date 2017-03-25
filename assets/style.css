@@ -3,6 +3,10 @@
     color: white;
 }
 
+.current:hover {
+    background-color: steelblue;
+}
+
 input[type="button"], button {
     border-width: 0px;
 }
