@@ -32,6 +32,8 @@ let LevelLoader = function (context) {
     }
 
     function makeGravObject(x, y, gravMin, gravMax, gravOn, flux, moving, movementList) {
+        const gravObjColor = 0x351777;
+        
         let gravObj = context.game.add.sprite(x, y, 'gravObj');
         gravObj.anchor.set(.5, .5);
         gravObj.gravOn = true ;
