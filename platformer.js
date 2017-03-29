@@ -296,9 +296,9 @@ function render() {
         drawGravObjCircle(gravObjects.children[i]);
     }
     
-    if (game.physics.arcade.isPaused || stopPauseAnimation) {
+    if ((game.physics.arcade.isPaused && notCurrentlyDying) || stopPauseAnimation) {
         graphics.beginFill(0xa3c6ff, .5);
-        graphics.drawRect(player.body.position.x - pausedSize, player.body.position.y - pausedSize, 2 * pausedSize, 2 * pausedSize);
+        graphics.drawRect(player.x - pausedSize + player.body.velocity.x/15, player.y - pausedSize + player.body.velocity.y/15, 2 * pausedSize, 2 * pausedSize);
         graphics.endFill();
         
         if (stopPauseAnimation) {
@@ -307,7 +307,7 @@ function render() {
             } else {
                 stopPauseAnimation = false;
             }
-        } else if (pausedSize < Math.max(game.width, game.height)) {
+        } else if (pausedSize < Math.max(game.world.width, game.world.height)) {
             pausedSize += pauseAnimationSpeed;
         }
     }
