@@ -1,6 +1,7 @@
 $(function() {
     const width = 810;
     const height = 420;
+    const startingLevelNum = 0;
 
     let game = new Phaser.Game(width, height, Phaser.AUTO, 'gameWindow');
 
