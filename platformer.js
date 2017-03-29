@@ -148,7 +148,7 @@ function update() {
     
     playerShadowLeft.body.position.set(player.body.position.x - 2, player.body.position.y);
     playerShadowRight.body.position.set(player.body.position.x + .5, player.body.position.y);
-    playerShadowBottom.body.position.set(player.body.position.x, player.body.position.y + 15);
+    playerShadowBottom.body.position.set(player.body.position.x - 1, player.body.position.y + 15);
     playerShadowTop.body.position.set(player.body.position.x + 1, player.body.position.y - 17);
     
     game.physics.arcade.overlap(playerShadowRight, walls, function() {
