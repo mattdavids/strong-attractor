@@ -123,224 +123,37 @@ Game.prototype = (function() {
 
     function update() {
         let game = this.game,
-            player = this.player,
-            walls = this.walls,
-            gravObjects = this.gravObjects,
-            shockers = this.shockers,
-            exits = this.exits,
-            emitters = this.emitters,
-            playerShadowLeft = this.playerShadowLeft,
-            playerShadowRight = this.playerShadowRight,
-            playerShadowBottom = this.playerShadowBottom,
-            playerShadowTop = this.playerShadowTop,
             clickedObj = this.clickedObj;
-
-
-
-
-
         // Move the player in a parabolic death animation when dead, 
         // Reset the game when the player falls below the game window
         if (deathFall) {
-            if (Math.abs((Math.pow(deathCounter - deathFallSpeed, 2) - Math.pow(deathFallSpeed, 2))/(blockSize/2)) > blockSize) {
-                var movement = blockSize;
-            } else {
-                var movement = (Math.pow(deathCounter - deathFallSpeed, 2) - Math.pow(deathFallSpeed, 2))/(blockSize/2)
-            }
-            player.y = player.y + movement;
-            if (player.y > game.world.height + 3 * blockSize) {
-                deathFall = false;
-                notCurrentlyDying = true;
-                game.physics.arcade.isPaused = false;
-                diedDecider.call(this);
-            }
-            deathCounter += 1;
+            doDeathFallAnimation.call(this);
         }
-        
-        game.physics.arcade.collide(emitters, walls);
-        game.physics.arcade.collide(player, walls);
-
-        let isTouchingRight = false;
-        let isTouchingLeft = false;
-        let isTouchingBottom = false;
-        let isTouchingTop = false;
-
-        playerShadowLeft.body.position.set(player.body.position.x - 2, player.body.position.y);
-        playerShadowRight.body.position.set(player.body.position.x + .5, player.body.position.y);
-        playerShadowBottom.body.position.set(player.body.position.x - 1, player.body.position.y + 15);
-        playerShadowTop.body.position.set(player.body.position.x + 1, player.body.position.y - 17);
-
-        game.physics.arcade.overlap(playerShadowRight, walls, function() {
-            isTouchingRight = true;
-        }, null, this);
-        game.physics.arcade.overlap(playerShadowLeft, walls, function() {
-            isTouchingLeft = true;
-        }, null, this);
-        game.physics.arcade.overlap(playerShadowBottom, walls, function() {
-            isTouchingBottom = true;
-        }, null, this);
-        game.physics.arcade.overlap(playerShadowTop, walls, function() {
-            isTouchingTop = true;
-        }, null, this);
-
-        game.physics.arcade.collide(player, gravObjects);
+        updatePlayerCollision.call(this);
 
         // If the player is not dead, play the death animation on contact with shockers
         // Don't allow player to change the gravity while dead
         if (notCurrentlyDying){
-            game.physics.arcade.overlap(player, shockers, deathAnimation, null, this);
+            game.physics.arcade.overlap(this.player, this.shockers, deathAnimation, null, this);
 
             // Adjust attraction of clicked object
-            if (game.input.activePointer.leftButton.isDown && clickedObj != null) {
-                clickedObj.gravWeight = Math.min(clickedObj.gravMax, clickedObj.gravWeight + 5000)
-            }
-            if (game.input.activePointer.rightButton.isDown && clickedObj != null) {
-                clickedObj.gravWeight = Math.max(clickedObj.gravMin, clickedObj.gravWeight - 5000)
-            }
+            adjustAttractorsPull.call(this);
         }
-        
-        game.physics.arcade.overlap(player, exits, exitDecider, null, this);
-
-
-
-
         if (! game.physics.arcade.isPaused){
-
-            if (game.input.keyboard.isDown(Phaser.KeyCode.A)) {
-                if (player.body.touching.down) {
-                    player.body.velocity.x = Math.max(-maxHorizontalVelocity, player.body.velocity.x - groundAcceleration);
-                } else {
-                    player.body.velocity.x -= airAcceleration;
-                }
-            } else if (game.input.keyboard.isDown(Phaser.KeyCode.D)) {
-                if (player.body.touching.down) {
-                    player.body.velocity.x = Math.min(maxHorizontalVelocity, player.body.velocity.x + groundAcceleration);
-                } else {
-                    player.body.velocity.x += airAcceleration;
-                }
-            } else {
-                if (player.body.touching.down) {
-                    player.body.velocity.x = player.body.velocity.x * frictionCoef;
-                }
-            }
-
-            if (player.body.velocity.x < 0 && isTouchingLeft) {
-                player.body.velocity.x = 0;
-            }
-            if (player.body.velocity.x > 0 && isTouchingRight) {
-                player.body.velocity.x = 0;
-            }
-
+            doPlayerMovement.call(this);
             // When the player hits the ground after jumping, play a you hit the ground particle effect
-            if (this.isJumping && isTouchingBottom) {
-                let emitter = game.add.emitter(player.x + player.body.velocity.x/14, player.bottom + 2);
-                emitter.makeParticles('groundParticle', 0, 15, true);
-                emitter.gravity = 300;
-                emitter.width = 20;
-                emitter.setYSpeed(-100);
-                emitter.start(true, 500, null, 15);
-                game.time.events.add(1000, function() {
-                    emitter.destroy();
-                });
-                emitters.add(emitter);
-                game.world.bringToTop(emitters);
-            }
+            doHitGroundAnimation.call(this);
+            checkWallCollision.call(this);
+            doJumpPhysics.call(this);
+            doGravityPhysics.call(this);
 
-            // Fade out the particles over their lifespan
-            emitters.forEach(function(emitter) {
-                emitter.forEachAlive(function(p) {
-                    //p.alpha = p.lifespan / emitter.lifespan;
-                    p.alpha = (-Math.pow(emitter.lifespan - p.lifespan, 2)/Math.pow(emitter.lifespan, 2)) + 1;
-                });
-            });            
-            
-            //If just landed on top of a block under another, get out of the wall and keep moving
-            if ((player.body.touching.down || isTouchingBottom) && this.isJumping && (isTouchingLeft || isTouchingRight)) {
-                player.body.velocity.x = isTouchingLeft * groundAcceleration - isTouchingRight * groundAcceleration;
-                player.body.velocity.y = this.previous_velocity_y;
-            }
+            this.previous_velocity_y = this.player.body.velocity.y;
 
-            //If stuck in a wall, get out of the wall and keep moving
-            if ((player.body.touching.down || isTouchingBottom) && isTouchingTop && this.isJumping) {
-                player.body.velocity.x = isTouchingLeft * groundAcceleration - isTouchingRight * groundAcceleration;
-                player.x = player.x + isTouchingLeft * ((blockSize/2) - (player.body.left % (blockSize/2))) - isTouchingRight * (player.body.right % (blockSize/2));
-                if (player.body.velocity.y === 0) {
-                    player.body.velocity.y = this.previous_velocity_y;
-                }
-            }
-
-            if (game.input.keyboard.isDown(Phaser.KeyCode.W) && isTouchingBottom && player.body.touching.down && ! isTouchingTop && ! this.isJumping) {
-                player.body.velocity.y = -jumpVelocity;
-                this.jumpCount = 0;
-                this.isJumping = true;
-            }
-            //Let user jump higher if they hold the button down
-            if (this.jumpCount < jumpFrames) {
-                if (game.input.keyboard.isDown(Phaser.KeyCode.W)) {
-                    player.body.velocity.y -= jumpVelocity/(jumpFrames - 3)
-                } else {
-                    this.jumpCount = jumpFrames;
-                }
-
-            }
-
-            this.jumpCount += 1;
-
-            let xGravCoef = 0;
-            let yGravCoef = 0;
-
-            // Gravity object changes
-            for (let i = 0;  i < gravObjects.children.length; i++) {
-                let gravObj = gravObjects.children[i];
-
-                if (gravObj.gravOn) {
-                    let diff = Phaser.Point.subtract(player.position, gravObj.position);
-                    let r = diff.getMagnitude();
-                    diff.normalize();
-
-                    if ( r < (gravObj.gravWeight / gravCoef) * circleRadius) {
-                        xGravCoef += gravObj.gravWeight * diff.x / r;
-                        yGravCoef += gravObj.gravWeight * diff.y / r;
-                    }
-                }
-
-                if (gravObj.flux) {
-                    gravObj.gravWeight += 2000 * gravObj.fluxConst;
-                    if (gravObj.gravWeight >= gravObj.gravMax || gravObj.gravWeight <= gravObj.gravMin) {
-                        gravObj.fluxConst *= -1;
-                    }
-                }
-
-                if (gravObj.moving) {
-                    let loc = gravObj.body.position;
-                    let movementList = gravObj.movementList;
-                    let movementIndex = gravObj.movementIndex;
-                    let movingToX = movementList[movementIndex].split('#')[0] - 15;
-                    let movingToY = movementList[movementIndex].split('#')[1] - 15;
-
-                    if (parseInt(loc.x) === movingToX && parseInt(loc.y) === movingToY) {
-                        gravObj.movementIndex = (movementIndex + 1) % movementList.length;
-                    } else {
-                        gravObj.body.velocity.x = (loc.x < movingToX) * 30 - (loc.x > movingToX) * 30;
-                        gravObj.body.velocity.y = (loc.y < movingToY) * 30 - (loc.y > movingToY) * 30;
-                    }
-                }
-            }
-            if (xGravCoef > 0) {
-                player.body.acceleration.x = -xGravCoef * !isTouchingLeft;
-            } else {
-                player.body.acceleration.x = -xGravCoef * !isTouchingRight;
-            }
-
-            player.body.acceleration.y = -yGravCoef;
-
-            this.previous_velocity_y = player.body.velocity.y;
-
-            this.isJumping = ! isTouchingBottom;
+            this.isJumping = ! this.player.isTouchingBottom;
 
         } else {
             // If time is frozen, keep the particles in the same state until time is unfrozen
-            emitters.forEach(function(emitter) {
+            this.emitters.forEach(function(emitter) {
                 emitter.forEachAlive(function(p) {
                     p.lifespan += millisecondsPerFrame;
                 });
@@ -398,6 +211,144 @@ Game.prototype = (function() {
         this.exits.removeAll(true);
     }
 
+    function updatePlayerCollision() {
+        let player = this.player,
+            game = this.game;
+        game.physics.arcade.collide(this.emitters, this.walls);
+        game.physics.arcade.collide(player, this.walls);       
+        game.physics.arcade.collide(player, this.gravObjects);
+        game.physics.arcade.overlap(player, this.exits, exitDecider, null, this);
+
+        player.isTouchingRight = false;
+        player.isTouchingLeft = false;
+        player.isTouchingBottom = false;
+        player.isTouchingTop = false;
+
+        this.playerShadowLeft.body.position.set(player.body.position.x - 2, player.body.position.y);
+        this.playerShadowRight.body.position.set(player.body.position.x + .5, player.body.position.y);
+        this.playerShadowBottom.body.position.set(player.body.position.x - 1, player.body.position.y + 15);
+        this.playerShadowTop.body.position.set(player.body.position.x + 1, player.body.position.y - 17);
+
+        game.physics.arcade.overlap(this.playerShadowRight, this.walls, function() {
+            player.isTouchingRight = true;
+        }, null, this);
+        game.physics.arcade.overlap(this.playerShadowLeft, this.walls, function() {
+            player.isTouchingLeft = true;
+        }, null, this);
+        game.physics.arcade.overlap(this.playerShadowBottom, this.walls, function() {
+            player.isTouchingBottom = true;
+        }, null, this);
+        game.physics.arcade.overlap(this.playerShadowTop, this.walls, function() {
+            player.isTouchingTop = true;
+        }, null, this);
+    }
+    
+    function adjustAttractorsPull() {
+        let game = this.game,
+            clickedObj = this.clickedObj;
+        if (game.input.activePointer.leftButton.isDown && clickedObj != null) {
+            clickedObj.gravWeight = Math.min(clickedObj.gravMax, clickedObj.gravWeight + 5000)
+        }
+        if (game.input.activePointer.rightButton.isDown && clickedObj != null) {
+            clickedObj.gravWeight = Math.max(clickedObj.gravMin, clickedObj.gravWeight - 5000)
+        }
+    }
+    
+    function doPlayerMovement(){
+        let player = this.player,
+            game = this.game;
+        if (game.input.keyboard.isDown(Phaser.KeyCode.A)) {
+            if (player.body.touching.down) {
+                player.body.velocity.x = Math.max(-maxHorizontalVelocity, player.body.velocity.x - groundAcceleration);
+            } else {
+                player.body.velocity.x -= airAcceleration;
+            }
+        } else if (game.input.keyboard.isDown(Phaser.KeyCode.D)) {
+            if (player.body.touching.down) {
+                player.body.velocity.x = Math.min(maxHorizontalVelocity, player.body.velocity.x + groundAcceleration);
+            } else {
+                player.body.velocity.x += airAcceleration;
+            }
+        } else {
+            if (player.body.touching.down) {
+                player.body.velocity.x = player.body.velocity.x * frictionCoef;
+            }
+        }
+
+        if (player.body.velocity.x < 0 && player.isTouchingLeft) {
+            player.body.velocity.x = 0;
+        }
+        if (player.body.velocity.x > 0 && player.isTouchingRight) {
+            player.body.velocity.x = 0;
+        }
+    }
+    
+    function doHitGroundAnimation() {
+        let player = this.player,
+            game = this.game;
+        if (this.isJumping && player.isTouchingBottom) {
+            let emitter = game.add.emitter(player.x + player.body.velocity.x/14, player.bottom + 2);
+            emitter.makeParticles('groundParticle', 0, 15, true);
+            emitter.gravity = 300;
+            emitter.width = 20;
+            emitter.setYSpeed(-100);
+            emitter.start(true, 500, null, 15);
+            game.time.events.add(1000, function() {
+                emitter.destroy();
+            });
+            this.emitters.add(emitter);
+            game.world.bringToTop(this.emitters);
+        }
+
+        // Fade out the particles over their lifespan
+        this.emitters.forEach(function(emitter) {
+            emitter.forEachAlive(function(p) {
+                //p.alpha = p.lifespan / emitter.lifespan;
+                p.alpha = (-Math.pow(emitter.lifespan - p.lifespan, 2)/Math.pow(emitter.lifespan, 2)) + 1;
+            });
+        }); 
+    }
+    
+    function checkWallCollision() {
+        let player = this.player;
+        //If just landed on top of a block under another, get out of the wall and keep moving
+        if ((player.body.touching.down || player.isTouchingBottom) && this.isJumping && (player.isTouchingLeft || player.isTouchingRight)) {
+            player.body.velocity.x = player.isTouchingLeft * groundAcceleration - player.isTouchingRight * groundAcceleration;
+            player.body.velocity.y = this.previous_velocity_y;
+        }
+
+        //If stuck in a wall, get out of the wall and keep moving
+        if ((player.body.touching.down || player.isTouchingBottom) && player.isTouchingTop && this.isJumping) {
+            player.body.velocity.x = player.isTouchingLeft * groundAcceleration - player.isTouchingRight * groundAcceleration;
+            player.x = player.x + player.isTouchingLeft * ((blockSize/2) - (player.body.left % (blockSize/2))) - player.isTouchingRight * (player.body.right % (blockSize/2));
+            if (player.body.velocity.y === 0) {
+                player.body.velocity.y = this.previous_velocity_y;
+            }
+        }
+    }
+    
+    function doJumpPhysics() {   
+        let player = this.player,
+            game = this.game;
+        if (game.input.keyboard.isDown(Phaser.KeyCode.W) && player.isTouchingBottom && player.body.touching.down && ! player.isTouchingTop && ! this.isJumping) {
+            player.body.velocity.y = -jumpVelocity;
+            this.jumpCount = 0;
+            this.isJumping = true;
+        }
+        //Let user jump higher if they hold the button down
+        if (this.jumpCount < jumpFrames) {
+            if (game.input.keyboard.isDown(Phaser.KeyCode.W)) {
+                player.body.velocity.y -= jumpVelocity/(jumpFrames - 3)
+            } else {
+                this.jumpCount = jumpFrames;
+            }
+
+        }
+        
+        this.jumpCount += 1;
+    }
+
+    
     function setupGravityObjects() {
         let that = this;
         this.gravObjects.children.forEach(function(gravObj) {
@@ -408,6 +359,60 @@ Game.prototype = (function() {
                 }, this);
             }
         });
+    }
+    
+    function doGravityPhysics(){
+        
+        let player = this.player,
+            gravObjects = this.gravObjects;
+        
+        let xGravCoef = 0;
+        let yGravCoef = 0;
+
+        // Gravity object changes
+        for (let i = 0;  i < gravObjects.children.length; i++) {
+            let gravObj = gravObjects.children[i];
+
+            if (gravObj.gravOn) {
+                let diff = Phaser.Point.subtract(player.position, gravObj.position);
+                let r = diff.getMagnitude();
+                diff.normalize();
+
+                if ( r < (gravObj.gravWeight / gravCoef) * circleRadius) {
+                    xGravCoef += gravObj.gravWeight * diff.x / r;
+                    yGravCoef += gravObj.gravWeight * diff.y / r;
+                }
+            }
+
+            if (gravObj.flux) {
+                gravObj.gravWeight += 2000 * gravObj.fluxConst;
+                if (gravObj.gravWeight >= gravObj.gravMax || gravObj.gravWeight <= gravObj.gravMin) {
+                    gravObj.fluxConst *= -1;
+                }
+            }
+
+            if (gravObj.moving) {
+                let loc = gravObj.body.position;
+                let movementList = gravObj.movementList;
+                let movementIndex = gravObj.movementIndex;
+                let movingToX = movementList[movementIndex].split('#')[0] - 15;
+                let movingToY = movementList[movementIndex].split('#')[1] - 15;
+
+                if (parseInt(loc.x) === movingToX && parseInt(loc.y) === movingToY) {
+                    gravObj.movementIndex = (movementIndex + 1) % movementList.length;
+                } else {
+                    gravObj.body.velocity.x = (loc.x < movingToX) * 30 - (loc.x > movingToX) * 30;
+                    gravObj.body.velocity.y = (loc.y < movingToY) * 30 - (loc.y > movingToY) * 30;
+                }
+            }
+        }
+        if (xGravCoef > 0) {
+            player.body.acceleration.x = -xGravCoef * !player.isTouchingLeft;
+        } else {
+            player.body.acceleration.x = -xGravCoef * !player.isTouchingRight;
+        }
+
+        player.body.acceleration.y = -yGravCoef;
     }
 
     // Starts the death animation by setting flags. Freezes the player, pauses the game state, shakes the screen, then sets a timer to set the deathFall flag which is run in update
@@ -424,6 +429,22 @@ Game.prototype = (function() {
             deathFall = true;
             deathCounter = 0;
         });
+    }
+    
+    function doDeathFallAnimation() {
+        if (Math.abs((Math.pow(deathCounter - deathFallSpeed, 2) - Math.pow(deathFallSpeed, 2))/(blockSize/2)) > blockSize) {
+            var movement = blockSize;
+        } else {
+            var movement = (Math.pow(deathCounter - deathFallSpeed, 2) - Math.pow(deathFallSpeed, 2))/(blockSize/2)
+        }
+        this.player.y = this.player.y + movement;
+        if (this.player.y > this.game.world.height + 3 * blockSize) {
+            deathFall = false;
+            notCurrentlyDying = true;
+            this.game.physics.arcade.isPaused = false;
+            diedDecider.call(this);
+        }
+        deathCounter += 1;
     }
     
     function diedDecider() {
