@@ -46,6 +46,7 @@ function preload() {
     game.load.image('wall', 'assets/art/bricks_gray.png');
     game.load.image('gravObj', 'assets/art/gravObj.png');
     game.load.image('shadow', 'assets/art/shadow.png');
+    game.load.image('groundParticle', 'assets/art/groundParticle.png')
 
     game.load.spritesheet('shocker', 'assets/art/electricity_sprites.png', 30, 30, 3);
     queueLevelsFromList();
@@ -65,6 +66,7 @@ function create() {
     gravObjects = game.add.group();
     shockers = game.add.group();
     exits = game.add.group();
+    emitters = game.add.group();
 
     graphics = game.add.graphics();
 
@@ -114,6 +116,7 @@ function makeLevelSelector(){
 
 function update() {
 
+    game.physics.arcade.collide(emitters, walls);
     game.physics.arcade.collide(player, walls);
     
     let isTouchingRight = false;
@@ -178,7 +181,30 @@ function update() {
         if (player.body.velocity.x > 0 && isTouchingRight) {
             player.body.velocity.x = 0;
         }
-
+        
+        // When the player hits the ground after jumping, play a you hit the ground particle effect
+        if (isJumping && isTouchingBottom) {
+            let emitter = game.add.emitter(player.x + player.body.velocity.x/14, player.bottom + 2);
+            emitter.makeParticles('groundParticle', 0, 15, true);
+            emitter.gravity = 300;
+            emitter.width = 20;
+            emitter.setYSpeed(-100);
+            emitter.start(true, 500, null, 15);
+            game.time.events.add(1000, function() {
+                emitter.destroy();
+            });
+            emitters.add(emitter);
+            game.world.bringToTop(emitters);
+        }
+        
+        // Fade out the particles over their lifespan
+        emitters.forEach(function(emitter) {
+            emitter.forEachAlive(function(p) {
+                //p.alpha = p.lifespan / emitter.lifespan;
+                p.alpha = (-Math.pow(emitter.lifespan - p.lifespan, 2)/Math.pow(emitter.lifespan, 2)) + 1;
+            });
+        });
+        
         //If just landed on top of a block under another, get out of the wall and keep moving
         if ((player.body.touching.down || isTouchingBottom) && isJumping && (isTouchingLeft || isTouchingRight)) {
             player.body.velocity.x = isTouchingLeft * groundAcceleration - isTouchingRight * groundAcceleration;
@@ -263,6 +289,13 @@ function update() {
     
         isJumping = ! isTouchingBottom;
         
+    } else {
+        // If time is frozen, keep the particles in the same state until time is unfrozen
+        emitters.forEach(function(emitter) {
+            emitter.forEachAlive(function(p) {
+                p.lifespan += millisecondsPerFrame;
+            });
+        });
     }
 }
 
