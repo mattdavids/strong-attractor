@@ -6,6 +6,8 @@ const height = heightBlocks * blockSize;
 const width = widthBlocks * blockSize;
 const gravObjColor = 0x351777;
 const circleRadius = 259;
+const deathFallSpeed = 6;
+const deathAnimationTime = 300;
 
 // Physics
 const gravCoef = 150000;
@@ -14,6 +16,7 @@ const groundAcceleration = 30;
 const airAcceleration = 5;
 const maxHorizontalVelocity = 250;
 const jumpVelocity = 300;
+const millisecondsPerFrame = 100/6;
 
 // Levels
 let levels;
@@ -27,6 +30,7 @@ let exits;
 let walls;
 let gravObjects;
 let shockers;
+let emitters;
 let playerShadowLeft;
 let playerShadowRight;
 let playerShadowBottom;
@@ -54,3 +58,6 @@ let graphics;
 let clickedObj;
 let jumpCount;
 let isJumping = false;
+let notCurrentlyDying = true;
+let deathFall = false;
+let deathCounter;
