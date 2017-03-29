@@ -18,6 +18,7 @@ Game.prototype = (function() {
     // Display
     const gravObjColor = 0x351777;
     const circleRadius = 259;
+    const blockSize = 30;
 
     const pauseAnimationSpeed = 50;
     const deathFallSpeed = 6;
@@ -100,6 +101,7 @@ Game.prototype = (function() {
         this.playerShadowTop.body.setSize(13, 1, 0, 0);
         
         notCurrentlyDying = true;
+        deathFall = false;
     }
 
     /*function makeLevelSelector(){
@@ -372,7 +374,7 @@ Game.prototype = (function() {
 
         if ((game.physics.arcade.isPaused && notCurrentlyDying) || this.stopPauseAnimation) {
             graphics.beginFill(0xa3c6ff, .5);
-            graphics.drawRect(player.body.position.x - this.pausedSize + player.body.velocity.x/15, player.body.position.y - this.pausedSize + player.body.velocity.y/15, 2 * this.pausedSize, 2 * this.pausedSize);
+            graphics.drawRect(player.x - this.pausedSize + player.body.velocity.x/15, player.y - this.pausedSize + player.body.velocity.y/15, 2 * this.pausedSize, 2 * this.pausedSize);
             graphics.endFill();
 
             if (this.stopPauseAnimation) {
