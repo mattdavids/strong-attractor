@@ -82,16 +82,20 @@ function create() {
 function setupPauseButton(){
     pauseBtn = game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
     pauseBtn.onDown.add(function() {
-        shockers.children.forEach(function(ele) {
-            ele.animations.paused = ! ele.animations.paused;
-        });
-        game.physics.arcade.isPaused = ! game.physics.arcade.isPaused;
-        
-        if (! game.physics.arcade.isPaused) {
-            stopPauseAnimation = true;
-            pausedSize = Math.max(game.width, game.height);
-        } else {
-            pausedSize = pauseAnimationSpeed;
+        if (notCurrentlyDying) {
+            shockers.children.forEach(function(ele) {
+                ele.animations.paused = ! ele.animations.paused;
+            });
+            game.physics.arcade.isPaused = ! game.physics.arcade.isPaused;
+
+            if (! game.physics.arcade.isPaused) {
+                stopPauseAnimation = true;
+                pausedSize = Math.max(game.world.width, game.world.height);
+                game.time.events.resume();
+            } else {
+                pausedSize = pauseAnimationSpeed;
+                game.time.events.pause();
+            }
         }
 
     }, this);
@@ -115,7 +119,25 @@ function makeLevelSelector(){
 }
 
 function update() {
-
+    
+    // Move the player in a parabolic death animation when dead, 
+    // Reset the game when the player falls below the game window
+    if (deathFall) {
+        if (Math.abs((Math.pow(deathCounter - deathFallSpeed, 2) - Math.pow(deathFallSpeed, 2))/(blockSize/2)) > blockSize) {
+            var movement = blockSize;
+        } else {
+            var movement = (Math.pow(deathCounter - deathFallSpeed, 2) - Math.pow(deathFallSpeed, 2))/(blockSize/2)
+        }
+        player.y = player.y + movement;
+        if (player.y > game.world.height + 3 * blockSize) {
+            deathFall = false;
+            notCurrentlyDying = true;
+            game.physics.arcade.isPaused = false;
+            loadLevel();
+        }
+        deathCounter += 1;
+    }
+    
     game.physics.arcade.collide(emitters, walls);
     game.physics.arcade.collide(player, walls);
     
@@ -143,17 +165,22 @@ function update() {
     }, null, this);
 
     game.physics.arcade.collide(player, gravObjects);
-
-    game.physics.arcade.overlap(player, shockers, loadLevel, null, this);
+    
+    // If the player is not dead, play the death animation on contact with shockers
+    // Don't allow player to change the gravity while dead
+    if (notCurrentlyDying){
+        game.physics.arcade.overlap(player, shockers, deathAnimation, null, this);
+        
+        // Adjust attraction of clicked object
+        if (game.input.activePointer.leftButton.isDown && clickedObj != null) {
+            clickedObj.gravWeight = Math.min(clickedObj.gravMax, clickedObj.gravWeight + 5000)
+        }
+        if (game.input.activePointer.rightButton.isDown && clickedObj != null) {
+            clickedObj.gravWeight = Math.max(clickedObj.gravMin, clickedObj.gravWeight - 5000)
+        }
+    }
+    
     game.physics.arcade.overlap(player, exits, exitDecider, null);
-
-    // Adjust attraction of clicked object
-    if (game.input.activePointer.leftButton.isDown && clickedObj != null) {
-        clickedObj.gravWeight = Math.min(clickedObj.gravMax, clickedObj.gravWeight + 5000)
-    }
-    if (game.input.activePointer.rightButton.isDown && clickedObj != null) {
-        clickedObj.gravWeight = Math.max(clickedObj.gravMin, clickedObj.gravWeight - 5000)
-    }
     
     if (! game.physics.arcade.isPaused){
         
@@ -297,6 +324,21 @@ function update() {
             });
         });
     }
+}
+
+// Starts the death animation by setting flags. Freezes the player, pauses the game state, shakes the screen, then sets a timer to set the deathFall flag which is run in update
+function deathAnimation() {
+    notCurrentlyDying = false;
+    game.physics.arcade.isPaused = true;
+    player.body.allowGravity = false;
+    player.body.velocity = new Phaser.Point(0, 0);
+    game.time.events.add(0, function() {
+        game.camera.shake(.008, deathAnimationTime);
+    });
+    game.time.events.add(deathAnimationTime + 100, function() {
+        deathFall = true;
+        deathCounter = 0;
+    });
 }
 
 function exitDecider() {
