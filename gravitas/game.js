@@ -13,31 +13,34 @@ Game.prototype = (function() {
     const airAcceleration = 5;
     const maxHorizontalVelocity = 250;
     const jumpVelocity = 300;
+    const millisecondsPerFrame = 100/6;
 
     // Display
     const gravObjColor = 0x351777;
     const circleRadius = 259;
 
     const pauseAnimationSpeed = 50;
+    const deathFallSpeed = 6;
+    const deathAnimationTime = 300;
 
-    function setupPauseButton() {
-        let game = this.game,
-            shockers = this.shockers,
-            stopPauseAnimation = this.stopPauseAnimation,
-            pausedSize = this.pausedSize;
+    function setupPauseButton(){
+        let game = this.game;
+        pauseBtn = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
+        pauseBtn.onDown.add(function() {
+            if (notCurrentlyDying) {
+                this.shockers.children.forEach(function(ele) {
+                    ele.animations.paused = ! ele.animations.paused;
+                });
+                game.physics.arcade.isPaused = ! game.physics.arcade.isPaused;
 
-        this.pauseBtn = game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
-        this.pauseBtn.onDown.add(function() {
-            shockers.children.forEach(function(ele) {
-                ele.animations.paused = ! ele.animations.paused;
-            });
-            game.physics.arcade.isPaused = ! game.physics.arcade.isPaused;
-
-            if (! game.physics.arcade.isPaused) {
-                stopPauseAnimation = true;
-                pausedSize = Math.max(game.width, game.height);
-            } else {
-                pausedSize = pauseAnimationSpeed;
+                if (! game.physics.arcade.isPaused) {
+                    this.stopPauseAnimation = true;
+                    this.pausedSize = game.width;
+                    game.time.events.resume();
+                } else {
+                    this.pausedSize = pauseAnimationSpeed;
+                    game.time.events.pause();
+                }
             }
 
         }, this);
@@ -51,6 +54,7 @@ Game.prototype = (function() {
         game.load.image('wall', 'assets/art/bricks_gray.png');
         game.load.image('gravObj', 'assets/art/gravObj.png');
         game.load.image('shadow', 'assets/art/shadow.png');
+        game.load.image('groundParticle', 'assets/art/groundParticle.png')
 
         game.load.spritesheet('shocker', 'assets/art/electricity_sprites.png', 30, 30, 3);
 
@@ -94,6 +98,8 @@ Game.prototype = (function() {
         this.playerShadowTop = game.add.sprite(player.body.position.x, player.body.position.y, 'shadow');
         this.playerShadowTop.anchor.set(.5, .5);
         this.playerShadowTop.body.setSize(13, 1, 0, 0);
+        
+        notCurrentlyDying = true;
     }
 
     /*function makeLevelSelector(){
@@ -120,6 +126,7 @@ Game.prototype = (function() {
             gravObjects = this.gravObjects,
             shockers = this.shockers,
             exits = this.exits,
+            emitters = this.emitters,
             playerShadowLeft = this.playerShadowLeft,
             playerShadowRight = this.playerShadowRight,
             playerShadowBottom = this.playerShadowBottom,
@@ -130,6 +137,25 @@ Game.prototype = (function() {
 
 
 
+        // Move the player in a parabolic death animation when dead, 
+        // Reset the game when the player falls below the game window
+        if (deathFall) {
+            if (Math.abs((Math.pow(deathCounter - deathFallSpeed, 2) - Math.pow(deathFallSpeed, 2))/(blockSize/2)) > blockSize) {
+                var movement = blockSize;
+            } else {
+                var movement = (Math.pow(deathCounter - deathFallSpeed, 2) - Math.pow(deathFallSpeed, 2))/(blockSize/2)
+            }
+            player.y = player.y + movement;
+            if (player.y > game.world.height + 3 * blockSize) {
+                deathFall = false;
+                notCurrentlyDying = true;
+                game.physics.arcade.isPaused = false;
+                diedDecider.call(this);
+            }
+            deathCounter += 1;
+        }
+        
+        game.physics.arcade.collide(emitters, walls);
         game.physics.arcade.collide(player, walls);
 
         let isTouchingRight = false;
@@ -139,7 +165,7 @@ Game.prototype = (function() {
 
         playerShadowLeft.body.position.set(player.body.position.x - 2, player.body.position.y);
         playerShadowRight.body.position.set(player.body.position.x + .5, player.body.position.y);
-        playerShadowBottom.body.position.set(player.body.position.x, player.body.position.y + 15);
+        playerShadowBottom.body.position.set(player.body.position.x - 1, player.body.position.y + 15);
         playerShadowTop.body.position.set(player.body.position.x + 1, player.body.position.y - 17);
 
         game.physics.arcade.overlap(playerShadowRight, walls, function() {
@@ -157,16 +183,21 @@ Game.prototype = (function() {
 
         game.physics.arcade.collide(player, gravObjects);
 
-        game.physics.arcade.overlap(player, shockers, diedDecider, null, this);
-        game.physics.arcade.overlap(player, exits, exitDecider, null, this);
+        // If the player is not dead, play the death animation on contact with shockers
+        // Don't allow player to change the gravity while dead
+        if (notCurrentlyDying){
+            game.physics.arcade.overlap(player, shockers, deathAnimation, null, this);
 
-        // Adjust attraction of clicked object
-        if (game.input.activePointer.leftButton.isDown && clickedObj !== undefined) {
-            clickedObj.gravWeight = Math.min(clickedObj.gravMax, clickedObj.gravWeight + 5000)
+            // Adjust attraction of clicked object
+            if (game.input.activePointer.leftButton.isDown && clickedObj != null) {
+                clickedObj.gravWeight = Math.min(clickedObj.gravMax, clickedObj.gravWeight + 5000)
+            }
+            if (game.input.activePointer.rightButton.isDown && clickedObj != null) {
+                clickedObj.gravWeight = Math.max(clickedObj.gravMin, clickedObj.gravWeight - 5000)
+            }
         }
-        if (game.input.activePointer.rightButton.isDown && clickedObj !== undefined) {
-            clickedObj.gravWeight = Math.max(clickedObj.gravMin, clickedObj.gravWeight - 5000)
-        }
+        
+        game.physics.arcade.overlap(player, exits, exitDecider, null, this);
 
 
 
@@ -198,6 +229,29 @@ Game.prototype = (function() {
                 player.body.velocity.x = 0;
             }
 
+            // When the player hits the ground after jumping, play a you hit the ground particle effect
+            if (this.isJumping && isTouchingBottom) {
+                let emitter = game.add.emitter(player.x + player.body.velocity.x/14, player.bottom + 2);
+                emitter.makeParticles('groundParticle', 0, 15, true);
+                emitter.gravity = 300;
+                emitter.width = 20;
+                emitter.setYSpeed(-100);
+                emitter.start(true, 500, null, 15);
+                game.time.events.add(1000, function() {
+                    emitter.destroy();
+                });
+                emitters.add(emitter);
+                game.world.bringToTop(emitters);
+            }
+
+            // Fade out the particles over their lifespan
+            emitters.forEach(function(emitter) {
+                emitter.forEachAlive(function(p) {
+                    //p.alpha = p.lifespan / emitter.lifespan;
+                    p.alpha = (-Math.pow(emitter.lifespan - p.lifespan, 2)/Math.pow(emitter.lifespan, 2)) + 1;
+                });
+            });            
+            
             //If just landed on top of a block under another, get out of the wall and keep moving
             if ((player.body.touching.down || isTouchingBottom) && this.isJumping && (isTouchingLeft || isTouchingRight)) {
                 player.body.velocity.x = isTouchingLeft * groundAcceleration - isTouchingRight * groundAcceleration;
@@ -282,13 +336,21 @@ Game.prototype = (function() {
 
             this.isJumping = ! isTouchingBottom;
 
+        } else {
+            // If time is frozen, keep the particles in the same state until time is unfrozen
+            emitters.forEach(function(emitter) {
+                emitter.forEachAlive(function(p) {
+                    p.lifespan += millisecondsPerFrame;
+                });
+            });
         }
     }
 
     function render() {
         let game = this.game,
             graphics = this.graphics,
-            gravObjects = this.gravObjects;
+            gravObjects = this.gravObjects,
+            player = this.player;
 
         let drawGravObjCircle = function(gravObj) {
             // these are heuristic constants which look okay
@@ -308,21 +370,22 @@ Game.prototype = (function() {
         graphics.clear();
         gravObjects.children.forEach(drawGravObjCircle);
 
-        if (game.physics.arcade.isPaused || stopPauseAnimation) {
+        if ((game.physics.arcade.isPaused && notCurrentlyDying) || this.stopPauseAnimation) {
             graphics.beginFill(0xa3c6ff, .5);
-            graphics.drawRect(player.body.position.x - pausedSize, player.body.position.y - pausedSize, 2 * pausedSize, 2 * pausedSize);
+            graphics.drawRect(player.body.position.x - this.pausedSize + player.body.velocity.x/15, player.body.position.y - this.pausedSize + player.body.velocity.y/15, 2 * this.pausedSize, 2 * this.pausedSize);
             graphics.endFill();
 
             if (this.stopPauseAnimation) {
-                if (this.pausedSize > this.pauseAnimationSpeed) {
-                    this.pausedSize -= this.pauseAnimationSpeed;
+                if (this.pausedSize > pauseAnimationSpeed) {
+                    this.pausedSize -= pauseAnimationSpeed;
                 } else {
                     this.stopPauseAnimation = false;
                 }
-            } else if (this.pausedSize < Math.max(game.width, game.height)) {
-                this.pausedSize += this.pauseAnimationSpeed;
+            } else if (this.pausedSize < game.width) {
+                this.pausedSize += pauseAnimationSpeed;
             }
         }
+        game.world.bringToTop(graphics);
     }
 
     function clearLevel() {
@@ -345,6 +408,22 @@ Game.prototype = (function() {
         });
     }
 
+    // Starts the death animation by setting flags. Freezes the player, pauses the game state, shakes the screen, then sets a timer to set the deathFall flag which is run in update
+    function deathAnimation() {
+        let game = this.game;
+        notCurrentlyDying = false;
+        game.physics.arcade.isPaused = true;
+        this.player.body.allowGravity = false;
+        this.player.body.velocity = new Phaser.Point(0, 0);
+        game.time.events.add(0, function() {
+            game.camera.shake(.008, deathAnimationTime);
+        });
+        game.time.events.add(deathAnimationTime + 100, function() {
+            deathFall = true;
+            deathCounter = 0;
+        });
+    }
+    
     function diedDecider() {
         clearLevel.call(this);
         this.levelLoader.loadLevel(this.currentLevelNum);

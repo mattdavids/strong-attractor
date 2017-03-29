@@ -59,11 +59,13 @@ let LevelLoader = function (context) {
         context.gravObjects = game.add.group();
         context.shockers = game.add.group();
         context.exits = game.add.group();
+        context.emitters = game.add.group();
 
         let walls = context.walls = game.add.group();
         let gravObjects = context.gravObjects;
         let shockers = context.shockers;
         let exits = context.exits;
+        let emitters = context.emitters;
 
         let level = levels[levelNumber];
 
