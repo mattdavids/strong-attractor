@@ -2,7 +2,7 @@ function loadLevel() {
     clearLevel();
 
     let level = levels[currentLevelNum];
-    if (level == undefined) {
+    if (level === undefined) {
         level = ['810,420','gravObj_flux,405,210, 0, 300000','wall,795,405','wall,765,405','wall,735,405','wall,735,375','wall,735,345', 'wall,765,345','wall,795,345', 'wall,795,375','exit,705,390', 'player,765,375'];
         let text = game.add.text(400, 170, "You're done!", {fill: "#000"});
         text.anchor.set(.5, .5);
@@ -108,10 +108,10 @@ function clearLevel(){
     exits.removeAll(true);
 
     // player is undefined on first run
-    if (player != undefined)
+    if (player !== undefined)
         player.kill();
     // exit is undefined on first run
-    if (exit != undefined)
+    if (exit !== undefined)
         exit.kill();
 }
 

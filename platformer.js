@@ -25,11 +25,11 @@ function loadMenu() {
 }
 
 function createMenu() {
-    background = game.add.sprite(405,210, 'background');
-    background.anchor.set(0.5,0.5);
+    background = game.add.sprite(405, 210, 'background');
+    background.anchor.set(0.5, 0.5);
     background.immovable = true;
     startBtn = game.add.sprite(width/2, height/2, 'startBtn');
-    startBtn.anchor.set(0.5,0.5);
+    startBtn.anchor.set(0.5, 0.5);
     startBtn.inputEnabled = true;
 }
 
@@ -108,7 +108,7 @@ function makeLevelSelector(){
     let atrSelected;
     for(let i = 0; i < levelCount; i++) {
 
-        if ( i == currentLevelNum) {
+        if ( i === currentLevelNum) {
             atrSelected = 'selected';
         } else {
             atrSelected = '';
@@ -140,17 +140,17 @@ function update() {
     
     game.physics.arcade.collide(emitters, walls);
     game.physics.arcade.collide(player, walls);
-    
+
     let isTouchingRight = false;
     let isTouchingLeft = false;
     let isTouchingBottom = false;
     let isTouchingTop = false;
-    
+
     playerShadowLeft.body.position.set(player.body.position.x - 2, player.body.position.y);
     playerShadowRight.body.position.set(player.body.position.x + .5, player.body.position.y);
     playerShadowBottom.body.position.set(player.body.position.x - 1, player.body.position.y + 15);
     playerShadowTop.body.position.set(player.body.position.x + 1, player.body.position.y - 17);
-    
+
     game.physics.arcade.overlap(playerShadowRight, walls, function() {
         isTouchingRight = true;
     }, null, this);
@@ -183,7 +183,7 @@ function update() {
     game.physics.arcade.overlap(player, exits, exitDecider, null);
     
     if (! game.physics.arcade.isPaused){
-        
+
         if (game.input.keyboard.isDown(Phaser.KeyCode.A)) {
             if (player.body.touching.down) {
                 player.body.velocity.x = Math.max(-maxHorizontalVelocity, player.body.velocity.x - groundAcceleration);
@@ -237,16 +237,16 @@ function update() {
             player.body.velocity.x = isTouchingLeft * groundAcceleration - isTouchingRight * groundAcceleration;
             player.body.velocity.y = previous_velocity_y;
         }
-        
+
         //If stuck in a wall, get out of the wall and keep moving
         if ((player.body.touching.down || isTouchingBottom) && isTouchingTop && isJumping) {
             player.body.velocity.x = isTouchingLeft * groundAcceleration - isTouchingRight * groundAcceleration;
             player.x = player.x + isTouchingLeft * ((blockSize/2) - (player.body.left % (blockSize/2))) - isTouchingRight * (player.body.right % (blockSize/2));
-            if (player.body.velocity.y == 0) {
+            if (player.body.velocity.y === 0) {
                 player.body.velocity.y = previous_velocity_y;
             }
         }
-        
+
         if (game.input.keyboard.isDown(Phaser.KeyCode.W) && isTouchingBottom && player.body.touching.down && ! isTouchingTop && ! isJumping) {
             player.body.velocity.y = -jumpVelocity;
             jumpCount = 0;
@@ -263,7 +263,7 @@ function update() {
         }
 
         jumpCount += 1;
-        
+
         let xGravCoef = 0;
         let yGravCoef = 0;
 
@@ -296,7 +296,7 @@ function update() {
                 let movingToX = movementList[movementIndex].split('#')[0] - 15;
                 let movingToY = movementList[movementIndex].split('#')[1] - 15;
 
-                if (parseInt(loc.x) == movingToX && parseInt(loc.y) == movingToY) {
+                if (parseInt(loc.x) === movingToX && parseInt(loc.y) === movingToY) {
                     gravObj.movementIndex = (movementIndex + 1) % movementList.length;
                 } else {
                     gravObj.body.velocity.x = (loc.x < movingToX) * 30 - (loc.x > movingToX) * 30;
@@ -309,11 +309,11 @@ function update() {
         } else {
             player.body.acceleration.x = -xGravCoef * !isTouchingRight;
         }
-        
+
         player.body.acceleration.y = -yGravCoef;
-        
+
         previous_velocity_y = player.body.velocity.y;
-    
+
         isJumping = ! isTouchingBottom;
         
     } else {
@@ -342,7 +342,7 @@ function deathAnimation() {
 }
 
 function exitDecider() {
-    if (currentLevelNum + 1 == levelCount) {
+    if (currentLevelNum + 1 === levelCount) {
         game.state.start('win');
     } else {
         currentLevelNum++;
@@ -354,8 +354,8 @@ function render() {
     let drawGravObjCircle = function(gravObj) {
         // these are heuristic constants which look okay
         if (gravObj.gravOn) {
-            let radius = (gravObj.gravWeight / gravCoef) * (circleRadius * 2);
             let subAmount = 50;
+            let radius = (gravObj.gravWeight / gravCoef) * (circleRadius * 2);
             let alpha = 0.1;
             let fillColor = gravObj.gravOn ? gravObjColor : 0x808080;
             while (radius > 0) {
@@ -375,7 +375,7 @@ function render() {
         graphics.beginFill(0xa3c6ff, .5);
         graphics.drawRect(player.x - pausedSize + player.body.velocity.x/15, player.y - pausedSize + player.body.velocity.y/15, 2 * pausedSize, 2 * pausedSize);
         graphics.endFill();
-        
+
         if (stopPauseAnimation) {
             if (pausedSize > pauseAnimationSpeed) {
                 pausedSize -= pauseAnimationSpeed;
