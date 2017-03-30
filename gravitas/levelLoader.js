@@ -49,8 +49,7 @@ let LevelLoader = function (context) {
         if(flux) {
             gravObj.fluxConst = 1;
         }
-        // TODO: make new grav obj sprite
-        gravObj.tint = gravObjColor;
+
         return gravObj;
     }
 
