@@ -66,7 +66,6 @@ let LevelLoader = function (context) {
         let gravObjects = context.gravObjects;
         let shockers = context.shockers;
         let exits = context.exits;
-        let emitters = context.emitters;
 
         let level = levels[levelNumber];
 
