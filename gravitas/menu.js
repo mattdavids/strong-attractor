@@ -8,12 +8,12 @@ let Menu = function(game, startGameFromMenuCallback) {
             game.load.spritesheet('flame', 'assets/art/fire_sprites.png', 45, 60, 12);
         },
 
-        createMenu: function() {
+        createMenu: function() {            
             let background = game.add.sprite(game.width/2, game.height/2, 'background');
             background.anchor.set(0.5, 0.5);
             background.immovable = true;
 
-            startBtn = game.add.sprite(game.width/2, game.height/2 + 40, 'startBtn');
+            startBtn = game.add.sprite(game.width/2, game.height/2 + 60, 'startBtn');
             startBtn.anchor.set(0.5, 0.5);
             startBtn.inputEnabled = true;
             
