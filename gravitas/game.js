@@ -19,6 +19,7 @@ Game.prototype = (function() {
     const gravObjColor = 0x351777;
     const circleRadius = 259;
     const blockSize = 30;
+    const selectedObjWidth = 8;
 
     const pauseAnimationSpeed = 50;
     const deathFallSpeed = 6;
@@ -38,15 +39,58 @@ Game.prototype = (function() {
                     this.stopPauseAnimation = true;
                     this.pausedSize = game.width;
                     game.time.events.resume();
+                    selectableGravObjects.length = 0;
                 } else {
                     this.pausedSize = pauseAnimationSpeed;
                     game.time.events.pause();
+                    handleGravObjSelection.call(this);
+        
                 }
             }
 
         }, this);
     }
 
+    function handleGravObjSelection() {
+        let game = this.game,
+            player = this.player;
+        
+        // Place all objects currently on the screen into a list
+        this.gravObjects.forEach(function(gravObj) {
+            if ((gravObj.x + 10 < game.camera.x + game.width) && (gravObj.x - 10 > game.camera.x) && (gravObj.y  + 10 < game.camera.y + game.height) && (gravObj.y - 10> game.camera.y)) {
+                selectableGravObjects.push(gravObj);
+            }
+        });
+        
+        // Sort the objects from left to right
+        selectableGravObjects.sort(function(a, b) {
+            if (a.x < b.x) {
+                return -1;
+            } else {
+                return 1;
+            }
+        });
+
+        // Find the closest object to the player and make it the selected one
+        let currentMinObjIndex = 0;
+        for(i = 0; i < selectableGravObjects.length; i ++) {
+            let gravObj = selectableGravObjects[i];
+            
+            let diff_1 = Phaser.Point.subtract(player.position, gravObj.position);
+            let r_1 = diff_1.getMagnitude();
+            
+            let diff_2 = Phaser.Point.subtract(player.position, selectableGravObjects[currentMinObjIndex].position);
+            let r_2 = diff_2.getMagnitude();
+            
+            if (r_1 < r_2) {
+                currentMinObjIndex = i;
+            }
+        }
+
+        
+        currentHighlightedObjIndex = currentMinObjIndex;
+    }
+    
     function preload() {
         let game = this.game;
 
@@ -82,6 +126,16 @@ Game.prototype = (function() {
         let player = this.player;
 
         setupPauseButton.call(this);
+        
+        game.input.keyboard.onUpCallback = function (event) {
+            if (event.keyCode == Phaser.Keyboard.RIGHT) {
+                rightKeyWasPressed = true;
+            }
+            if (event.keyCode == Phaser.Keyboard.LEFT) {
+                leftKeyWasPressed = true;
+            }
+        }
+        
         //makeLevelSelector();
 
         this.playerShadowLeft = game.add.sprite(player.body.position.x, player.body.position.y, 'shadow');
@@ -102,6 +156,11 @@ Game.prototype = (function() {
         
         notCurrentlyDying = true;
         deathFall = false;
+        
+        rightKeyWasPressed = false;
+        leftKeyWasPressed = false;
+            
+        selectableGravObjects = [];
     }
 
     /*function makeLevelSelector(){
@@ -124,6 +183,7 @@ Game.prototype = (function() {
     function update() {
         let game = this.game,
             clickedObj = this.clickedObj;
+        
         // Move the player in a parabolic death animation when dead, 
         // Reset the game when the player falls below the game window
         if (deathFall) {
@@ -135,9 +195,6 @@ Game.prototype = (function() {
         // Don't allow player to change the gravity while dead
         if (notCurrentlyDying){
             game.physics.arcade.overlap(this.player, this.shockers, deathAnimation, null, this);
-
-            // Adjust attraction of clicked object
-            adjustAttractorsPull.call(this);
         }
         if (! game.physics.arcade.isPaused){
             doPlayerMovement.call(this);
@@ -150,6 +207,9 @@ Game.prototype = (function() {
             this.previous_velocity_y = this.player.body.velocity.y;
 
             this.isJumping = ! this.player.isTouchingBottom;
+            
+            rightKeyWasPressed = false;
+            leftKeyWasPressed = false;
 
         } else {
             // If time is frozen, keep the particles in the same state until time is unfrozen
@@ -158,6 +218,11 @@ Game.prototype = (function() {
                     p.lifespan += millisecondsPerFrame;
                 });
             });
+            
+            if (notCurrentlyDying) {
+                // Adjust attraction of clicked object
+                adjustAttractorsPull.call(this);  
+            }
         }
     }
 
@@ -182,7 +247,9 @@ Game.prototype = (function() {
                 }
             }
         };
+        
         graphics.clear();
+        
         gravObjects.children.forEach(drawGravObjCircle);
 
         if ((game.physics.arcade.isPaused && notCurrentlyDying) || this.stopPauseAnimation) {
@@ -200,6 +267,18 @@ Game.prototype = (function() {
                 this.pausedSize += pauseAnimationSpeed;
             }
         }
+        
+        if (selectableGravObjects.length > 0) {
+          
+            let selectedObj = selectableGravObjects[currentHighlightedObjIndex];
+            graphics.beginFill(0xffffff, 1);
+            graphics.drawRect(selectedObj.x - 15, selectedObj.y - 15, selectedObjWidth, 30);
+            graphics.drawRect(selectedObj.x - 15, selectedObj.y - 15, 30, selectedObjWidth);
+            graphics.drawRect(selectedObj.x - 15, selectedObj.y + 15 - selectedObjWidth, 30, selectedObjWidth);
+            graphics.drawRect(selectedObj.x + 15 - selectedObjWidth, selectedObj.y - 15, selectedObjWidth, 30);
+
+        }
+        
         game.world.bringToTop(graphics);
     }
 
@@ -251,6 +330,26 @@ Game.prototype = (function() {
         }
         if (game.input.activePointer.rightButton.isDown && clickedObj != null) {
             clickedObj.gravWeight = Math.max(clickedObj.gravMin, clickedObj.gravWeight - 5000)
+        }
+        
+        if (rightKeyWasPressed) {
+            currentHighlightedObjIndex = (currentHighlightedObjIndex + 1) % selectableGravObjects.length;
+            rightKeyWasPressed = false;
+        }
+        if (leftKeyWasPressed) {
+            currentHighlightedObjIndex = (currentHighlightedObjIndex - 1) % selectableGravObjects.length;
+            if (currentHighlightedObjIndex == -1) {
+                currentHighlightedObjIndex = selectableGravObjects.length - 1;
+            }
+            leftKeyWasPressed = false;
+        }
+        if (game.input.keyboard.isDown(Phaser.KeyCode.UP)) {
+            let obj = selectableGravObjects[currentHighlightedObjIndex];
+            obj.gravWeight = Math.min(obj.gravMax, obj.gravWeight + 5000);
+        }
+        if (game.input.keyboard.isDown(Phaser.KeyCode.DOWN)) {
+            let obj = selectableGravObjects[currentHighlightedObjIndex];
+            obj.gravWeight = Math.max(obj.gravMin, obj.gravWeight - 5000);
         }
     }
     
@@ -476,7 +575,9 @@ Game.prototype = (function() {
                 }, this);
 
             } else {
-                gravObj.gravWeight = 0;
+                if (game.physics.arcade.isPaused) {
+                    gravObj.gravWeight = 0;
+                }
             }
         }
 
