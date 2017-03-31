@@ -100,6 +100,7 @@ Game.prototype = (function() {
         game.load.image('gravObj', 'assets/art/gravObj.png');
         game.load.image('shadow', 'assets/art/shadow.png');
         game.load.image('groundParticle', 'assets/art/groundParticle.png')
+        game.load.audio('death', ['assets/audio/death.mp3', 'assets/audio/death.ogg']);
 
         game.load.spritesheet('shocker', 'assets/art/electricity_sprites.png', 30, 30, 3);
 
@@ -521,6 +522,9 @@ Game.prototype = (function() {
         game.physics.arcade.isPaused = true;
         this.player.body.allowGravity = false;
         this.player.body.velocity = new Phaser.Point(0, 0);
+        let deathSound = game.add.audio('death');
+        deathSound.volume = 0.3;
+        deathSound.play();
         game.time.events.add(0, function() {
             game.camera.shake(.008, deathAnimationTime);
         });
