@@ -86,5 +86,5 @@ shocker,555,405
 shocker,525,405
 shocker,495,405
 shocker,585,405
-exit,765,360
+exit,765,375
 player,37.5,382.5

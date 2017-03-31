@@ -229,5 +229,5 @@ gravObj_off,285,495,0,300000
 gravObj_off,705,435,0,300000
 gravObj_off,285,255,0,300000
 gravObj_off,495,45,0,300000
-exit,765,150
+exit,765,165
 player,37,790
