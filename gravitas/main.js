@@ -12,11 +12,10 @@ $(function() {
     });
 
     let win = new Win(game, function() {
-        currentLevelNum = startingLevelNum;
         game.state.start('game');
     });
 
-    let gameState = new Game(game);
+    let gameState = new Game(game, startingLevelNum);
 
     // TODO: do we really need the boot state now that we have a menu?
     game.state.add('boot', {preload: startState.boot, create: startState.postBoot});

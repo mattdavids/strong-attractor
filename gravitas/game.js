@@ -1,4 +1,4 @@
-let Game = function (game) {
+let Game = function (game, startingLevelNum) {
 
     let player,
         walls,
@@ -149,7 +149,7 @@ let Game = function (game) {
 
         levelLoader = new LevelLoader(game);
         levelCount = levelLoader.setup();
-        currentLevelNum = 0;
+        currentLevelNum = startingLevelNum;
     }
 
     function create() {
