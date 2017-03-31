@@ -1,28 +1,27 @@
-let LevelLoader = function (context) {
+let LevelLoader = function (game) {
     const playerSize = 14;
     let levels;
 
     function setup() {
-        let game = context.game;
-
         let levelList = game.cache.getText('levelList').split('\n');
-        context.levelCount = levelList.length;
         let levelNames = [];
-        for(let i=0; i<context.levelCount; i++){
+        for(let i=0; i< levelList.length; i++){
             levelNames[i]="assets/levels/"+levelList[i];
             game.load.text("level"+i, levelNames[i]);
         }
 
         levels = [];
         game.load.onLoadComplete.add(function() {
-            for(let i = 0; i < context.levelCount; i++){
+            for(let i = 0; i < levelList.length; i++){
                 levels[i] = game.cache.getText("level"+i).split('\n');
             }
         }, null);
+
+        // TODO: refactor this madness
+        return levelList.length;
     }
 
     function makePlayer(x, y) {
-        let game = context.game;
         let player = game.add.sprite(x, y, 'player');
         player.anchor.set(.5, .5);
         player.body.setSize(playerSize, playerSize, 1, 1);
@@ -32,9 +31,7 @@ let LevelLoader = function (context) {
     }
 
     function makeGravObject(x, y, gravMin, gravMax, gravOn, flux, moving, movementList) {
-        const gravObjColor = 0x351777;
-        
-        let gravObj = context.game.add.sprite(x, y, 'gravObj');
+        let gravObj = game.add.sprite(x, y, 'gravObj');
         gravObj.anchor.set(.5, .5);
         gravObj.gravOn = true ;
         gravObj.gravWeight = ((gravMin + gravMax)/2) * gravOn * (1 - flux);
@@ -54,18 +51,12 @@ let LevelLoader = function (context) {
     }
 
     function loadLevel(levelNumber) {
-        let game = context.game;
-
-        context.walls = game.add.group();
-        context.gravObjects = game.add.group();
-        context.shockers = game.add.group();
-        context.exits = game.add.group();
-        context.emitters = game.add.group();
-
-        let walls = context.walls = game.add.group();
-        let gravObjects = context.gravObjects;
-        let shockers = context.shockers;
-        let exits = context.exits;
+        let player;
+        let walls = game.add.group();
+        let gravObjects = game.add.group();
+        let shockers = game.add.group();
+        let exits = game.add.group();
+        let emitters = game.add.group();
 
         let level = levels[levelNumber];
 
@@ -124,11 +115,19 @@ let LevelLoader = function (context) {
                     exits.add(exit);
                     break;
                 case 'player':
-                    context.player = makePlayer(objectX, objectY);
+                    player = makePlayer(objectX, objectY);
                     break;
                 default:
                     break;
             }
+        }
+        return {
+            player: player,
+            walls: walls,
+            shockers: shockers,
+            gravObjects: gravObjects,
+            exits: exits,
+            emitters: emitters
         }
     }
 
