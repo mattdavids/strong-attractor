@@ -1,3 +1,6 @@
 level0.txt
 level1.txt
+level6.txt
 level3.txt
+level5.txt
+level4.txt
