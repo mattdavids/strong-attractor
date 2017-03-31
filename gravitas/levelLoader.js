@@ -127,7 +127,8 @@ let LevelLoader = function (game) {
             shockers: shockers,
             gravObjects: gravObjects,
             exits: exits,
-            emitters: emitters
+            emitters: emitters,
+            levelCount: levels.length
         }
     }
 
