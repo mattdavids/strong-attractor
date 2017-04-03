@@ -306,6 +306,7 @@ function create() {
 }
 
 function buildLevelString(){
+    let result = game.world.width + ',' + game.world.height + '\n' + $('#playerGrav')[0].value + '\n';
 
     for (let i = 0; i < walls.children.length; i++) {
         let obj = walls.children[i];
