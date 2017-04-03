@@ -355,11 +355,15 @@ let Game = function (game, startingLevelNum) {
         }
         if (game.input.keyboard.isDown(Phaser.KeyCode.UP)) {
             let obj = selectableGravObjects[currentHighlightedObjIndex];
-            obj.gravWeight = Math.min(obj.gravMax, obj.gravWeight + 5000);
+            if (obj) {
+                obj.gravWeight = Math.min(obj.gravMax, obj.gravWeight + 5000);
+            }
         }
         if (game.input.keyboard.isDown(Phaser.KeyCode.DOWN)) {
             let obj = selectableGravObjects[currentHighlightedObjIndex];
-            obj.gravWeight = Math.max(obj.gravMin, obj.gravWeight - 5000);
+            if (obj) {
+                obj.gravWeight = Math.max(obj.gravMin, obj.gravWeight - 5000);
+            }
         }
     }
     
