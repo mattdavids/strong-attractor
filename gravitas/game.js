@@ -235,6 +235,10 @@ let Game = function (game, startingLevelNum) {
                     p.lifespan += millisecondsPerFrame;
                 });
             });
+
+            gravObjects.forEach(function(gravObj) {
+                doAnimateGravityParticles(gravObj);
+            });
             
             if (notCurrentlyDying) {
                 // Adjust attraction of clicked object
@@ -246,17 +250,14 @@ let Game = function (game, startingLevelNum) {
     function render() {
         let drawGravObjCircle = function(gravObj) {
             // these are heuristic constants which look okay
-            if (gravObj.gravOn) {
-                let subAmount = 50;
-                let radius = (gravObj.gravWeight / gravCoef) * (circleRadius * 2);
-                let alpha = 0.1;
-                let fillColor = gravObj.gravOn ? gravObjColor : 0x808080;
-                while (radius > 0) {
-                    graphics.beginFill(fillColor, alpha);
-                    graphics.drawCircle(gravObj.x, gravObj.y, radius);
-                    graphics.endFill();
-                    radius -= subAmount;
-                }
+            let subAmount = 50;
+            let radius = (gravObj.gravWeight / gravCoef) * (circleRadius * 2);
+            let alpha = 0.1;
+            while (radius > 0) {
+                graphics.beginFill(gravObjColor, alpha);
+                graphics.drawCircle(gravObj.x, gravObj.y, radius);
+                graphics.endFill();
+                radius -= subAmount;
             }
         };
         
@@ -412,6 +413,11 @@ let Game = function (game, startingLevelNum) {
             });
         }); 
     }
+
+    function doAnimateGravityParticles(gravObj) {
+        let emitter = game.add.emitter();
+
+    }
     
     function checkWallCollision() {
         //If just landed on top of a block under another, get out of the wall and keep moving
@@ -469,15 +475,13 @@ let Game = function (game, startingLevelNum) {
         for (let i = 0;  i < gravObjects.children.length; i++) {
             let gravObj = gravObjects.children[i];
 
-            if (gravObj.gravOn) {
-                let diff = Phaser.Point.subtract(player.position, gravObj.position);
-                let r = diff.getMagnitude();
-                diff.normalize();
+            let diff = Phaser.Point.subtract(player.position, gravObj.position);
+            let r = diff.getMagnitude();
+            diff.normalize();
 
-                if ( r < (gravObj.gravWeight / gravCoef) * circleRadius) {
-                    xGravCoef += gravObj.gravWeight * diff.x / r;
-                    yGravCoef += gravObj.gravWeight * diff.y / r;
-                }
+            if ( r < (gravObj.gravWeight / gravCoef) * circleRadius) {
+                xGravCoef += gravObj.gravWeight * diff.x / r;
+                yGravCoef += gravObj.gravWeight * diff.y / r;
             }
 
             if (gravObj.flux) {
@@ -491,14 +495,14 @@ let Game = function (game, startingLevelNum) {
                 let loc = gravObj.body.position;
                 let movementList = gravObj.movementList;
                 let movementIndex = gravObj.movementIndex;
-                let movingToX = movementList[movementIndex].split('#')[0] - 15;
-                let movingToY = movementList[movementIndex].split('#')[1] - 15;
+                let movingToX = movementList[movementIndex].split('#')[0] - blockSize/2;
+                let movingToY = movementList[movementIndex].split('#')[1] - blockSize/2;
 
                 if (parseInt(loc.x) === movingToX && parseInt(loc.y) === movingToY) {
                     gravObj.movementIndex = (movementIndex + 1) % movementList.length;
                 } else {
-                    gravObj.body.velocity.x = (loc.x < movingToX) * 30 - (loc.x > movingToX) * 30;
-                    gravObj.body.velocity.y = (loc.y < movingToY) * 30 - (loc.y > movingToY) * 30;
+                    gravObj.body.velocity.x = (loc.x < movingToX) * blockSize - (loc.x > movingToX) * blockSize;
+                    gravObj.body.velocity.y = (loc.y < movingToY) * blockSize - (loc.y > movingToY) * blockSize;
                 }
             }
         }
@@ -545,7 +549,8 @@ let Game = function (game, startingLevelNum) {
         }
         deathCounter += 1;
     }
-    
+
+    // TODO: rename
     function diedDecider() {
         clearLevel();
         loadLevel();

@@ -34,7 +34,6 @@ let LevelLoader = function (game) {
     function makeGravObject(x, y, gravMin, gravMax, gravOn, flux, moving, movementList) {
         let gravObj = game.add.sprite(x, y, 'gravObj');
         gravObj.anchor.set(.5, .5);
-        gravObj.gravOn = true ;
         gravObj.gravWeight = ((gravMin + gravMax)/2) * gravOn * (1 - flux);
         gravObj.gravMin = gravMin;
         gravObj.gravMax = gravMax;
