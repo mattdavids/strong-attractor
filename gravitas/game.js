@@ -472,22 +472,18 @@ let Game = function (game, startingLevelNum) {
     }
     
     function doGravityPhysics(){
-        let xGravCoef = 0;
-        let yGravCoef = 0;
+        
+        gravityEffectsOnCharacter(player);
+        emitters.forEach(function(emitter) {
+            emitter.forEachAlive(function(p) {
+                gravityEffectsOnCharacter(p);
+            });
+        });
 
         // Gravity object changes
-        for (let i = 0;  i < gravObjects.children.length; i++) {
-            let gravObj = gravObjects.children[i];
-
-            let diff = Phaser.Point.subtract(player.position, gravObj.position);
-            let r = diff.getMagnitude();
-            diff.normalize();
-
-            if ( r < (gravObj.gravWeight / gravCoef) * circleRadius) {
-                xGravCoef += gravObj.gravWeight * diff.x / r;
-                yGravCoef += gravObj.gravWeight * diff.y / r;
-            }
-
+        
+        gravObjects.forEach(function(gravObj) {
+            
             if (gravObj.flux) {
                 gravObj.gravWeight += 2000 * gravObj.fluxConst;
                 if (gravObj.gravWeight >= gravObj.gravMax || gravObj.gravWeight <= gravObj.gravMin) {
@@ -509,14 +505,34 @@ let Game = function (game, startingLevelNum) {
                     gravObj.body.velocity.y = (loc.y < movingToY) * blockSize - (loc.y > movingToY) * blockSize;
                 }
             }
-        }
+            
+        });
+    }
+    
+    function gravityEffectsOnCharacter(character) {
+        let xGravCoef = 0;
+        let yGravCoef = 0;
+        
+        gravObjects.forEach(function(gravObj) {
+
+            let diff = Phaser.Point.subtract(character.position, gravObj.position);
+            let r = diff.getMagnitude();
+            diff.normalize();
+
+            if ( r < (gravObj.gravWeight / gravCoef) * circleRadius) {
+                xGravCoef += gravObj.gravWeight * diff.x / r;
+                yGravCoef += gravObj.gravWeight * diff.y / r;
+            }
+        });
+        
         if (xGravCoef > 0) {
-            player.body.acceleration.x = -xGravCoef * !player.isTouchingLeft;
+            character.body.acceleration.x = -xGravCoef * !character.isTouchingLeft;
         } else {
-            player.body.acceleration.x = -xGravCoef * !player.isTouchingRight;
+            character.body.acceleration.x = -xGravCoef * !character.isTouchingRight;
         }
 
-        player.body.acceleration.y = -yGravCoef;
+        character.body.acceleration.y = -yGravCoef;
+        
     }
 
     // Starts the death animation by setting flags. Freezes the player, pauses the game state, shakes the screen, then sets a timer to set the deathFall flag which is run in update
