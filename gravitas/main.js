@@ -16,8 +16,7 @@ $(function() {
     });
 
     let gameState = new Game(game, startingLevelNum);
-
-    // TODO: do we really need the boot state now that we have a menu?
+    
     game.state.add('boot', {preload: startState.boot, create: startState.postBoot});
     game.state.add('menu', {preload: menu.loadMenu, create: menu.createMenu, update: menu.onStartButtonPush});
     game.state.add('win', {preload: win.loadWin, create: win.displayWinMessage, update: win.backToMenu});

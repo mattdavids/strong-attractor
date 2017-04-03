@@ -18,7 +18,6 @@ let Game = function (game, startingLevelNum) {
 
     let levelLoader;
     let currentLevelNum;
-    let levelCount;
 
     let pauseBtn;
     let stopPauseAnimation;
@@ -65,7 +64,6 @@ let Game = function (game, startingLevelNum) {
         gravObjects = loaderObjects.gravObjects;
         exits = loaderObjects.exits;
         emitters = loaderObjects.emitters;
-        levelCount = loaderObjects.levelCount;
     }
 
     function loadLevel() {
@@ -148,7 +146,7 @@ let Game = function (game, startingLevelNum) {
         game.load.spritesheet('shocker', 'assets/art/electricity_sprites.png', 30, 30, 3);
 
         levelLoader = new LevelLoader(game);
-        levelCount = levelLoader.setup();
+        levelLoader.setup();
         currentLevelNum = startingLevelNum;
     }
 
@@ -336,10 +334,10 @@ let Game = function (game, startingLevelNum) {
     }
     
     function adjustAttractorsPull() {
-        if (game.input.activePointer.leftButton.isDown && clickedObj != null) {
+        if (game.input.activePointer.leftButton.isDown && clickedObj !== null) {
             clickedObj.gravWeight = Math.min(clickedObj.gravMax, clickedObj.gravWeight + 5000)
         }
-        if (game.input.activePointer.rightButton.isDown && clickedObj != null) {
+        if (game.input.activePointer.rightButton.isDown && clickedObj !== null) {
             clickedObj.gravWeight = Math.max(clickedObj.gravMin, clickedObj.gravWeight - 5000)
         }
         
@@ -349,7 +347,7 @@ let Game = function (game, startingLevelNum) {
         }
         if (leftKeyWasPressed) {
             currentHighlightedObjIndex = (currentHighlightedObjIndex - 1) % selectableGravObjects.length;
-            if (currentHighlightedObjIndex == -1) {
+            if (currentHighlightedObjIndex === -1) {
                 currentHighlightedObjIndex = selectableGravObjects.length - 1;
             }
             leftKeyWasPressed = false;
@@ -457,8 +455,7 @@ let Game = function (game, startingLevelNum) {
             if (! gravObj.flux && ! gravObj.moving) {
                 gravObj.events.onInputDown.add(startGravityClick);
                 gravObj.events.onInputUp.add(function() {
-                    // TODO: null instead of undefined?
-                    clickedObj = undefined;
+                    clickedObj = null;
                 }, null);
             }
         });
@@ -556,7 +553,7 @@ let Game = function (game, startingLevelNum) {
 
     function exitDecider() {
         clearLevel();
-        if (currentLevelNum + 1 === levelCount) {
+        if (currentLevelNum + 1 === levelLoader.getLevelCount()) {
             game.state.start('win');
         } else {
             currentLevelNum++;

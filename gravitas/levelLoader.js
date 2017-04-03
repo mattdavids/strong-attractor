@@ -16,9 +16,10 @@ let LevelLoader = function (game) {
                 levels[i] = game.cache.getText("level"+i).split('\n');
             }
         }, null);
+    }
 
-        // TODO: refactor this madness
-        return levelList.length;
+    function getLevelCount() {
+        return levels.length;
     }
 
     function makePlayer(x, y) {
@@ -127,13 +128,13 @@ let LevelLoader = function (game) {
             shockers: shockers,
             gravObjects: gravObjects,
             exits: exits,
-            emitters: emitters,
-            levelCount: levels.length
+            emitters: emitters
         }
     }
 
     return {
         setup: setup,
+        getLevelCount: getLevelCount,
         loadLevel: loadLevel
     }
 };
