@@ -22,11 +22,11 @@ let LevelLoader = function (game) {
         return levels.length;
     }
 
-    function makePlayer(x, y) {
+    function makePlayer(x, y, playerGrav) {
         let player = game.add.sprite(x, y, 'player');
         player.anchor.set(.5, .5);
         player.body.setSize(playerSize, playerSize, 1, 1);
-        player.body.gravity.y = 2500;
+        player.body.gravity.y = playerGrav;
         game.camera.follow(player, Phaser.Camera.FOLLOW_PLATFORMER, 0.2);
         return player;
     }
@@ -62,7 +62,8 @@ let LevelLoader = function (game) {
 
         let bounds = level[0].split(',');
         game.world.setBounds(0,0,parseInt(bounds[0]), parseInt(bounds[1]));
-        for (let i = 1; i < level.length; i++) {
+        let playerGrav = parseInt(level[1]);
+        for (let i = 2; i < level.length; i++) {
             let element = level[i];
             let objectInfo = element.split(',');
             let objectName = objectInfo[0];
@@ -115,7 +116,7 @@ let LevelLoader = function (game) {
                     exits.add(exit);
                     break;
                 case 'player':
-                    player = makePlayer(objectX, objectY);
+                    player = makePlayer(objectX, objectY, playerGrav);
                     break;
                 default:
                     break;

@@ -176,7 +176,7 @@ function create() {
 
     
     if (level) {
-        for (let i = 1; i < level.length; i++) {
+        for (let i = 2; i < level.length; i++) {
             let element = level[i];
             let objectInfo = element.split(',');
             let objectName = objectInfo[0];
@@ -306,7 +306,6 @@ function create() {
 }
 
 function buildLevelString(){
-    let result = game.world.width + ',' + game.world.height + '\n';
 
     for (let i = 0; i < walls.children.length; i++) {
         let obj = walls.children[i];
