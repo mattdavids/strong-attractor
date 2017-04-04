@@ -50,6 +50,28 @@ let LevelLoader = function (game) {
         return gravObj;
     }
 
+    function makeWorldParticles() {
+        const numParticles = Math.min(game.world.width * game.world.height / 1000, 50);
+        let worldParticles = game.add.emitter(game.world.centerX, game.world.centerY, numParticles);
+        worldParticles.width = game.world.width;
+        worldParticles.height = game.world.height;
+        worldParticles.makeParticles('groundParticle');
+        worldParticles.gravity = 0;
+        worldParticles.minParticleSpeed = new Phaser.Point(-10, -10);
+        worldParticles.maxParticleSpeed = new Phaser.Point(10, 10);
+
+        worldParticles.minParticleScale = 0.5;
+        worldParticles.maxParticleScale = 0.7;
+
+        worldParticles.forEach(function(p) {
+            p.body.maxVelocity = new Phaser.Point(50, 50);
+        });
+
+        game.world.bringToTop(worldParticles);
+        worldParticles.start(false, 4000, 0, 0); // explode, lifespan, frequency, quantity
+        return worldParticles;
+    }
+
     function loadLevel(levelNumber) {
         let player;
         let walls = game.add.group();
@@ -128,7 +150,8 @@ let LevelLoader = function (game) {
             shockers: shockers,
             gravObjects: gravObjects,
             exits: exits,
-            emitters: emitters
+            emitters: emitters,
+            worldParticles: makeWorldParticles()
         }
     }
 

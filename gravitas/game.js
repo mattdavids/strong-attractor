@@ -5,7 +5,8 @@ let Game = function (game, startingLevelNum) {
         shockers,
         gravObjects,
         exits,
-        emitters;
+        emitters,
+        worldParticles;
 
     let playerShadowLeft,
         playerShadowRight,
@@ -64,11 +65,12 @@ let Game = function (game, startingLevelNum) {
         gravObjects = loaderObjects.gravObjects;
         exits = loaderObjects.exits;
         emitters = loaderObjects.emitters;
+        worldParticles = loaderObjects.worldParticles;
     }
 
     function loadLevel() {
-        let objs = levelLoader.loadLevel(currentLevelNum);
-        unpackObjects(objs);
+        let levelObjects = levelLoader.loadLevel(currentLevelNum);
+        unpackObjects(levelObjects);
         setupGravityObjects();
     }
 
@@ -233,13 +235,13 @@ let Game = function (game, startingLevelNum) {
             emitters.forEach(function(emitter) {
                 emitter.forEachAlive(function(p) {
                     p.lifespan += millisecondsPerFrame;
-                });
-            });
+                }, null);
+            }, null);
 
-            gravObjects.forEach(function(gravObj) {
-                doAnimateGravityParticles(gravObj);
-            });
-            
+            worldParticles.forEachAlive(function(p) {
+                p.lifespan += millisecondsPerFrame;
+            }, null);
+
             if (notCurrentlyDying) {
                 // Adjust attraction of clicked object
                 adjustAttractorsPull();
@@ -296,11 +298,12 @@ let Game = function (game, startingLevelNum) {
     }
 
     function clearLevel() {
-        player.kill();
-        walls.removeAll(true);
-        shockers.removeAll(true);
-        gravObjects.removeAll(true);
-        exits.removeAll(true);
+        player.destroy();
+        walls.destroy();
+        shockers.destroy();
+        gravObjects.destroy();
+        exits.destroy();
+        worldParticles.destroy();
     }
 
     function updatePlayerCollision() {
@@ -308,7 +311,7 @@ let Game = function (game, startingLevelNum) {
         game.physics.arcade.collide(player, walls);
         game.physics.arcade.collide(player, gravObjects);
 
-        game.physics.arcade.overlap(player, exits, exitDecider, null, null);
+        game.physics.arcade.overlap(player, exits, onExit, null, null);
 
         player.isTouchingRight = false;
         player.isTouchingLeft = false;
@@ -396,6 +399,7 @@ let Game = function (game, startingLevelNum) {
     
     function doHitGroundAnimation() {
         if (isJumping && player.isTouchingBottom) {
+            // add player.body.velocity.x / 14 so that particles appear where player *will* be next frame
             let emitter = game.add.emitter(player.x + player.body.velocity.x/14, player.bottom + 2);
             emitter.makeParticles('groundParticle', 0, 15, true);
             emitter.gravity = 300;
@@ -403,8 +407,8 @@ let Game = function (game, startingLevelNum) {
             emitter.setYSpeed(-100);
             emitter.start(true, 500, null, 15);
             game.time.events.add(1000, function() {
-                emitter.destroy();
-            });
+                emitter.destroy(true);
+            }, null);
             emitters.add(emitter);
             game.world.bringToTop(emitters);
         }
@@ -413,14 +417,9 @@ let Game = function (game, startingLevelNum) {
         emitters.forEach(function(emitter) {
             emitter.forEachAlive(function(p) {
                 //p.alpha = p.lifespan / emitter.lifespan;
-                p.alpha = (-Math.pow(emitter.lifespan - p.lifespan, 2)/Math.pow(emitter.lifespan, 2)) + 1;
-            });
-        }); 
-    }
-
-    function doAnimateGravityParticles(gravObj) {
-        let emitter = game.add.emitter();
-
+                p.alpha = 1 - Math.pow(emitter.lifespan - p.lifespan, 2)/Math.pow(emitter.lifespan, 2);
+            }, null);
+        }, null);
     }
     
     function checkWallCollision() {
@@ -459,7 +458,6 @@ let Game = function (game, startingLevelNum) {
         jumpCount += 1;
     }
 
-    
     function setupGravityObjects() {
         gravObjects.children.forEach(function(gravObj) {
             if (! gravObj.flux && ! gravObj.moving) {
@@ -473,12 +471,15 @@ let Game = function (game, startingLevelNum) {
     
     function doGravityPhysics(){
         
-        gravityEffectsOnCharacter(player);
+        gravityEffectsOnObject(player);
         emitters.forEach(function(emitter) {
             emitter.forEachAlive(function(p) {
-                gravityEffectsOnCharacter(p);
-            });
-        });
+                gravityEffectsOnObject(p);
+            }, null);
+        }, null);
+        worldParticles.forEachAlive(function(p) {
+            gravityEffectsOnObject(p);
+        }, null);
 
         // Gravity object changes
         
@@ -509,13 +510,13 @@ let Game = function (game, startingLevelNum) {
         });
     }
     
-    function gravityEffectsOnCharacter(character) {
+    function gravityEffectsOnObject(obj) {
         let xGravCoef = 0;
         let yGravCoef = 0;
         
         gravObjects.forEach(function(gravObj) {
 
-            let diff = Phaser.Point.subtract(character.position, gravObj.position);
+            let diff = Phaser.Point.subtract(obj.position, gravObj.position);
             let r = diff.getMagnitude();
             diff.normalize();
 
@@ -526,12 +527,12 @@ let Game = function (game, startingLevelNum) {
         });
         
         if (xGravCoef > 0) {
-            character.body.acceleration.x = -xGravCoef * !character.isTouchingLeft;
+            obj.body.acceleration.x = -xGravCoef * !obj.isTouchingLeft;
         } else {
-            character.body.acceleration.x = -xGravCoef * !character.isTouchingRight;
+            obj.body.acceleration.x = -xGravCoef * !obj.isTouchingRight;
         }
 
-        character.body.acceleration.y = -yGravCoef;
+        obj.body.acceleration.y = -yGravCoef;
         
     }
 
@@ -565,18 +566,17 @@ let Game = function (game, startingLevelNum) {
             deathFall = false;
             notCurrentlyDying = true;
             game.physics.arcade.isPaused = false;
-            diedDecider();
+            onPlayerDeath();
         }
         deathCounter += 1;
     }
 
-    // TODO: rename
-    function diedDecider() {
+    function onPlayerDeath() {
         clearLevel();
         loadLevel();
     }
 
-    function exitDecider() {
+    function onExit() {
         clearLevel();
         if (currentLevelNum + 1 === levelLoader.getLevelCount()) {
             game.state.start('win');
