@@ -31,6 +31,7 @@ let walls;
 let gravObjects;
 let shockers;
 let emitters;
+let backgrounds;
 let playerShadowLeft;
 let playerShadowRight;
 let playerShadowBottom;
