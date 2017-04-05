@@ -553,6 +553,14 @@ function deleteObject(obj) {
     obj.body.immovable = false;
     clickedObj = obj;
     if (game.input.activePointer.rightButton.isDown) {
+        
+        if (gravObj_movers.children.indexOf(obj) > -1 || gravObj_moveFluxes.children.indexOf(obj) > -1) {
+            currentSelectedObj = 'gravObj_move';
+            obj.movementPathing.forEach(function(ele) {
+                ele.number.destroy();
+            });
+            obj.movementPathing.destroy();
+        }
         walls.remove(obj);
 	    shockers.remove(obj);
 	    gravObj_ons.remove(obj);
