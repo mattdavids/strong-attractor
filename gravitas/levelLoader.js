@@ -72,6 +72,7 @@ let LevelLoader = function (game) {
         return worldParticles;
     }
 
+    function loadObject(levelObjects, objectName, objectX, objectY, playerGrav, objectInfo){
         let gravObj;
         switch(objectName) {
             case 'wall':
@@ -156,6 +157,7 @@ let LevelLoader = function (game) {
             let objectX = parseFloat(objectInfo[1]);
             let objectY = parseFloat(objectInfo[2]);
 
+            levelObjects = loadObject(levelObjects, objectName, objectX, objectY, playerGrav, objectInfo);
 
         }
 
