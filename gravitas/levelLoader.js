@@ -1,6 +1,8 @@
 let LevelLoader = function (game) {
     const playerSize = 14;
     let levels;
+    let playerStartX;
+    let playerStartY;
 
     function setup() {
         let levelList = game.cache.getText('levelList').split('\n');
@@ -72,7 +74,7 @@ let LevelLoader = function (game) {
         return worldParticles;
     }
 
-    function loadObject(levelObjects, objectName, objectX, objectY, playerGrav, objectInfo){
+    function loadObject(levelObjects, objectName, objectX, objectY, playerGrav, objectInfo, playerHasHitCheckpoint, playerStartX, playerStartY){
         let gravObj;
         switch(objectName) {
             case 'wall':
@@ -111,6 +113,15 @@ let LevelLoader = function (game) {
                 shocker.animations.play('crackle', 10, true);
                 levelObjects.shockers.add(shocker);
                 break;
+            case 'checkpoint':
+                if(!playerHasHitCheckpoint) {
+                    let checkpoint = game.add.sprite(objectX, objectY, objectName);
+                    checkpoint.anchor.set(.5, .5);
+                    //checkpoint.body.immovable = true;
+                    checkpoint.hasBeenHitBefore = false;
+                    levelObjects.checkpoints.add(checkpoint);
+                }
+                break;
             case 'exit':
                 let exit = game.add.sprite(objectX, objectY, objectName);
                 exit.anchor.set(.5, .5);
@@ -118,7 +129,13 @@ let LevelLoader = function (game) {
                 levelObjects.exits.add(exit);
                 break;
             case 'player':
-                levelObjects.player = makePlayer(objectX, objectY, playerGrav);
+                if (!playerHasHitCheckpoint) {
+                    levelObjects.player = makePlayer(objectX, objectY, playerGrav);
+                    playerStartX = objectX;
+                    playerStartY = objectY;
+                } else {
+                    levelObjects.player = makePlayer(playerStartX, playerStartY, playerGrav);
+                }
                 break;
             default:
                 break;
@@ -127,7 +144,7 @@ let LevelLoader = function (game) {
         return levelObjects;
     }
 
-    function initializeLevelObjects(){
+    function initializeLevelObjects(playerHasHitCheckpoint, checkpoints){
         let levelObjects = {};
         levelObjects.player = makePlayer(0,0,0);
         levelObjects.walls = game.add.group();
@@ -135,12 +152,18 @@ let LevelLoader = function (game) {
         levelObjects.shockers = game.add.group();
         levelObjects.exits = game.add.group();
         levelObjects.emitters = game.add.group();
+        if(!playerHasHitCheckpoint) {
+            levelObjects.checkpoints = game.add.group();
+        } else {
+            levelObjects.checkpoints = checkpoints;
+        }
+        
         return levelObjects;
     }
 
-    function loadLevel(levelNumber) {
+    function loadLevel(levelNumber, playerHasHitCheckpoint, playerStartX, playerStartY, checkpoints) {
         let level = levels[levelNumber];
-        let levelObjects = initializeLevelObjects();
+        let levelObjects = initializeLevelObjects(playerHasHitCheckpoint, checkpoints);
 
         // Get bounds
         let bounds = level[0].split(',');
@@ -157,12 +180,16 @@ let LevelLoader = function (game) {
             let objectX = parseFloat(objectInfo[1]);
             let objectY = parseFloat(objectInfo[2]);
 
-            levelObjects = loadObject(levelObjects, objectName, objectX, objectY, playerGrav, objectInfo);
+            levelObjects = loadObject(levelObjects, objectName, objectX, objectY, playerGrav, objectInfo, playerHasHitCheckpoint, playerStartX, playerStartY);
 
         }
 
         // Add world particles
         levelObjects.worldParticles = makeWorldParticles();
+        
+        // Add player start location
+        levelObjects.playerStartX = playerStartX;
+        levelObjects.playerStartY = playerStartY;
 
         return levelObjects;
     }

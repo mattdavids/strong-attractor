@@ -126,6 +126,7 @@ function preload() {
     game.load.image('wall', 'assets/art/bricks_gray.png');
     game.load.image('gravObj', 'assets/art/gravObj.png');
     game.load.spritesheet('shocker', 'assets/art/electricity_sprites.png', 30, 30, 3);
+    game.load.image('checkpoint', 'assets/art/flag_green.png');
     game.load.image('exit', 'assets/art/exit.png');
     game.load.image('player', 'assets/art/player.png');
     game.load.image('path', 'assets/art/path.png');
@@ -172,6 +173,7 @@ function create() {
     gravObj_fluxes = game.add.group();
     gravObj_movers = game.add.group();
     shockers = game.add.group();
+    checkpoints = game.add.group();
     exits = game.add.group();
 
     
@@ -239,6 +241,10 @@ function create() {
                     shockers.add(obj);
                     obj.animations.add('crackle');
                     obj.animations.play('crackle', 10, true);
+                    break;
+                case 'checkpoint':
+                    obj = game.add.sprite(objectX, objectY, objectName);
+                    checkpoints.add(obj);
                     break;
                 case 'exit':
                     obj = game.add.sprite(objectX, objectY, objectName);
@@ -337,6 +343,10 @@ function buildLevelString(){
         result = result.slice(0, -1) + '\n';
     });
 
+    checkpoints.children.forEach(function(obj) {
+        result += 'checkpoint,' + obj.position.x + ',' + obj.position.y + '\n';
+    });
+    
     exits.children.forEach(function(obj) {
         result += 'exit,' + obj.position.x + ',' + obj.position.y + '\n'
     });
@@ -435,6 +445,9 @@ function initializeObj(objectName) {
             obj.animations.add('crackle');
             obj.animations.play('crackle', 10, true);
             break;
+        case 'checkpoint':
+            checkpoints.add(obj);
+            break;
         case 'exit':
             exits.add(obj);
             break;
@@ -510,7 +523,7 @@ function deleteObject(obj) {
             pathedObj.currentNumber -= 1;
             obj.number.kill();
         }
-        
+        checkpoints.remove(obj);
         exits.remove(obj);
         if (obj !== player_start) {
             obj.kill();

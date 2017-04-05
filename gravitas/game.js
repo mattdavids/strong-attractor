@@ -4,6 +4,7 @@ let Game = function (game, startingLevelNum) {
         walls,
         shockers,
         gravObjects,
+        checkpoints,
         exits,
         emitters,
         worldParticles;
@@ -30,10 +31,13 @@ let Game = function (game, startingLevelNum) {
         leftKeyWasPressed;
     let deathFall;
     let deathCounter;
+    let playerHasHitCheckpoint;
 
     let previous_velocity_y,
         isJumping,
         jumpCount;
+    let playerStartX,
+        playerStartY;
 
 
 
@@ -63,13 +67,16 @@ let Game = function (game, startingLevelNum) {
         walls = loaderObjects.walls;
         shockers = loaderObjects.shockers;
         gravObjects = loaderObjects.gravObjects;
+        checkpoints = loaderObjects.checkpoints;
         exits = loaderObjects.exits;
         emitters = loaderObjects.emitters;
         worldParticles = loaderObjects.worldParticles;
+        playerStartX = loaderObjects.playerStartX;
+        playerStartY = loaderObjects.playerStartY;
     }
 
     function loadLevel() {
-        let levelObjects = levelLoader.loadLevel(currentLevelNum);
+        let levelObjects = levelLoader.loadLevel(currentLevelNum, playerHasHitCheckpoint, playerStartX, playerStartY, checkpoints);
         unpackObjects(levelObjects);
         setupGravityObjects();
     }
@@ -142,7 +149,9 @@ let Game = function (game, startingLevelNum) {
         game.load.image('wall', 'assets/art/bricks_gray.png');
         game.load.image('gravObj', 'assets/art/gravObj.png');
         game.load.image('shadow', 'assets/art/shadow.png');
-        game.load.image('groundParticle', 'assets/art/groundParticle.png')
+        game.load.image('checkpoint', 'assets/art/flag_red.png');
+        game.load.image('checkpointActivated', 'assets/art/flag_green.png');
+        game.load.image('groundParticle', 'assets/art/groundParticle.png');
         game.load.audio('death', ['assets/audio/death.mp3', 'assets/audio/death.ogg']);
 
         game.load.spritesheet('shocker', 'assets/art/electricity_sprites.png', 30, 30, 3);
@@ -162,6 +171,8 @@ let Game = function (game, startingLevelNum) {
 
         graphics = game.add.graphics();
 
+        playerHasHitCheckpoint = false;
+        
         loadLevel();
 
         setupPauseButton();
@@ -298,12 +309,15 @@ let Game = function (game, startingLevelNum) {
     }
 
     function clearLevel() {
-        player.destroy();
+        player.kill();
         walls.destroy();
         shockers.destroy();
         gravObjects.destroy();
         exits.destroy();
         worldParticles.destroy();
+        if (!playerHasHitCheckpoint) {
+            checkpoints.destroy();
+        }
     }
 
     function updatePlayerCollision() {
@@ -311,6 +325,7 @@ let Game = function (game, startingLevelNum) {
         game.physics.arcade.collide(player, walls);
         game.physics.arcade.collide(player, gravObjects);
 
+        game.physics.arcade.overlap(player, checkpoints, onCheckpointHit, null, this);
         game.physics.arcade.overlap(player, exits, onExit, null, null);
 
         player.isTouchingRight = false;
@@ -577,12 +592,23 @@ let Game = function (game, startingLevelNum) {
     }
 
     function onExit() {
+        playerHasHitCheckpoint = false;
         clearLevel();
         if (currentLevelNum + 1 === levelLoader.getLevelCount()) {
             game.state.start('win');
         } else {
             currentLevelNum++;
             loadLevel();
+        }
+    }
+    
+    function onCheckpointHit(player, checkpoint) {
+        if (! checkpoint.hasBeenHitBefore) {
+            checkpoint.hasBeenHitBefore = true;
+            playerHasHitCheckpoint = true;
+            playerStartX = checkpoint.x;
+            playerStartY = checkpoint.y;
+            checkpoint.loadTexture('checkpointActivated');
         }
     }
 
