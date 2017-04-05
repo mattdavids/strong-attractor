@@ -416,11 +416,13 @@ let Game = function (game, startingLevelNum) {
         if (isJumping && player.isTouchingBottom) {
             // add player.body.velocity.x / 14 so that particles appear where player *will* be next frame
             let emitter = game.add.emitter(player.x + player.body.velocity.x/14, player.bottom + 2);
-            emitter.makeParticles('groundParticle', 0, 15, true);
+            let numParticles = Math.max(5, (previous_velocity_y - 220)/40) ;
+            
+            emitter.makeParticles('groundParticle', 0, numParticles, true);
             emitter.gravity = 300;
             emitter.width = 20;
             emitter.setYSpeed(-100);
-            emitter.start(true, 500, null, 15);
+            emitter.start(true, 500, null, numParticles);
             game.time.events.add(1000, function() {
                 emitter.destroy(true);
             }, null);
