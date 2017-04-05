@@ -110,7 +110,9 @@ let Game = function (game, startingLevelNum) {
         // Place all objects currently on the screen into a list
         gravObjects.forEach(function(gravObj) {
             if ((gravObj.x + 10 < game.camera.x + game.width) && (gravObj.x - 10 > game.camera.x) && (gravObj.y  + 10 < game.camera.y + game.height) && (gravObj.y - 10 > game.camera.y)) {
-                selectableGravObjects.push(gravObj);
+                if(!gravObj.flux) {
+                    selectableGravObjects.push(gravObj);
+                }
             }
         });
         
@@ -353,10 +355,10 @@ let Game = function (game, startingLevelNum) {
     }
     
     function adjustAttractorsPull() {
-        if (game.input.activePointer.leftButton.isDown && clickedObj !== null) {
+        if (game.input.activePointer.leftButton.isDown && clickedObj !== null && !clickedObj.flux) {
             clickedObj.gravWeight = Math.min(clickedObj.gravMax, clickedObj.gravWeight + 5000)
         }
-        if (game.input.activePointer.rightButton.isDown && clickedObj !== null) {
+        if (game.input.activePointer.rightButton.isDown && clickedObj !== null && !clickedObj.flux) {
             clickedObj.gravWeight = Math.max(clickedObj.gravMin, clickedObj.gravWeight - 5000)
         }
         
@@ -477,12 +479,10 @@ let Game = function (game, startingLevelNum) {
 
     function setupGravityObjects() {
         gravObjects.children.forEach(function(gravObj) {
-            if (! gravObj.flux && ! gravObj.moving) {
-                gravObj.events.onInputDown.add(startGravityClick);
-                gravObj.events.onInputUp.add(function() {
-                    clickedObj = null;
-                }, null);
-            }
+            gravObj.events.onInputDown.add(startGravityClick);
+            gravObj.events.onInputUp.add(function() {
+                clickedObj = null;
+            }, null);
         });
     }
     
