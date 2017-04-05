@@ -18,68 +18,11 @@ function loadLevel() {
         let objectName = objectInfo[0];
         let objectX = parseFloat(objectInfo[1]);
         let objectY = parseFloat(objectInfo[2]);
-
-        switch(objectName) {
-            case 'wall':
-                let wall = game.add.sprite(objectX, objectY, objectName);
-                walls.add(wall);
-                wall.body.immovable = true;
-                wall.anchor.set(.5,.5);
-                break;
-            case 'gravObj_off':
-                // x Location, y location, gravMin, gravMax, on?, flux?, moving?
-                initializeGravObj(objectX, objectY, parseFloat(objectInfo[3]), parseFloat(objectInfo[4]), false, false, false);
-                break;
-            case 'gravObj_on':
-                initializeGravObj(objectX, objectY, parseFloat(objectInfo[3]), parseFloat(objectInfo[4]), true, false, false);
-                break;
-            case 'gravObj_flux':
-                initializeGravObj(objectX, objectY, parseFloat(objectInfo[3]), parseFloat(objectInfo[4]), true, true, false);
-                break;
-            case 'gravObj_move':
-                //list in format x1#y1-x2#y2-x3#y3...
-                let movementList = objectInfo[5].split('-');
-                initializeGravObj(objectX, objectY, parseFloat(objectInfo[3]), parseFloat(objectInfo[4]), true, false, true, movementList);
-                break;
-            case 'shocker':
-                let shocker = game.add.sprite(objectX, objectY, objectName);
-                shocker.anchor.set(.5, .5);
-                shockers.add(shocker);
-                shocker.animations.add('crackle');
-                shocker.animations.play('crackle', 10, true);
-                break;
-            case 'exit':
-                let exit = game.add.sprite(objectX, objectY, objectName);
-                exit.anchor.set(.5, .5);
-                exits.add(exit);
-                exit.body.immovable = true;
-                break;
-            case 'player':
-                player_startX = objectX;
-                player_startY = objectY;
-                break;
-            default:
-                break;
-        }
+        loadObject(objectName, objectX, objectY);
     }
 
     addPlayer();
-    
-    playerShadowLeft = game.add.sprite(player.body.position.x, player.body.position.y, 'shadow');
-    playerShadowLeft.anchor.set(.5, .5);
-    playerShadowLeft.body.setSize(5, 1, 0, 8);
-    
-    playerShadowRight = game.add.sprite(player.body.position.x, player.body.position.y, 'shadow');
-    playerShadowRight.anchor.set(.5, .5);
-    playerShadowRight.body.setSize(15, 1, 0, 8);
-    
-    playerShadowBottom = game.add.sprite(player.body.position.x, player.body.position.y, 'shadow');
-    playerShadowBottom.anchor.set(.5, .5);
-    playerShadowBottom.body.setSize(15, 1, 0, 14);
-    
-    playerShadowTop = game.add.sprite(player.body.position.x, player.body.position.y, 'shadow');
-    playerShadowTop.anchor.set(.5, .5);
-    playerShadowTop.body.setSize(13, 1, 0, 0);
+    addPlayerShadows();
 }
 
 function addPlayer() {
@@ -88,6 +31,69 @@ function addPlayer() {
     player.body.setSize(14, 14, 1, 1);
     player.body.gravity.y = gravCoef / 60;
     game.camera.follow(player, Phaser.Camera.FOLLOW_PLATFORMER, .2);
+}
+
+function addPlayerShadows(){
+    playerShadowLeft = game.add.sprite(player.body.position.x, player.body.position.y, 'shadow');
+    playerShadowLeft.anchor.set(.5, .5);
+    playerShadowLeft.body.setSize(5, 1, 0, 8);
+
+    playerShadowRight = game.add.sprite(player.body.position.x, player.body.position.y, 'shadow');
+    playerShadowRight.anchor.set(.5, .5);
+    playerShadowRight.body.setSize(15, 1, 0, 8);
+
+    playerShadowBottom = game.add.sprite(player.body.position.x, player.body.position.y, 'shadow');
+    playerShadowBottom.anchor.set(.5, .5);
+    playerShadowBottom.body.setSize(15, 1, 0, 14);
+
+    playerShadowTop = game.add.sprite(player.body.position.x, player.body.position.y, 'shadow');
+    playerShadowTop.anchor.set(.5, .5);
+    playerShadowTop.body.setSize(13, 1, 0, 0);
+}
+
+function loadObject(objectName, objectX, objectY){
+    switch(objectName) {
+        case 'wall':
+            let wall = game.add.sprite(objectX, objectY, objectName);
+            walls.add(wall);
+            wall.body.immovable = true;
+            wall.anchor.set(.5,.5);
+            break;
+        case 'gravObj_off':
+            // x Location, y location, gravMin, gravMax, on?, flux?, moving?
+            initializeGravObj(objectX, objectY, parseFloat(objectInfo[3]), parseFloat(objectInfo[4]), false, false, false);
+            break;
+        case 'gravObj_on':
+            initializeGravObj(objectX, objectY, parseFloat(objectInfo[3]), parseFloat(objectInfo[4]), true, false, false);
+            break;
+        case 'gravObj_flux':
+            initializeGravObj(objectX, objectY, parseFloat(objectInfo[3]), parseFloat(objectInfo[4]), true, true, false);
+            break;
+        case 'gravObj_move':
+            //list in format x1#y1-x2#y2-x3#y3...
+            let movementList = objectInfo[5].split('-');
+            initializeGravObj(objectX, objectY, parseFloat(objectInfo[3]), parseFloat(objectInfo[4]), true, false, true, movementList);
+            break;
+        case 'shocker':
+            let shocker = game.add.sprite(objectX, objectY, objectName);
+            shocker.anchor.set(.5, .5);
+            shockers.add(shocker);
+            shocker.animations.add('crackle');
+            shocker.animations.play('crackle', 10, true);
+            break;
+        case 'exit':
+            let exit = game.add.sprite(objectX, objectY, objectName);
+            exit.anchor.set(.5, .5);
+            exits.add(exit);
+            exit.body.immovable = true;
+            break;
+        case 'player':
+            player_startX = objectX;
+            player_startY = objectY;
+            break;
+        default:
+            break;
+    }
 }
 
 function queueLevelsFromList(){
