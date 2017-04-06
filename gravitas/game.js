@@ -109,7 +109,8 @@ let Game = function (game, startingLevelNum) {
     function handleGravObjSelection() {
         // Place all objects currently on the screen into a list
         gravObjects.forEach(function(gravObj) {
-            if ((gravObj.x + 10 < game.camera.x + game.width) && (gravObj.x - 10 > game.camera.x) && (gravObj.y  + 10 < game.camera.y + game.height) && (gravObj.y - 10 > game.camera.y)) {
+            if    ((gravObj.x + 10 < game.camera.x + game.width ) && (gravObj.x - 10 > game.camera.x)
+                && (gravObj.y + 10 < game.camera.y + game.height) && (gravObj.y - 10 > game.camera.y)) {
                 if(!gravObj.flux) {
                     selectableGravObjects.push(gravObj);
                 }
