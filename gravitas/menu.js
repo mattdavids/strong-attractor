@@ -19,14 +19,14 @@ let Menu = function(game, startGameFromMenuCallback) {
             
             
             // THERE NEEDS TO BE A BETTER WAY TO DO THIS
-            flame_height = game.height/2 + 9;
+            let flame_height = game.height/2 + 9;
             
-            flame1 = game.add.sprite(97, flame_height, 'flame');
+            let flame1 = game.add.sprite(97, flame_height, 'flame');
             flame1.anchor.set(.5, .5);
             flame1.animations.add('flicker1');
             flame1.animations.play('flicker1', 20, true);   
             
-            flame2 = game.add.sprite(710, flame_height, 'flame');
+            let flame2 = game.add.sprite(710, flame_height, 'flame');
             flame2.anchor.set(.5, .5);
             flame2.animations.add('flicker2');
             flame2.animations.play('flicker2', 20, true); 
