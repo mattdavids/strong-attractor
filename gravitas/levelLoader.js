@@ -1,8 +1,6 @@
 let LevelLoader = function (game) {
     const playerSize = 14;
     let levels;
-    let playerStartX;
-    let playerStartY;
 
     function setup() {
         let levelList = game.cache.getText('levelList').split('\n');
@@ -138,8 +136,6 @@ let LevelLoader = function (game) {
             case 'player':
                 if (!playerHasHitCheckpoint) {
                     levelObjects.player = makePlayer(objectX, objectY, playerGrav);
-                    playerStartX = objectX;
-                    playerStartY = objectY;
                 } else {
                     levelObjects.player = makePlayer(playerStartX, playerStartY, playerGrav);
                 }
