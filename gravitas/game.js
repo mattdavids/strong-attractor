@@ -7,7 +7,8 @@ let Game = function (game, startingLevelNum) {
         checkpoints,
         exits,
         emitters,
-        worldParticles;
+        worldParticles,
+        backgrounds;
 
     let playerShadowLeft,
         playerShadowRight,
@@ -73,6 +74,7 @@ let Game = function (game, startingLevelNum) {
         worldParticles = loaderObjects.worldParticles;
         playerStartX = loaderObjects.playerStartX;
         playerStartY = loaderObjects.playerStartY;
+        backgrounds = loaderObjects.backgrounds;
     }
 
     function loadLevel() {
@@ -155,6 +157,12 @@ let Game = function (game, startingLevelNum) {
         game.load.image('checkpoint', 'assets/art/flag_red.png');
         game.load.image('checkpointActivated', 'assets/art/flag_green.png');
         game.load.image('groundParticle', 'assets/art/groundParticle.png');
+        game.load.image('bg_stone_1', 'assets/art/bg_stone_1.png');
+        game.load.image('bg_stone_2', 'assets/art/bg_stone_2.png');
+        game.load.image('bg_stone_3', 'assets/art/bg_stone_3.png');
+        game.load.image('bg_stone_4', 'assets/art/bg_stone_4.png');
+
+
         game.load.audio('death', ['assets/audio/death.mp3', 'assets/audio/death.ogg']);
 
         game.load.spritesheet('shocker', 'assets/art/electricity_sprites.png', 30, 30, 3);

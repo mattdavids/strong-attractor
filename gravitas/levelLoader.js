@@ -150,6 +150,7 @@ let LevelLoader = function (game) {
     function initializeLevelObjects(playerHasHitCheckpoint, checkpoints){
         let levelObjects = {};
         levelObjects.player = makePlayer(0,0,0);
+        levelObjects.backgrounds = game.add.group();
         levelObjects.walls = game.add.group();
         levelObjects.gravObjects = game.add.group();
         levelObjects.shockers = game.add.group();
@@ -164,6 +165,24 @@ let LevelLoader = function (game) {
         return levelObjects;
     }
 
+    function buildBackground(levelObjects, width, height, levelNumber, spriteNumMax = 4, spritePrefix = "bg_stone_", blockSize = 30){
+        for(let x=0; x<=width; x+=blockSize){
+            for(let y=0; y<=height; y+=blockSize){
+                let xraw = (x/blockSize)+1;
+                let yraw = (y/blockSize)+1;
+                let tileType = ((xraw+levelNumber) * (yraw - 2)) + (xraw * (5 + yraw));
+                tileType = tileType%27 + 1;
+                if(tileType > spriteNumMax)
+                    tileType = 1;
+                let newBG = game.add.sprite(x, y, spritePrefix+tileType);
+                newBG.anchor.set(.5, .5);
+                newBG.body.immovable = true;
+                levelObjects.backgrounds.add(newBG);
+            }
+        }
+        return levelObjects;
+    }
+
     function loadLevel(levelNumber, playerHasHitCheckpoint, playerStartX, playerStartY, checkpoints) {
         let level = levels[levelNumber];
         let levelObjects = initializeLevelObjects(playerHasHitCheckpoint, checkpoints);
@@ -175,7 +194,10 @@ let LevelLoader = function (game) {
         // Get player gravity
         let playerGrav = parseInt(level[1]);
 
-        // Load all objects
+        // Load background
+        levelObjects = buildBackground(levelObjects, bounds[0], bounds[1], levelNumber);
+
+        // Load level objects
         for (let i = 2; i < level.length; i++) {
             let element = level[i];
             let objectInfo = element.split(',');
