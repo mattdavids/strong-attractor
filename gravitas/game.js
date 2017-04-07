@@ -17,7 +17,9 @@ let Game = function (game, startingLevelNum) {
 
     let clickedObj;
 
-    let graphics;
+    let gravObjGraphics;
+    let gravObjTopGraphics;
+    let pauseGraphics;
 
     let levelLoader;
     let currentLevelNum;
@@ -84,6 +86,11 @@ let Game = function (game, startingLevelNum) {
         }
         unpackObjects(levelObjects);
         setupGravityObjects();
+        
+        game.world.bringToTop(emitters);
+        game.world.sendToBack(gravObjGraphics);
+        game.world.bringToTop(gravObjTopGraphics);
+        game.world.bringToTop(pauseGraphics);
     }
 
     function setupPauseButton() {
@@ -183,7 +190,9 @@ let Game = function (game, startingLevelNum) {
             e.preventDefault();
         };
 
-        graphics = game.add.graphics();
+        gravObjGraphics = game.add.graphics();
+        gravObjTopGraphics = game.add.graphics();
+        pauseGraphics = game.add.graphics();
 
         playerHasHitCheckpoint = false;
         
@@ -275,27 +284,31 @@ let Game = function (game, startingLevelNum) {
     }
 
     function render() {
-        let drawGravObjCircle = function(gravObj) {
+        let drawGravObjCircle = function(graphicsObj, gravObj, alpha) {
             // these are heuristic constants which look okay
             let subAmount = 50;
             let radius = (gravObj.gravWeight / gravCoef) * (circleRadius * 2);
-            let alpha = 0.1;
             while (radius > 0) {
-                graphics.beginFill(gravObjColor, alpha);
-                graphics.drawCircle(gravObj.x, gravObj.y, radius);
-                graphics.endFill();
+                graphicsObj.beginFill(gravObjColor, alpha);
+                graphicsObj.drawCircle(gravObj.x, gravObj.y, radius);
+                graphicsObj.endFill();
                 radius -= subAmount;
             }
         };
         
-        graphics.clear();
+        gravObjGraphics.clear();
+        gravObjTopGraphics.clear();
+        pauseGraphics.clear();
         
-        gravObjects.children.forEach(drawGravObjCircle);
+        gravObjects.children.forEach(function(gravObj) {
+            drawGravObjCircle(gravObjGraphics, gravObj, .04);
+            drawGravObjCircle(gravObjTopGraphics, gravObj, .04);
+        });
 
         if ((game.physics.arcade.isPaused && notCurrentlyDying) || stopPauseAnimation) {
-            graphics.beginFill(0xa3c6ff, .5);
-            graphics.drawRect(player.x - pausedSize + player.body.velocity.x/15, player.y - pausedSize + player.body.velocity.y/15, 2 * pausedSize, 2 * pausedSize);
-            graphics.endFill();
+            pauseGraphics.beginFill(0xa3c6ff, .5);
+            pauseGraphics.drawRect(player.x - pausedSize + player.body.velocity.x/15, player.y - pausedSize + player.body.velocity.y/15, 2 * pausedSize, 2 * pausedSize);
+            pauseGraphics.endFill();
 
             if (stopPauseAnimation) {
                 if (pausedSize > pauseAnimationSpeed) {
@@ -311,15 +324,14 @@ let Game = function (game, startingLevelNum) {
         if (selectableGravObjects.length > 0) {
           
             let selectedObj = selectableGravObjects[currentHighlightedObjIndex];
-            graphics.beginFill(0xffffff, 1);
-            graphics.drawRect(selectedObj.x - 15, selectedObj.y - 15, selectedObjWidth, 30);
-            graphics.drawRect(selectedObj.x - 15, selectedObj.y - 15, 30, selectedObjWidth);
-            graphics.drawRect(selectedObj.x - 15, selectedObj.y + 15 - selectedObjWidth, 30, selectedObjWidth);
-            graphics.drawRect(selectedObj.x + 15 - selectedObjWidth, selectedObj.y - 15, selectedObjWidth, 30);
+            pauseGraphics.beginFill(0xffffff, 1);
+            pauseGraphics.drawRect(selectedObj.x - 15, selectedObj.y - 15, selectedObjWidth, 30);
+            pauseGraphics.drawRect(selectedObj.x - 15, selectedObj.y - 15, 30, selectedObjWidth);
+            pauseGraphics.drawRect(selectedObj.x - 15, selectedObj.y + 15 - selectedObjWidth, 30, selectedObjWidth);
+            pauseGraphics.drawRect(selectedObj.x + 15 - selectedObjWidth, selectedObj.y - 15, selectedObjWidth, 30);
+            pauseGraphics.endFill();
 
         }
-        
-        game.world.bringToTop(graphics);
     }
 
     function clearLevel() {
@@ -442,7 +454,6 @@ let Game = function (game, startingLevelNum) {
                 emitter.destroy(true);
             }, null);
             emitters.add(emitter);
-            game.world.bringToTop(emitters);
         }
 
         // Fade out the particles over their lifespan
