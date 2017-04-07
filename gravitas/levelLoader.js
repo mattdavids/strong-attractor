@@ -72,7 +72,7 @@ let LevelLoader = function (game) {
         return worldParticles;
     }
 
-    function loadObject(levelObjects, objectName, objectX, objectY, playerGrav, objectInfo, playerHasHitCheckpoint, playerStartX, playerStartY){
+    function loadObject(levelObjects, objectName, objectX, objectY, playerGrav, objectInfo, playerHasHitCheckpoint, playerStartX, playerStartY, checkpoints){
         let gravObj;
         let movementList;
         switch(objectName) {
@@ -125,6 +125,21 @@ let LevelLoader = function (game) {
                     //checkpoint.body.immovable = true;
                     checkpoint.hasBeenHitBefore = false;
                     levelObjects.checkpoints.add(checkpoint);
+                } else {
+                    let obj;
+                    checkpoints.forEach(function(checkpoint) {
+                        if (checkpoint.x == objectX && checkpoint.y == objectY) {
+                            if (checkpoint.hasBeenHitBefore) {
+                                obj = game.add.sprite(objectX, objectY, 'checkpointActivated');
+                                obj.hasBeenHitBefore = true;
+                            } else {
+                                obj = game.add.sprite(objectX, objectY, objectName);
+                                obj.hasBeenHitBefore = false;
+                            }
+                            obj.anchor.set(.5, .5);
+                            levelObjects.checkpoints.add(obj);
+                        }
+                    });
                 }
                 break;
             case 'exit':
@@ -156,11 +171,7 @@ let LevelLoader = function (game) {
         levelObjects.shockers = game.add.group();
         levelObjects.exits = game.add.group();
         levelObjects.emitters = game.add.group();
-        if(!playerHasHitCheckpoint) {
-            levelObjects.checkpoints = game.add.group();
-        } else {
-            levelObjects.checkpoints = checkpoints;
-        }
+        levelObjects.checkpoints = game.add.group();
         
         return levelObjects;
     }
@@ -205,10 +216,10 @@ let LevelLoader = function (game) {
             let objectX = parseFloat(objectInfo[1]);
             let objectY = parseFloat(objectInfo[2]);
 
-            levelObjects = loadObject(levelObjects, objectName, objectX, objectY, playerGrav, objectInfo, playerHasHitCheckpoint, playerStartX, playerStartY);
+            levelObjects = loadObject(levelObjects, objectName, objectX, objectY, playerGrav, objectInfo, playerHasHitCheckpoint, playerStartX, playerStartY, checkpoints);
 
         }
-
+        
         // Add world particles
         levelObjects.worldParticles = makeWorldParticles();
         

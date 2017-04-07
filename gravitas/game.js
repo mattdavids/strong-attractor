@@ -79,6 +79,9 @@ let Game = function (game, startingLevelNum) {
 
     function loadLevel() {
         let levelObjects = levelLoader.loadLevel(currentLevelNum, playerHasHitCheckpoint, playerStartX, playerStartY, checkpoints);
+        if(checkpoints) {
+            checkpoints.destroy();
+        }
         unpackObjects(levelObjects);
         setupGravityObjects();
     }
