@@ -329,6 +329,7 @@ let Game = function (game, startingLevelNum) {
         gravObjects.destroy();
         exits.destroy();
         worldParticles.destroy();
+        backgrounds.destroy();
         if (!playerHasHitCheckpoint) {
             checkpoints.destroy();
         }
