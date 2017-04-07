@@ -89,6 +89,7 @@ let Game = function (game, startingLevelNum) {
         
         game.world.bringToTop(emitters);
         game.world.sendToBack(gravObjGraphics);
+        game.world.sendToBack(backgrounds);
         game.world.bringToTop(gravObjTopGraphics);
         game.world.bringToTop(pauseGraphics);
     }
