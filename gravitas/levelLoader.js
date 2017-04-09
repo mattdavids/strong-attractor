@@ -31,10 +31,24 @@ let LevelLoader = function (game) {
         return player;
     }
 
+    function addEmitterToGravObj(obj) {
+        let gravParticles = game.add.group();
+        for (let i = 0; i < 10; i++) {
+            let p = game.add.sprite(obj.x, obj.y, 'gravParticle');
+            p.scale.set(0);
+            p.anchor.set(0.5, 0.5);
+            p.gravConstant = 0.1;
+            p.foobar = Math.random() * 200 + 100;
+            gravParticles.add(p);
+        }
+
+        obj.gravParticles = gravParticles;
+    }
+
     function makeGravObject(x, y, gravMin, gravMax, gravOn, flux, moving, movementList) {
         let gravObj = game.add.sprite(x, y, 'gravObj');
         gravObj.anchor.set(.5, .5);
-        gravObj.gravWeight = ((gravMin + gravMax)/2) * gravOn * (1 - flux);
+        gravObj.gravWeight = ((gravMin + gravMax)/2) * gravOn * !flux;
         gravObj.gravMin = gravMin;
         gravObj.gravMax = gravMax;
         gravObj.body.immovable = true;
@@ -43,15 +57,15 @@ let LevelLoader = function (game) {
         gravObj.moving = moving;
         gravObj.movementList = movementList;
         gravObj.movementIndex = 0;
-        if(flux) {
+        if (flux) {
             gravObj.fluxConst = 1;
         }
-
+        addEmitterToGravObj(gravObj);
         return gravObj;
     }
 
     function makeWorldParticles() {
-        const numParticles = Math.min(game.world.width * game.world.height / 1000, 50);
+        const numParticles = Math.min(game.world.width * game.world.height / 1000, 500);
         let worldParticles = game.add.emitter(game.world.centerX, game.world.centerY, numParticles);
         worldParticles.width = game.world.width;
         worldParticles.height = game.world.height;
@@ -63,12 +77,8 @@ let LevelLoader = function (game) {
         worldParticles.minParticleScale = 0.5;
         worldParticles.maxParticleScale = 0.7;
 
-        worldParticles.forEach(function(p) {
-            p.body.maxVelocity = new Phaser.Point(50, 50);
-        });
-
         game.world.bringToTop(worldParticles);
-        worldParticles.start(false, 4000, 0, 0); // explode, lifespan, frequency, quantity
+        worldParticles.start(true, 0, 0, 0); // explode, lifespan, frequency, quantity
         return worldParticles;
     }
 

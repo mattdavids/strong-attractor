@@ -142,7 +142,8 @@ let Game = function (game, startingLevelNum) {
         game.load.image('wall', 'assets/art/bricks_gray.png');
         game.load.image('gravObj', 'assets/art/gravObj.png');
         game.load.image('shadow', 'assets/art/shadow.png');
-        game.load.image('groundParticle', 'assets/art/groundParticle.png')
+        game.load.image('groundParticle', 'assets/art/groundParticle.png');
+        game.load.image('gravParticle', 'assets/art/gravParticle.png');
         game.load.audio('death', ['assets/audio/death.mp3', 'assets/audio/death.ogg']);
 
         game.load.spritesheet('shocker', 'assets/art/electricity_sprites.png', 30, 30, 3);
@@ -222,6 +223,7 @@ let Game = function (game, startingLevelNum) {
             checkWallCollision();
             doJumpPhysics();
             doGravityPhysics();
+            doGravityParticlesAnimation();
 
             previous_velocity_y = player.body.velocity.y;
 
@@ -252,14 +254,14 @@ let Game = function (game, startingLevelNum) {
     function render() {
         let drawGravObjCircle = function(gravObj) {
             // these are heuristic constants which look okay
-            let subAmount = 50;
-            let radius = (gravObj.gravWeight / gravCoef) * (circleRadius * 2);
+            const subAmount = 50;
+            let diameter = 2 * getGravObjRadius(gravObj);
             let alpha = 0.1;
-            while (radius > 0) {
+            while (diameter > 0) {
                 graphics.beginFill(gravObjColor, alpha);
-                graphics.drawCircle(gravObj.x, gravObj.y, radius);
+                graphics.drawCircle(gravObj.x, gravObj.y, diameter);
                 graphics.endFill();
-                radius -= subAmount;
+                diameter -= subAmount;
             }
         };
         
@@ -282,6 +284,14 @@ let Game = function (game, startingLevelNum) {
                 pausedSize += pauseAnimationSpeed;
             }
         }
+
+        gravObjects.forEach(function(gravObj) {
+            gravObj.gravParticles.forEachAlive(function(p) {
+                graphics.beginFill(0xffffff, 1);
+                graphics.drawRect(p.x - 2.5, p.y - 2.5, 5, 5);
+                graphics.endFill();
+            });
+        });
         
         if (selectableGravObjects.length > 0) {
           
@@ -291,6 +301,7 @@ let Game = function (game, startingLevelNum) {
             graphics.drawRect(selectedObj.x - 15, selectedObj.y - 15, 30, selectedObjWidth);
             graphics.drawRect(selectedObj.x - 15, selectedObj.y + 15 - selectedObjWidth, 30, selectedObjWidth);
             graphics.drawRect(selectedObj.x + 15 - selectedObjWidth, selectedObj.y - 15, selectedObjWidth, 30);
+            graphics.endFill();
 
         }
         
@@ -306,12 +317,19 @@ let Game = function (game, startingLevelNum) {
         worldParticles.destroy();
     }
 
+    // TODO: rename
     function updatePlayerCollision() {
         game.physics.arcade.collide(emitters, walls);
         game.physics.arcade.collide(player, walls);
         game.physics.arcade.collide(player, gravObjects);
 
         game.physics.arcade.overlap(player, exits, onExit, null, null);
+
+        gravObjects.forEach(function(gravObj) {
+            game.physics.arcade.collide(gravObjects, gravObj.gravParticles, function(_, p) {
+                    p.foobar = 0;
+            }, null, null);
+        }, null);
 
         player.isTouchingRight = false;
         player.isTouchingLeft = false;
@@ -477,14 +495,14 @@ let Game = function (game, startingLevelNum) {
                 gravityEffectsOnObject(p);
             }, null);
         }, null);
-        worldParticles.forEachAlive(function(p) {
-            gravityEffectsOnObject(p);
-        }, null);
 
         // Gravity object changes
         
         gravObjects.forEach(function(gravObj) {
-            
+            gravObj.gravParticles.forEachAlive(function(p) {
+                gravityEffectsOnObject(p);
+            }, null);
+
             if (gravObj.flux) {
                 gravObj.gravWeight += 2000 * gravObj.fluxConst;
                 if (gravObj.gravWeight >= gravObj.gravMax || gravObj.gravWeight <= gravObj.gravMin) {
@@ -520,12 +538,17 @@ let Game = function (game, startingLevelNum) {
             let r = diff.getMagnitude();
             diff.normalize();
 
-            if ( r < (gravObj.gravWeight / gravCoef) * circleRadius) {
+            if ( r < getGravObjRadius(gravObj)) {
                 xGravCoef += gravObj.gravWeight * diff.x / r;
                 yGravCoef += gravObj.gravWeight * diff.y / r;
             }
         });
-        
+
+        if (obj.gravConstant !== undefined) {
+            xGravCoef *= obj.gravConstant;
+            yGravCoef *= obj.gravConstant;
+        }
+
         if (xGravCoef > 0) {
             obj.body.acceleration.x = -xGravCoef * !obj.isTouchingLeft;
         } else {
@@ -534,6 +557,20 @@ let Game = function (game, startingLevelNum) {
 
         obj.body.acceleration.y = -yGravCoef;
         
+    }
+
+    function doGravityParticlesAnimation() {
+        gravObjects.forEach(function (gravObj) {
+            gravObj.gravParticles.forEach(function (p) {
+                if (p.foobar <= 0) {
+                    p.position = getRandomPositionInCircle(gravObj.x, gravObj.y, getGravObjRadius(gravObj));
+                    p.body.velocity.set(0, 0);
+                    p.foobar = Math.random() * 200 + 100;
+                } else {
+                    p.foobar -= 1;
+                }
+            }, null);
+        }, null);
     }
 
     // Starts the death animation by setting flags. Freezes the player, pauses the game state, shakes the screen, then sets a timer to set the deathFall flag which is run in update
@@ -547,11 +584,11 @@ let Game = function (game, startingLevelNum) {
         deathSound.play();
         game.time.events.add(0, function() {
             game.camera.shake(.008, deathAnimationTime);
-        });
+        }, null);
         game.time.events.add(deathAnimationTime + 100, function() {
             deathFall = true;
             deathCounter = 0;
-        });
+        }, null);
     }
     
     function doDeathFallAnimation() {
@@ -602,6 +639,15 @@ let Game = function (game, startingLevelNum) {
         }
 
         clickedObj = gravObj;
+    }
+
+    function getRandomPositionInCircle(x, y, radius) {
+        let angle = Math.random() * 2 * Math.PI;
+        return new Phaser.Point(x + 0.9*radius * Math.cos(angle), y + 0.9*radius * Math.sin(angle));
+    }
+
+    function getGravObjRadius(gravObj) {
+        return gravObj.gravWeight / gravCoef * circleRadius;
     }
 
     return {
