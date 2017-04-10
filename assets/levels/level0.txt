@@ -88,4 +88,5 @@ shocker,525,405
 shocker,495,405
 shocker,585,405
 exit,765,375
+checkpoint,435,315
 player,37.5,382.5

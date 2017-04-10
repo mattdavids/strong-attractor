@@ -15,6 +15,7 @@ $(function() {
         game.state.start('game');
     });
 
+    console.log('hi');
     let gameState = new Game(game, startingLevelNum);
     
     game.state.add('boot', {preload: startState.boot, create: startState.postBoot});

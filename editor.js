@@ -12,6 +12,7 @@ let gravObj_offs;
 let gravObj_ons;
 let gravObj_fluxes;
 let gravObj_movers;
+let gravObj_moveFluxes;
 let clickedObj;
 let gravObj;
 let gravObj_off;
@@ -126,6 +127,7 @@ function preload() {
     game.load.image('wall', 'assets/art/bricks_gray.png');
     game.load.image('gravObj', 'assets/art/gravObj.png');
     game.load.spritesheet('shocker', 'assets/art/electricity_sprites.png', 30, 30, 3);
+    game.load.image('checkpoint', 'assets/art/flag_green.png');
     game.load.image('exit', 'assets/art/exit.png');
     game.load.image('player', 'assets/art/player.png');
     game.load.image('path', 'assets/art/path.png');
@@ -171,7 +173,9 @@ function create() {
     gravObj_ons = game.add.group();
     gravObj_fluxes = game.add.group();
     gravObj_movers = game.add.group();
+    gravObj_moveFluxes = game.add.group();
     shockers = game.add.group();
+    checkpoints = game.add.group();
     exits = game.add.group();
 
     
@@ -183,6 +187,7 @@ function create() {
             let objectX = parseFloat(objectInfo[1]);
             let objectY = parseFloat(objectInfo[2]);
             let obj;
+            let movementList;
             
             switch(objectName) {
                 case 'wall':
@@ -201,7 +206,6 @@ function create() {
                     obj.gravMin = parseFloat(objectInfo[3]);
                     obj.gravMax = parseFloat(objectInfo[4]);
                     gravObj_ons.add(obj);
-                    obj.tint = 0x351777;
                     break;
                 case 'gravObj_flux':
                     obj = game.add.sprite(objectX, objectY, 'gravObj');
@@ -215,10 +219,9 @@ function create() {
                     obj.gravMin = parseFloat(objectInfo[3]);
                     obj.gravMax = parseFloat(objectInfo[4]);
                     gravObj_movers.add(obj);
-                    obj.tint = 0x351777;
                     obj.movementPathing = game.add.group();
                     obj.currentNumber = 1;
-                    let movementList = objectInfo[5].split('-');
+                    movementList = objectInfo[5].split('-');
                     movementList.splice(1, movementList.length).forEach(function(ele){
                         let loc = ele.split('#');
                         let path = game.add.sprite(parseFloat(loc[0]), parseFloat(loc[1]), 'path');
@@ -233,12 +236,40 @@ function create() {
                         obj.currentNumber += 1;
                         path.number = num;
                     });
-                    break;                    
+                    break;    
+                case 'gravObj_moveFlux':
+                    obj = game.add.sprite(objectX, objectY, 'gravObj');
+                    obj.gravMin = parseFloat(objectInfo[3]);
+                    obj.gravMax = parseFloat(objectInfo[4]);
+                    gravObj_moveFluxes.add(obj);
+                    obj.tint = 0xb0e0e6;
+                    obj.movementPathing = game.add.group();
+                    obj.currentNumber = 1;
+                    movementList = objectInfo[5].split('-');
+                    movementList.splice(1, movementList.length).forEach(function(ele){
+                        let loc = ele.split('#');
+                        let path = game.add.sprite(parseFloat(loc[0]), parseFloat(loc[1]), 'path');
+                        path.anchor.set(.5, .5);
+                        obj.movementPathing.add(path);
+                        path.inputEnabled = true;
+                        path.events.onInputDown.add(deleteObject, this);
+                        path.events.onInputUp.add(inputUp, this);
+                        path.input.boundsRect = bounds;
+                        let num = game.add.text(path.position.x, path.position.y + 3, obj.currentNumber, {fill: "#000", fontSize: '16px'});
+                        num.anchor.set(.5, .5);
+                        obj.currentNumber += 1;
+                        path.number = num;
+                    });
+                    break;
                 case 'shocker':
                     obj = game.add.sprite(objectX, objectY, objectName);
                     shockers.add(obj);
                     obj.animations.add('crackle');
                     obj.animations.play('crackle', 10, true);
+                    break;
+                case 'checkpoint':
+                    obj = game.add.sprite(objectX, objectY, objectName);
+                    checkpoints.add(obj);
                     break;
                 case 'exit':
                     obj = game.add.sprite(objectX, objectY, objectName);
@@ -289,7 +320,7 @@ function create() {
             currentSelectedObj = null;
         }
         
-        if (currentSelectedObj == 'gravObj_on' || currentSelectedObj == 'gravObj_flux' || currentSelectedObj == 'gravObj_move') {
+        if (currentSelectedObj == 'gravObj_on' || currentSelectedObj == 'gravObj_flux' || currentSelectedObj == 'gravObj_move' || currentSelectedObj == 'gravObj_moveFlux') {
             $(".list").addClass('show');
             $(".break").hide();
         } else {
@@ -336,7 +367,19 @@ function buildLevelString(){
         });
         result = result.slice(0, -1) + '\n';
     });
+    
+    gravObj_moveFluxes.forEach(function(obj) {
+        result += 'gravObj_moveFlux,' + obj.position.x + ',' + obj.position.y + ',' + obj.gravMin + ',' + obj.gravMax + ',' + obj.position.x + '#' + obj.position.y + '-';
+        obj.movementPathing.forEach(function(ele) {
+            result += ele.position.x + '#' + ele.position.y + '-'
+        });
+        result = result.slice(0, -1) + '\n';
+    });
 
+    checkpoints.children.forEach(function(obj) {
+        result += 'checkpoint,' + obj.position.x + ',' + obj.position.y + '\n';
+    });
+    
     exits.children.forEach(function(obj) {
         result += 'exit,' + obj.position.x + ',' + obj.position.y + '\n'
     });
@@ -391,7 +434,6 @@ function initializeObj(objectName) {
         obj.gravMax = parseInt($('#gravMax')[0].value);
     } else if (objectName == 'gravObj_on') {
         obj = game.add.sprite(spawnPosX, spawnPosY, 'gravObj');
-        obj.tint = 0x351777;
         gravObj_ons.add(obj);
         obj.gravMin = parseInt($('#gravMin')[0].value);
         obj.gravMax = parseInt($('#gravMax')[0].value);
@@ -405,6 +447,17 @@ function initializeObj(objectName) {
         obj = game.add.sprite(spawnPosX, spawnPosY, 'gravObj');
         obj.tint = 0x351777;
         gravObj_movers.add(obj);
+        obj.gravMin = parseInt($('#gravMin')[0].value);
+        obj.gravMax = parseInt($('#gravMax')[0].value);
+        obj.movementPathing = game.add.group();
+        obj.currentNumber = 1;
+        pathing = true;
+        currentSelectedObj = 'path';
+        pathedObj = obj;
+    } else if (objectName == 'gravObj_moveFlux') {
+        obj = game.add.sprite(spawnPosX, spawnPosY, 'gravObj');
+        obj.tint = 0xb0e0e6;
+        gravObj_moveFluxes.add(obj);
         obj.gravMin = parseInt($('#gravMin')[0].value);
         obj.gravMax = parseInt($('#gravMax')[0].value);
         obj.movementPathing = game.add.group();
@@ -434,6 +487,9 @@ function initializeObj(objectName) {
             shockers.add(obj);
             obj.animations.add('crackle');
             obj.animations.play('crackle', 10, true);
+            break;
+        case 'checkpoint':
+            checkpoints.add(obj);
             break;
         case 'exit':
             exits.add(obj);
@@ -497,12 +553,21 @@ function deleteObject(obj) {
     obj.body.immovable = false;
     clickedObj = obj;
     if (game.input.activePointer.rightButton.isDown) {
+        
+        if (gravObj_movers.children.indexOf(obj) > -1 || gravObj_moveFluxes.children.indexOf(obj) > -1) {
+            currentSelectedObj = 'gravObj_move';
+            obj.movementPathing.forEach(function(ele) {
+                ele.number.destroy();
+            });
+            obj.movementPathing.destroy();
+        }
         walls.remove(obj);
 	    shockers.remove(obj);
 	    gravObj_ons.remove(obj);
         gravObj_offs.remove(obj);
         gravObj_fluxes.remove(obj);
         gravObj_movers.remove(obj);
+        gravObj_moveFluxes.remove(obj);
         if (pathedObj) {
             pathedObj.movementPathing.remove(obj);
         }
@@ -510,7 +575,7 @@ function deleteObject(obj) {
             pathedObj.currentNumber -= 1;
             obj.number.kill();
         }
-        
+        checkpoints.remove(obj);
         exits.remove(obj);
         if (obj !== player_start) {
             obj.kill();

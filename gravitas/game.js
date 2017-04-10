@@ -1,12 +1,15 @@
 let Game = function (game, startingLevelNum) {
+    console.log('hi2');
 
     let player,
         walls,
         shockers,
         gravObjects,
+        checkpoints,
         exits,
         emitters,
-        worldParticles;
+        worldParticles,
+        backgrounds;
 
     let playerShadowLeft,
         playerShadowRight,
@@ -15,7 +18,9 @@ let Game = function (game, startingLevelNum) {
 
     let clickedObj;
 
-    let graphics;
+    let gravObjGraphics;
+    let gravObjTopGraphics;
+    let pauseGraphics;
 
     let levelLoader;
     let currentLevelNum;
@@ -30,10 +35,13 @@ let Game = function (game, startingLevelNum) {
         leftKeyWasPressed;
     let deathFall;
     let deathCounter;
+    let playerHasHitCheckpoint;
 
     let previous_velocity_y,
         isJumping,
         jumpCount;
+    let playerStartX,
+        playerStartY;
 
 
 
@@ -63,15 +71,28 @@ let Game = function (game, startingLevelNum) {
         walls = loaderObjects.walls;
         shockers = loaderObjects.shockers;
         gravObjects = loaderObjects.gravObjects;
+        checkpoints = loaderObjects.checkpoints;
         exits = loaderObjects.exits;
         emitters = loaderObjects.emitters;
         worldParticles = loaderObjects.worldParticles;
+        playerStartX = loaderObjects.playerStartX;
+        playerStartY = loaderObjects.playerStartY;
+        backgrounds = loaderObjects.backgrounds;
     }
 
     function loadLevel() {
-        let levelObjects = levelLoader.loadLevel(currentLevelNum);
+        let levelObjects = levelLoader.loadLevel(currentLevelNum, playerHasHitCheckpoint, playerStartX, playerStartY, checkpoints);
+        if(checkpoints) {
+            checkpoints.destroy();
+        }
         unpackObjects(levelObjects);
         setupGravityObjects();
+
+        game.world.bringToTop(emitters);
+        game.world.sendToBack(gravObjGraphics);
+        game.world.sendToBack(backgrounds);
+        game.world.bringToTop(gravObjTopGraphics);
+        game.world.bringToTop(pauseGraphics);
     }
 
     function setupPauseButton() {
@@ -102,8 +123,11 @@ let Game = function (game, startingLevelNum) {
     function handleGravObjSelection() {
         // Place all objects currently on the screen into a list
         gravObjects.forEach(function(gravObj) {
-            if ((gravObj.x + 10 < game.camera.x + game.width) && (gravObj.x - 10 > game.camera.x) && (gravObj.y  + 10 < game.camera.y + game.height) && (gravObj.y - 10 > game.camera.y)) {
-                selectableGravObjects.push(gravObj);
+            if    ((gravObj.x + 10 < game.camera.x + game.width ) && (gravObj.x - 10 > game.camera.x)
+                && (gravObj.y + 10 < game.camera.y + game.height) && (gravObj.y - 10 > game.camera.y)) {
+                if(!gravObj.flux) {
+                    selectableGravObjects.push(gravObj);
+                }
             }
         });
         
@@ -142,8 +166,16 @@ let Game = function (game, startingLevelNum) {
         game.load.image('wall', 'assets/art/bricks_gray.png');
         game.load.image('gravObj', 'assets/art/gravObj.png');
         game.load.image('shadow', 'assets/art/shadow.png');
+        game.load.image('checkpoint', 'assets/art/flag_red.png');
+        game.load.image('checkpointActivated', 'assets/art/flag_green.png');
         game.load.image('groundParticle', 'assets/art/groundParticle.png');
         game.load.image('gravParticle', 'assets/art/gravParticle.png');
+        game.load.image('bg_stone_1', 'assets/art/bg_stone_1.png');
+        game.load.image('bg_stone_2', 'assets/art/bg_stone_2.png');
+        game.load.image('bg_stone_3', 'assets/art/bg_stone_3.png');
+        game.load.image('bg_stone_4', 'assets/art/bg_stone_4.png');
+
+
         game.load.audio('death', ['assets/audio/death.mp3', 'assets/audio/death.ogg']);
 
         game.load.spritesheet('shocker', 'assets/art/electricity_sprites.png', 30, 30, 3);
@@ -161,7 +193,11 @@ let Game = function (game, startingLevelNum) {
             e.preventDefault();
         };
 
-        graphics = game.add.graphics();
+        gravObjGraphics = game.add.graphics();
+        gravObjTopGraphics = game.add.graphics();
+        pauseGraphics = game.add.graphics();
+
+        playerHasHitCheckpoint = false;
 
         loadLevel();
 
@@ -252,27 +288,31 @@ let Game = function (game, startingLevelNum) {
     }
 
     function render() {
-        let drawGravObjCircle = function(gravObj) {
+        let drawGravObjCircle = function(graphicsObj, gravObj, alpha) {
             // these are heuristic constants which look okay
             const subAmount = 50;
             let diameter = 2 * getGravObjRadius(gravObj);
-            let alpha = 0.1;
             while (diameter > 0) {
-                graphics.beginFill(gravObjColor, alpha);
-                graphics.drawCircle(gravObj.x, gravObj.y, diameter);
-                graphics.endFill();
+                graphicsObj.beginFill(gravObjColor, alpha);
+                graphicsObj.drawCircle(gravObj.x, gravObj.y, diameter);
+                graphicsObj.endFill();
                 diameter -= subAmount;
             }
         };
         
-        graphics.clear();
+        gravObjGraphics.clear();
+        gravObjTopGraphics.clear();
+        pauseGraphics.clear();
         
-        gravObjects.children.forEach(drawGravObjCircle);
+        gravObjects.children.forEach(function(gravObj) {
+            drawGravObjCircle(gravObjGraphics, gravObj, .04);
+            drawGravObjCircle(gravObjTopGraphics, gravObj, .04);
+        });
 
         if ((game.physics.arcade.isPaused && notCurrentlyDying) || stopPauseAnimation) {
-            graphics.beginFill(0xa3c6ff, .5);
-            graphics.drawRect(player.x - pausedSize + player.body.velocity.x/15, player.y - pausedSize + player.body.velocity.y/15, 2 * pausedSize, 2 * pausedSize);
-            graphics.endFill();
+            pauseGraphics.beginFill(0xa3c6ff, .5);
+            pauseGraphics.drawRect(player.x - pausedSize + player.body.velocity.x/15, player.y - pausedSize + player.body.velocity.y/15, 2 * pausedSize, 2 * pausedSize);
+            pauseGraphics.endFill();
 
             if (stopPauseAnimation) {
                 if (pausedSize > pauseAnimationSpeed) {
@@ -287,34 +327,36 @@ let Game = function (game, startingLevelNum) {
 
         gravObjects.forEach(function(gravObj) {
             gravObj.gravParticles.forEachAlive(function(p) {
-                graphics.beginFill(0xffffff, 1);
-                graphics.drawRect(p.x - 2.5, p.y - 2.5, 5, 5);
-                graphics.endFill();
+                gravObjGraphics.beginFill(0xffffff, 1);
+                gravObjGraphics.drawRect(p.x - 2.5, p.y - 2.5, 5, 5);
+                gravObjGraphics.endFill();
             });
         });
-        
+
         if (selectableGravObjects.length > 0) {
           
             let selectedObj = selectableGravObjects[currentHighlightedObjIndex];
-            graphics.beginFill(0xffffff, 1);
-            graphics.drawRect(selectedObj.x - 15, selectedObj.y - 15, selectedObjWidth, 30);
-            graphics.drawRect(selectedObj.x - 15, selectedObj.y - 15, 30, selectedObjWidth);
-            graphics.drawRect(selectedObj.x - 15, selectedObj.y + 15 - selectedObjWidth, 30, selectedObjWidth);
-            graphics.drawRect(selectedObj.x + 15 - selectedObjWidth, selectedObj.y - 15, selectedObjWidth, 30);
-            graphics.endFill();
+            pauseGraphics.beginFill(0xffffff, 1);
+            pauseGraphics.drawRect(selectedObj.x - 15, selectedObj.y - 15, selectedObjWidth, 30);
+            pauseGraphics.drawRect(selectedObj.x - 15, selectedObj.y - 15, 30, selectedObjWidth);
+            pauseGraphics.drawRect(selectedObj.x - 15, selectedObj.y + 15 - selectedObjWidth, 30, selectedObjWidth);
+            pauseGraphics.drawRect(selectedObj.x + 15 - selectedObjWidth, selectedObj.y - 15, selectedObjWidth, 30);
+            pauseGraphics.endFill();
 
         }
-        
-        game.world.bringToTop(graphics);
     }
 
     function clearLevel() {
-        player.destroy();
+        player.kill();
         walls.destroy();
         shockers.destroy();
         gravObjects.destroy();
         exits.destroy();
         worldParticles.destroy();
+        backgrounds.destroy();
+        if (!playerHasHitCheckpoint) {
+            checkpoints.destroy();
+        }
     }
 
     // TODO: rename
@@ -323,6 +365,7 @@ let Game = function (game, startingLevelNum) {
         game.physics.arcade.collide(player, walls);
         game.physics.arcade.collide(player, gravObjects);
 
+        game.physics.arcade.overlap(player, checkpoints, onCheckpointHit, null, null);
         game.physics.arcade.overlap(player, exits, onExit, null, null);
 
         gravObjects.forEach(function(gravObj) {
@@ -356,10 +399,10 @@ let Game = function (game, startingLevelNum) {
     }
     
     function adjustAttractorsPull() {
-        if (game.input.activePointer.leftButton.isDown && clickedObj !== null) {
+        if (game.input.activePointer.leftButton.isDown && clickedObj !== null && !clickedObj.flux) {
             clickedObj.gravWeight = Math.min(clickedObj.gravMax, clickedObj.gravWeight + 5000)
         }
-        if (game.input.activePointer.rightButton.isDown && clickedObj !== null) {
+        if (game.input.activePointer.rightButton.isDown && clickedObj !== null && !clickedObj.flux) {
             clickedObj.gravWeight = Math.max(clickedObj.gravMin, clickedObj.gravWeight - 5000)
         }
         
@@ -419,16 +462,17 @@ let Game = function (game, startingLevelNum) {
         if (isJumping && player.isTouchingBottom) {
             // add player.body.velocity.x / 14 so that particles appear where player *will* be next frame
             let emitter = game.add.emitter(player.x + player.body.velocity.x/14, player.bottom + 2);
-            emitter.makeParticles('groundParticle', 0, 15, true);
+            let numParticles = Math.max(5, (previous_velocity_y - 220)/40) ;
+
+            emitter.makeParticles('groundParticle', 0, numParticles, true);
             emitter.gravity = 300;
             emitter.width = 20;
             emitter.setYSpeed(-100);
-            emitter.start(true, 500, null, 15);
+            emitter.start(true, 500, null, numParticles);
             game.time.events.add(1000, function() {
                 emitter.destroy(true);
             }, null);
             emitters.add(emitter);
-            game.world.bringToTop(emitters);
         }
 
         // Fade out the particles over their lifespan
@@ -478,12 +522,10 @@ let Game = function (game, startingLevelNum) {
 
     function setupGravityObjects() {
         gravObjects.children.forEach(function(gravObj) {
-            if (! gravObj.flux && ! gravObj.moving) {
-                gravObj.events.onInputDown.add(startGravityClick);
-                gravObj.events.onInputUp.add(function() {
-                    clickedObj = null;
-                }, null);
-            }
+            gravObj.events.onInputDown.add(startGravityClick);
+            gravObj.events.onInputUp.add(function() {
+                clickedObj = null;
+            }, null);
         });
     }
     
@@ -614,12 +656,23 @@ let Game = function (game, startingLevelNum) {
     }
 
     function onExit() {
+        playerHasHitCheckpoint = false;
         clearLevel();
         if (currentLevelNum + 1 === levelLoader.getLevelCount()) {
             game.state.start('win');
         } else {
             currentLevelNum++;
             loadLevel();
+        }
+    }
+
+    function onCheckpointHit(player, checkpoint) {
+        if (! checkpoint.hasBeenHitBefore) {
+            checkpoint.hasBeenHitBefore = true;
+            playerHasHitCheckpoint = true;
+            playerStartX = checkpoint.x;
+            playerStartY = checkpoint.y;
+            checkpoint.loadTexture('checkpointActivated');
         }
     }
 
