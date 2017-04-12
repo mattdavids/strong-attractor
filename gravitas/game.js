@@ -45,7 +45,6 @@ let Game = function (game, startingLevelNum) {
     const jumpFrames = 10;
 
     // Physics
-    const gravCoef = 150000;
     const frictionCoef = 0.5;
     const groundAcceleration = 30;
     const airAcceleration = 5;
@@ -54,8 +53,6 @@ let Game = function (game, startingLevelNum) {
     const millisecondsPerFrame = 100/6;
 
     // Display
-    const gravObjColor = 0x351777;
-    const circleRadius = 259;
     const blockSize = 30;
     const selectedObjWidth = 8;
 
@@ -255,7 +252,9 @@ let Game = function (game, startingLevelNum) {
             checkWallCollision();
             doJumpPhysics();
             doGravityPhysics();
-            doGravityParticlesAnimation();
+            gravObjects.forEach(function(gravObj) {
+                gravObj.animateParticles();
+            }, null);
 
             previous_velocity_y = player.body.velocity.y;
 
@@ -283,9 +282,9 @@ let Game = function (game, startingLevelNum) {
         let drawGravObjCircle = function(graphicsObj, gravObj, alpha) {
             // these are heuristic constants which look okay
             const subAmount = 50;
-            let diameter = 2 * getGravObjRadius(gravObj);
+            let diameter = 2 * gravObj.radius;
             while (diameter > 0) {
-                graphicsObj.beginFill(gravObjColor, alpha);
+                graphicsObj.beginFill(0x351777, alpha);
                 graphicsObj.drawCircle(gravObj.x, gravObj.y, diameter);
                 graphicsObj.endFill();
                 diameter -= subAmount;
@@ -335,9 +334,11 @@ let Game = function (game, startingLevelNum) {
         player.kill();
         walls.destroy();
         shockers.destroy();
-        if (gravObjects.gravParticles !== undefined) {
-            gravObjects.gravParticles.destroy();
-        }
+        gravObjects.forEach(function(gravObj) {
+            if (gravObj.gravParticles !== undefined) {
+                gravObj.gravParticles.destroy();
+            }
+        }, null);
         gravObjects.destroy();
         exits.destroy();
         backgrounds.destroy();
@@ -566,7 +567,7 @@ let Game = function (game, startingLevelNum) {
             let r = diff.getMagnitude();
             diff.normalize();
 
-            if ( r < getGravObjRadius(gravObj)) {
+            if ( r < gravObj.radius) {
                 xGravCoef += gravObj.gravWeight * diff.x / r;
                 yGravCoef += gravObj.gravWeight * diff.y / r;
             }
@@ -585,46 +586,6 @@ let Game = function (game, startingLevelNum) {
 
         obj.body.acceleration.y = -yGravCoef;
 
-    }
-
-    function doGravityParticlesAnimation() {
-        // do the animation and update the grav particles if necessary
-
-        gravObjects.forEach(function (gravObj) {
-            // A particle with life > particleLife will not be emitted, if particleLife > life > 0, particle is active
-            const particleLife = 180;
-            const numParticles = Math.pow(getGravObjRadius(gravObj), 2) / 15000;
-            const numberNeeded = numParticles - gravObj.gravParticles.children.length;
-            for (let i = 0; i < numberNeeded-1; i++) {
-                let p = game.add.sprite(gravObj.x, gravObj.y, 'gravParticle');
-                p.anchor.set(0.5, 0.5);
-                p.life = particleLife + particleLife / numberNeeded * (0.5 * Math.random() + i);
-                p.gravConstant = 0; // this will actually be set when the particle is emitted
-                p.visible = false;
-                gravObj.gravParticles.add(p);
-            }
-            if (gravObj.gravParticles.children.length > numParticles) {
-                gravObj.gravParticles.forEach(function (p) {
-                    if (p.life === 0) {
-                        p.destroy();
-                    }
-                }, null);
-            }
-
-            gravObj.gravParticles.forEach(function (p) {
-                // Gaussian curve for fading in and out
-                p.alpha = Math.exp(- Math.pow(p.life - particleLife/2, 2) / 5000);
-                if (p.life <= 0 || (!p.visible && p.life < particleLife)) {
-                    p.position = getRandomPositionInCircle(gravObj.x, gravObj.y, getGravObjRadius(gravObj));
-                    p.body.velocity.set(0, 0);
-                    p.life = particleLife * (1 + Math.random());
-                    p.gravConstant = 0.1;
-                    p.visible = true;
-                } else {
-                    p.life -= 1;
-                }
-            }, null);
-        }, null);
     }
 
     // Starts the death animation by setting flags. Freezes the player, pauses the game state, shakes the screen, then sets a timer to set the deathFall flag which is run in update
@@ -704,16 +665,6 @@ let Game = function (game, startingLevelNum) {
         }
 
         clickedObj = gravObj;
-    }
-
-    function getRandomPositionInCircle(x, y, radius) {
-        let angle = Math.random() * 2 * Math.PI;
-        let radiusAmount = Math.random() * 0.4 + 0.59;
-        return new Phaser.Point(x + radiusAmount*radius * Math.cos(angle), y + radiusAmount*radius * Math.sin(angle));
-    }
-
-    function getGravObjRadius(gravObj) {
-        return gravObj.gravWeight / gravCoef * circleRadius;
     }
 
     return {
