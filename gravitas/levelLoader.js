@@ -152,6 +152,7 @@ let LevelLoader = function (game) {
                 levelObjects.backgrounds.add(newBG);
             }
         }
+        console.log("Generated "+levelObjects.backgrounds.countLiving() + " bg tiles");
         return levelObjects;
     }
 
@@ -180,6 +181,8 @@ let LevelLoader = function (game) {
             levelObjects = loadObject(levelObjects, objectName, objectX, objectY, playerGrav, objectInfo, playerHasHitCheckpoint, playerStartX, playerStartY, checkpoints);
 
         }
+
+        console.log("Loaded "+level.length + " level objects");
         
         // Add player start location
         levelObjects.playerStartX = playerStartX;
