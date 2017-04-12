@@ -50,6 +50,8 @@ let GravObjMaker = function(game, x, y, gravMin, gravMax, gravOn, flux, moving, 
     // PUBLIC
     function animateParticles() {
         checkParticleNumbers(this);
+        let pos = this.position;
+        let rad = this.radius;
         this.gravParticles.forEach(function(p) {
             // Gaussian curve for fading in and out
             p.alpha = Math.exp(- Math.pow(p.life - particleLife/2, 2) / 5000);
@@ -61,6 +63,14 @@ let GravObjMaker = function(game, x, y, gravMin, gravMax, gravOn, flux, moving, 
                 p.visible = true;
             } else {
                 p.life -= 1;
+
+                // Check if particle is still in the radius
+                let dx = pos.x - p.x;
+                let dy = pos.y - p.y;
+                let distDiff = rad*rad - (dx*dx + dy*dy);
+                if(distDiff < 0){
+                    p.life -=5;
+                }
             }
         }, this);
     }
