@@ -31,20 +31,6 @@ let LevelLoader = function (game) {
         return player;
     }
 
-    function addEmitterToGravObj(obj) {
-        let gravParticles = game.add.group();
-        for (let i = 0; i < 10; i++) {
-            let p = game.add.sprite(obj.x, obj.y, 'gravParticle');
-            p.scale.set(0);
-            p.anchor.set(0.5, 0.5);
-            p.gravConstant = 0.1;
-            p.foobar = Math.random() * 200 + 100;
-            gravParticles.add(p);
-        }
-
-        obj.gravParticles = gravParticles;
-    }
-
     function makeGravObject(x, y, gravMin, gravMax, gravOn, flux, moving, movementList) {
         let gravObj = game.add.sprite(x, y, 'gravObj');
         gravObj.anchor.set(.5, .5);
@@ -60,7 +46,7 @@ let LevelLoader = function (game) {
         if (flux) {
             gravObj.fluxConst = 1;
         }
-        addEmitterToGravObj(gravObj);
+        gravObj.gravParticles = game.add.group();
         return gravObj;
     }
 

@@ -243,7 +243,7 @@ let Game = function (game, startingLevelNum) {
         if (deathFall) {
             doDeathFallAnimation();
         }
-        updatePlayerCollision();
+        doCollision();
 
         // If the player is not dead, play the death animation on contact with shockers
         // Don't allow player to change the gravity while dead
@@ -323,14 +323,6 @@ let Game = function (game, startingLevelNum) {
             }
         }
 
-        gravObjects.forEach(function(gravObj) {
-            gravObj.gravParticles.forEachAlive(function(p) {
-                gravObjGraphics.beginFill(0xffffff, 1);
-                gravObjGraphics.drawRect(p.x - 2.5, p.y - 2.5, 5, 5);
-                gravObjGraphics.endFill();
-            });
-        });
-
         if (selectableGravObjects.length > 0) {
 
             let selectedObj = selectableGravObjects[currentHighlightedObjIndex];
@@ -357,8 +349,7 @@ let Game = function (game, startingLevelNum) {
         }
     }
 
-    // TODO: rename
-    function updatePlayerCollision() {
+    function doCollision() {
         game.physics.arcade.collide(emitters, walls);
         game.physics.arcade.collide(player, walls);
         game.physics.arcade.collide(player, gravObjects);
@@ -368,7 +359,7 @@ let Game = function (game, startingLevelNum) {
 
         gravObjects.forEach(function(gravObj) {
             game.physics.arcade.collide(gravObjects, gravObj.gravParticles, function(_, p) {
-                    p.foobar = 0;
+                    p.life = 0;
             }, null, null);
         }, null);
 
@@ -600,14 +591,34 @@ let Game = function (game, startingLevelNum) {
     }
 
     function doGravityParticlesAnimation() {
+        // do the animation and update the grav particles if necessary
+
         gravObjects.forEach(function (gravObj) {
+            const particleLife = 180;
+            const numParticles = Math.pow(getGravObjRadius(gravObj), 2) / 15700;
+            if (gravObj.gravParticles.children.length < numParticles) {
+                let p = game.add.sprite(0, 0, 'gravParticle');
+                p.life = 0;
+                p.anchor.set(0.5, 0.5);
+                p.gravConstant = 0.1;
+                gravObj.gravParticles.add(p);
+            } else if (gravObj.gravParticles.children.length > numParticles) {
+                gravObj.gravParticles.forEach(function (p) {
+                    if (p.life === 0) {
+                        p.destroy();
+                    }
+                }, null);
+            }
+
             gravObj.gravParticles.forEach(function (p) {
-                if (p.foobar <= 0) {
+                // Gaussian curve for fading in and out
+                p.alpha = Math.exp(- Math.pow(p.life - particleLife/2, 2) / 2500);
+                if (p.life <= 0 && Math.random() < numParticles / particleLife) {
                     p.position = getRandomPositionInCircle(gravObj.x, gravObj.y, getGravObjRadius(gravObj));
                     p.body.velocity.set(0, 0);
-                    p.foobar = Math.random() * 200 + 100;
+                    p.life = particleLife;
                 } else {
-                    p.foobar -= 1;
+                    p.life -= 1;
                 }
             }, null);
         }, null);
@@ -694,7 +705,8 @@ let Game = function (game, startingLevelNum) {
 
     function getRandomPositionInCircle(x, y, radius) {
         let angle = Math.random() * 2 * Math.PI;
-        return new Phaser.Point(x + 0.9*radius * Math.cos(angle), y + 0.9*radius * Math.sin(angle));
+        let radiusAmount = Math.random() * 0.4 + 0.59;
+        return new Phaser.Point(x + radiusAmount*radius * Math.cos(angle), y + radiusAmount*radius * Math.sin(angle));
     }
 
     function getGravObjRadius(gravObj) {
