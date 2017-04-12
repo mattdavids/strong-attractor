@@ -167,6 +167,7 @@ let Game = function (game, startingLevelNum) {
         game.load.image('bg_stone_2', 'assets/art/bg_stone_2.png');
         game.load.image('bg_stone_3', 'assets/art/bg_stone_3.png');
         game.load.image('bg_stone_4', 'assets/art/bg_stone_4.png');
+        game.load.image('bg_large_stone_1', 'assets/art/bg_large_stone_1.png');
 
 
         game.load.audio('death', ['assets/audio/death.mp3', 'assets/audio/death.ogg']);

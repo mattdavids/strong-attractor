@@ -136,8 +136,10 @@ let LevelLoader = function (game) {
     }
 
     function buildBackground(levelObjects, width, height, levelNumber, spriteNumMax = 4, spritePrefix = "bg_stone_", blockSize = 30){
-        for(let x=0; x<=width; x+=blockSize){
-            for(let y=0; y<=height; y+=blockSize){
+        let xMax = parseInt(width) + blockSize;
+        let yMax = parseInt(height) + blockSize;
+        for(let x=0; x<xMax; x+=blockSize){
+            for(let y=0; y<yMax; y+=blockSize){
                 let xraw = (x/blockSize)+1;
                 let yraw = (y/blockSize)+1;
                 let tileType = ((xraw+levelNumber) * (yraw - 2)) + (xraw * (5 + yraw));
@@ -165,7 +167,7 @@ let LevelLoader = function (game) {
         let playerGrav = parseInt(level[1]);
 
         // Load background
-        levelObjects = buildBackground(levelObjects, bounds[0], bounds[1], levelNumber);
+        levelObjects = buildBackground(levelObjects, bounds[0], bounds[1], levelNumber, 1, "bg_large_stone_", 90);
 
         // Load level objects
         for (let i = 2; i < level.length; i++) {
