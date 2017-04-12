@@ -50,24 +50,6 @@ let LevelLoader = function (game) {
         return gravObj;
     }
 
-    function makeWorldParticles() {
-        const numParticles = Math.min(game.world.width * game.world.height / 1000, 500);
-        let worldParticles = game.add.emitter(game.world.centerX, game.world.centerY, numParticles);
-        worldParticles.width = game.world.width;
-        worldParticles.height = game.world.height;
-        worldParticles.makeParticles('groundParticle');
-        worldParticles.gravity = 0;
-        worldParticles.minParticleSpeed = new Phaser.Point(-10, -10);
-        worldParticles.maxParticleSpeed = new Phaser.Point(10, 10);
-
-        worldParticles.minParticleScale = 0.5;
-        worldParticles.maxParticleScale = 0.7;
-
-        game.world.bringToTop(worldParticles);
-        worldParticles.start(true, 0, 0, 0); // explode, lifespan, frequency, quantity
-        return worldParticles;
-    }
-
     function loadObject(levelObjects, objectName, objectX, objectY, playerGrav, objectInfo, playerHasHitCheckpoint, playerStartX, playerStartY, checkpoints){
         let gravObj;
         let movementList;
@@ -215,9 +197,6 @@ let LevelLoader = function (game) {
             levelObjects = loadObject(levelObjects, objectName, objectX, objectY, playerGrav, objectInfo, playerHasHitCheckpoint, playerStartX, playerStartY, checkpoints);
 
         }
-        
-        // Add world particles
-        levelObjects.worldParticles = makeWorldParticles();
         
         // Add player start location
         levelObjects.playerStartX = playerStartX;

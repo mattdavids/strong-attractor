@@ -6,7 +6,6 @@ let Game = function (game, startingLevelNum) {
         checkpoints,
         exits,
         emitters,
-        worldParticles,
         backgrounds;
 
     let playerShadowLeft,
@@ -72,7 +71,6 @@ let Game = function (game, startingLevelNum) {
         checkpoints = loaderObjects.checkpoints;
         exits = loaderObjects.exits;
         emitters = loaderObjects.emitters;
-        worldParticles = loaderObjects.worldParticles;
         playerStartX = loaderObjects.playerStartX;
         playerStartY = loaderObjects.playerStartY;
         backgrounds = loaderObjects.backgrounds;
@@ -274,10 +272,6 @@ let Game = function (game, startingLevelNum) {
                 }, null);
             }, null);
 
-            worldParticles.forEachAlive(function(p) {
-                p.lifespan += millisecondsPerFrame;
-            }, null);
-
             if (notCurrentlyDying) {
                 // Adjust attraction of clicked object
                 adjustAttractorsPull();
@@ -346,7 +340,6 @@ let Game = function (game, startingLevelNum) {
         }
         gravObjects.destroy();
         exits.destroy();
-        worldParticles.destroy();
         backgrounds.destroy();
         if (!playerHasHitCheckpoint) {
             checkpoints.destroy();
