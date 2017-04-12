@@ -302,6 +302,7 @@ let Game = function (game, startingLevelNum) {
         gravObjTopGraphics.clear();
         pauseGraphics.clear();
 
+        // TODO: this is super processor intensive
         gravObjects.children.forEach(function(gravObj) {
             drawGravObjCircle(gravObjGraphics, gravObj, .04);
             drawGravObjCircle(gravObjTopGraphics, gravObj, .04);
@@ -340,6 +341,9 @@ let Game = function (game, startingLevelNum) {
         player.kill();
         walls.destroy();
         shockers.destroy();
+        if (gravObjects.gravParticles !== undefined) {
+            gravObjects.gravParticles.destroy();
+        }
         gravObjects.destroy();
         exits.destroy();
         worldParticles.destroy();
@@ -594,15 +598,19 @@ let Game = function (game, startingLevelNum) {
         // do the animation and update the grav particles if necessary
 
         gravObjects.forEach(function (gravObj) {
+            // A particle with life > particleLife will not be emitted, if particleLife > life > 0, particle is active
             const particleLife = 180;
-            const numParticles = Math.pow(getGravObjRadius(gravObj), 2) / 15700;
-            if (gravObj.gravParticles.children.length < numParticles) {
-                let p = game.add.sprite(0, 0, 'gravParticle');
-                p.life = 0;
+            const numParticles = Math.pow(getGravObjRadius(gravObj), 2) / 15000;
+            const numberNeeded = numParticles - gravObj.gravParticles.children.length;
+            for (let i = 0; i < numberNeeded-1; i++) {
+                let p = game.add.sprite(gravObj.x, gravObj.y, 'gravParticle');
                 p.anchor.set(0.5, 0.5);
-                p.gravConstant = 0.1;
+                p.life = particleLife + particleLife / numberNeeded * (0.5 * Math.random() + i);
+                p.gravConstant = 0; // this will actually be set when the particle is emitted
+                p.visible = false;
                 gravObj.gravParticles.add(p);
-            } else if (gravObj.gravParticles.children.length > numParticles) {
+            }
+            if (gravObj.gravParticles.children.length > numParticles) {
                 gravObj.gravParticles.forEach(function (p) {
                     if (p.life === 0) {
                         p.destroy();
@@ -612,11 +620,13 @@ let Game = function (game, startingLevelNum) {
 
             gravObj.gravParticles.forEach(function (p) {
                 // Gaussian curve for fading in and out
-                p.alpha = Math.exp(- Math.pow(p.life - particleLife/2, 2) / 2500);
-                if (p.life <= 0 && Math.random() < numParticles / particleLife) {
+                p.alpha = Math.exp(- Math.pow(p.life - particleLife/2, 2) / 5000);
+                if (p.life <= 0 || (!p.visible && p.life < particleLife)) {
                     p.position = getRandomPositionInCircle(gravObj.x, gravObj.y, getGravObjRadius(gravObj));
                     p.body.velocity.set(0, 0);
-                    p.life = particleLife;
+                    p.life = particleLife * (1 + Math.random());
+                    p.gravConstant = 0.1;
+                    p.visible = true;
                 } else {
                     p.life -= 1;
                 }
