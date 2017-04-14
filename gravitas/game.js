@@ -28,8 +28,8 @@ let Game = function (game, startingLevelNum) {
 
     let pauseBtn;
     let stopPauseAnimation;
-    let notCurrentlyDying;
     let pauseAnimationTick;
+    let notCurrentlyDying;
     let selectableGravObjects;
     let currentHighlightedObjIndex;
     let rightKeyWasPressed,
@@ -40,7 +40,8 @@ let Game = function (game, startingLevelNum) {
 
     let previous_velocity_y,
         isJumping,
-        jumpCount;
+        jumpCount,
+        lastTwoJumpFrames;
     let playerStartX,
         playerStartY;
 
@@ -121,6 +122,7 @@ let Game = function (game, startingLevelNum) {
                 } else {
                     game.time.events.pause();
                     handleGravObjSelection();
+                    
                     arrow.visible = true;
                     pauseAnimationTick = 0;
         
@@ -248,9 +250,13 @@ let Game = function (game, startingLevelNum) {
         leftKeyWasPressed = false;
             
         selectableGravObjects = [];
+        
+        lastTwoJumpFrames = [false, false];
+
     }
 
     function update() {
+        
         // Move the player in a parabolic death animation when dead, 
         // Reset the game when the player falls below the game window
         if (deathFall) {
@@ -272,6 +278,8 @@ let Game = function (game, startingLevelNum) {
             doJumpPhysics();
 
             previous_velocity_y = player.body.velocity.y;
+            
+            lastTwoJumpFrames = [lastTwoJumpFrames[1], isJumping];
 
             isJumping = ! player.isTouchingBottom;
             
@@ -382,7 +390,7 @@ let Game = function (game, startingLevelNum) {
         player.isTouchingLeft = false;
         player.isTouchingBottom = false;
         player.isTouchingTop = false;
-
+        
         playerShadowLeft.body.position.set(player.body.position.x - 2, player.body.position.y);
         playerShadowRight.body.position.set(player.body.position.x + .5, player.body.position.y);
         playerShadowBottom.body.position.set(player.body.position.x - 1, player.body.position.y + 15);
@@ -437,19 +445,19 @@ let Game = function (game, startingLevelNum) {
     
     function doPlayerMovement(){
         if (game.input.keyboard.isDown(Phaser.KeyCode.A)) {
-            if (player.body.touching.down) {
+            if (player.body.touching.down && !checkLastTwoJumpFrames()) {
                 player.body.velocity.x = Math.max(-maxHorizontalVelocity, player.body.velocity.x - groundAcceleration);
             } else {
                 player.body.velocity.x -= airAcceleration;
             }
         } else if (game.input.keyboard.isDown(Phaser.KeyCode.D)) {
-            if (player.body.touching.down) {
+            if (player.body.touching.down && !checkLastTwoJumpFrames()) {
                 player.body.velocity.x = Math.min(maxHorizontalVelocity, player.body.velocity.x + groundAcceleration);
             } else {
                 player.body.velocity.x += airAcceleration;
             }
         } else {
-            if (player.body.touching.down) {
+            if (player.body.touching.down && !isJumping) {
                 player.body.velocity.x = player.body.velocity.x * frictionCoef;
             }
         }
@@ -691,6 +699,11 @@ let Game = function (game, startingLevelNum) {
 
         clickedObj = gravObj;
     }
+    
+    function checkLastTwoJumpFrames() {
+        return (lastTwoJumpFrames[0] || lastTwoJumpFrames[1]);
+    }
+    
     function quadraticEase(t, tmax) {
         return 1 - Math.pow(tmax - t, 2)/Math.pow(tmax, 2);
     }
