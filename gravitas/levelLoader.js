@@ -31,47 +31,6 @@ let LevelLoader = function (game) {
         return player;
     }
 
-    function makeGravObject(x, y, gravMin, gravMax, gravOn, flux, moving, movementList) {
-        let gravObj = game.add.sprite(x, y, 'gravObj');
-        gravObj.anchor.set(.5, .5);
-        gravObj.gravWeight = ((gravMin + gravMax)/2) * gravOn * (1 - flux);
-        gravObj.gravMin = gravMin;
-        gravObj.gravMax = gravMax;
-        gravObj.body.immovable = true;
-        gravObj.inputEnabled = true;
-        gravObj.flux = flux;
-        gravObj.moving = moving;
-        gravObj.movementList = movementList;
-        gravObj.movementIndex = 0;
-        if(flux) {
-            gravObj.fluxConst = 1;
-        }
-
-        return gravObj;
-    }
-
-    function makeWorldParticles() {
-        const numParticles = Math.min(game.world.width * game.world.height / 1000, 50);
-        let worldParticles = game.add.emitter(game.world.centerX, game.world.centerY, numParticles);
-        worldParticles.width = game.world.width;
-        worldParticles.height = game.world.height;
-        worldParticles.makeParticles('groundParticle');
-        worldParticles.gravity = 0;
-        worldParticles.minParticleSpeed = new Phaser.Point(-10, -10);
-        worldParticles.maxParticleSpeed = new Phaser.Point(10, 10);
-
-        worldParticles.minParticleScale = 0.5;
-        worldParticles.maxParticleScale = 0.7;
-
-        worldParticles.forEach(function(p) {
-            p.body.maxVelocity = new Phaser.Point(50, 50);
-        });
-
-        game.world.bringToTop(worldParticles);
-        worldParticles.start(false, 4000, 0, 0); // explode, lifespan, frequency, quantity
-        return worldParticles;
-    }
-
     function loadObject(levelObjects, objectName, objectX, objectY, playerGrav, objectInfo, playerHasHitCheckpoint, playerStartX, playerStartY, checkpoints){
         let gravObj;
         let movementList;
@@ -84,30 +43,30 @@ let LevelLoader = function (game) {
                 break;
             case 'gravObj_off':
                 // x Location, y location, gravMin, gravMax, on?, flux?, moving?
-                gravObj = makeGravObject(objectX, objectY, parseFloat(objectInfo[3]), parseFloat(objectInfo[4]),
+                gravObj = GravObjMaker(game, objectX, objectY, parseFloat(objectInfo[3]), parseFloat(objectInfo[4]),
                     false, false, false);
                 levelObjects.gravObjects.add(gravObj);
                 break;
             case 'gravObj_on':
-                gravObj = makeGravObject(objectX, objectY, parseFloat(objectInfo[3]), parseFloat(objectInfo[4]),
+                gravObj = GravObjMaker(game, objectX, objectY, parseFloat(objectInfo[3]), parseFloat(objectInfo[4]),
                     true, false, false);
                 levelObjects.gravObjects.add(gravObj);
                 break;
             case 'gravObj_flux':
-                gravObj = makeGravObject(objectX, objectY, parseFloat(objectInfo[3]), parseFloat(objectInfo[4]),
+                gravObj = GravObjMaker(game, objectX, objectY, parseFloat(objectInfo[3]), parseFloat(objectInfo[4]),
                     true, true, false);
                 levelObjects.gravObjects.add(gravObj);
                 break;
             case 'gravObj_move':
                 //list in format x1#y1-x2#y2-x3#y3...
                 movementList = objectInfo[5].split('-');
-                gravObj = makeGravObject(objectX, objectY, parseFloat(objectInfo[3]), parseFloat(objectInfo[4]),
+                gravObj = GravObjMaker(game, objectX, objectY, parseFloat(objectInfo[3]), parseFloat(objectInfo[4]),
                     true, false, true, movementList);
                 levelObjects.gravObjects.add(gravObj);
                 break;
             case 'gravObj_moveFlux':
                 movementList = objectInfo[5].split('-');
-                gravObj = makeGravObject(objectX, objectY, parseFloat(objectInfo[3]), parseFloat(objectInfo[4]), 
+                gravObj = GravObjMaker(game, objectX, objectY, parseFloat(objectInfo[3]), parseFloat(objectInfo[4]),
                     true, true, true, movementList);
                 levelObjects.gravObjects.add(gravObj);
                 break;
@@ -177,8 +136,10 @@ let LevelLoader = function (game) {
     }
 
     function buildBackground(levelObjects, width, height, levelNumber, spriteNumMax = 4, spritePrefix = "bg_stone_", blockSize = 30){
-        for(let x=0; x<=width; x+=blockSize){
-            for(let y=0; y<=height; y+=blockSize){
+        let xMax = parseInt(width) + blockSize;
+        let yMax = parseInt(height) + blockSize;
+        for(let x=0; x<xMax; x+=blockSize){
+            for(let y=0; y<yMax; y+=blockSize){
                 let xraw = (x/blockSize)+1;
                 let yraw = (y/blockSize)+1;
                 let tileType = ((xraw+levelNumber) * (yraw - 2)) + (xraw * (5 + yraw));
@@ -191,6 +152,7 @@ let LevelLoader = function (game) {
                 levelObjects.backgrounds.add(newBG);
             }
         }
+        console.log("Generated "+levelObjects.backgrounds.countLiving() + " bg tiles");
         return levelObjects;
     }
 
@@ -206,7 +168,7 @@ let LevelLoader = function (game) {
         let playerGrav = parseInt(level[1]);
 
         // Load background
-        levelObjects = buildBackground(levelObjects, bounds[0], bounds[1], levelNumber);
+        levelObjects = buildBackground(levelObjects, bounds[0], bounds[1], levelNumber, 1, "bg_large_stone_", 90);
 
         // Load level objects
         for (let i = 2; i < level.length; i++) {
@@ -219,9 +181,8 @@ let LevelLoader = function (game) {
             levelObjects = loadObject(levelObjects, objectName, objectX, objectY, playerGrav, objectInfo, playerHasHitCheckpoint, playerStartX, playerStartY, checkpoints);
 
         }
-        
-        // Add world particles
-        levelObjects.worldParticles = makeWorldParticles();
+
+        console.log("Loaded "+level.length + " level objects");
         
         // Add player start location
         levelObjects.playerStartX = playerStartX;
