@@ -1,4 +1,4 @@
-let Game = function (game, startingLevelNum) {
+let Game = function (game, currentLevelNum) {
 
     let player,
         walls,
@@ -22,7 +22,7 @@ let Game = function (game, startingLevelNum) {
     let pauseGraphics;
 
     let levelLoader;
-    let currentLevelNum;
+    //let currentLevelNum;
 
     let pauseBtn;
     let stopPauseAnimation;
@@ -180,7 +180,6 @@ let Game = function (game, startingLevelNum) {
 
         levelLoader = new LevelLoader(game);
         levelLoader.setup();
-        currentLevelNum = startingLevelNum;
     }
 
     function create() {
