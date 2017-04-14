@@ -360,6 +360,7 @@ let Game = function (game, startingLevelNum) {
         exits.destroy();
         worldParticles.destroy();
         backgrounds.destroy();
+        arrow.kill();
         if (!playerHasHitCheckpoint) {
             checkpoints.destroy();
         }
