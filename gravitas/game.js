@@ -21,6 +21,7 @@ let Game = function (game, startingLevelNum) {
     let gravObjGraphics;
     let gravObjTopGraphics;
     let pauseGraphics;
+    let selectedObjGraphics;
 
     let levelLoader;
     let currentLevelNum;
@@ -94,6 +95,8 @@ let Game = function (game, startingLevelNum) {
         game.world.sendToBack(backgrounds);
         game.world.bringToTop(gravObjTopGraphics);
         game.world.bringToTop(pauseGraphics);
+        game.world.bringToTop(selectedObjGraphics);
+
         arrow = game.add.sprite(player.x, player.y, 'arrow');
         arrow.anchor.set(.5, .5);
         arrow.visible = false;
@@ -202,6 +205,7 @@ let Game = function (game, startingLevelNum) {
         gravObjGraphics = game.add.graphics();
         gravObjTopGraphics = game.add.graphics();
         pauseGraphics = game.add.graphics();
+        selectedObjGraphics = game.add.graphics();
 
         playerHasHitCheckpoint = false;
         
@@ -311,6 +315,7 @@ let Game = function (game, startingLevelNum) {
         gravObjGraphics.clear();
         gravObjTopGraphics.clear();
         pauseGraphics.clear();
+        selectedObjGraphics.clear();
         
         gravObjects.children.forEach(function(gravObj) {
             drawGravObjCircle(gravObjGraphics, gravObj, .04);
@@ -336,13 +341,14 @@ let Game = function (game, startingLevelNum) {
         if (selectableGravObjects.length > 0) {
           
             let selectedObj = selectableGravObjects[currentHighlightedObjIndex];
-            pauseGraphics.beginFill(0xffffff, 1);
-            pauseGraphics.drawRect(selectedObj.x - 15, selectedObj.y - 15, selectedObjWidth, 30);
-            pauseGraphics.drawRect(selectedObj.x - 15, selectedObj.y - 15, 30, selectedObjWidth);
-            pauseGraphics.drawRect(selectedObj.x - 15, selectedObj.y + 15 - selectedObjWidth, 30, selectedObjWidth);
-            pauseGraphics.drawRect(selectedObj.x + 15 - selectedObjWidth, selectedObj.y - 15, selectedObjWidth, 30);
-            pauseGraphics.endFill();
-
+            selectedObjGraphics.beginFill(0xffffff, 1);
+            
+            selectedObjGraphics.drawRect(selectedObj.x - 15, selectedObj.y - 15, selectedObjWidth, 30);
+            selectedObjGraphics.drawRect(selectedObj.x - 15, selectedObj.y - 15, 30, selectedObjWidth);
+            selectedObjGraphics.drawRect(selectedObj.x - 15, selectedObj.y + 15 - selectedObjWidth, 30, selectedObjWidth);
+            selectedObjGraphics.drawRect(selectedObj.x + 15 - selectedObjWidth, selectedObj.y - 15, selectedObjWidth, 30);
+            
+            selectedObjGraphics.endFill();
         }
     }
 
