@@ -16,6 +16,7 @@ let Game = function (game, startingLevelNum) {
         playerShadowTop;
 
     let clickedObj;
+    let arrow;
 
     let gravObjGraphics;
     let gravObjTopGraphics;
@@ -60,6 +61,7 @@ let Game = function (game, startingLevelNum) {
     const circleRadius = 259;
     const blockSize = 30;
     const selectedObjWidth = 8;
+    const arrowDist = 8;
 
     const pauseAnimationSpeed = 50;
     const deathFallSpeed = 6;
@@ -92,6 +94,9 @@ let Game = function (game, startingLevelNum) {
         game.world.sendToBack(backgrounds);
         game.world.bringToTop(gravObjTopGraphics);
         game.world.bringToTop(pauseGraphics);
+        arrow = game.add.sprite(player.x, player.y, 'arrow');
+        arrow.anchor.set(.5, .5);
+        arrow.visible = false;
     }
 
     function setupPauseButton() {
@@ -108,10 +113,12 @@ let Game = function (game, startingLevelNum) {
                     pausedSize = game.width;
                     game.time.events.resume();
                     selectableGravObjects.length = 0;
+                    arrow.visible = false;
                 } else {
                     pausedSize = pauseAnimationSpeed;
                     game.time.events.pause();
                     handleGravObjSelection();
+                    arrow.visible = true;
         
                 }
             }
@@ -167,6 +174,7 @@ let Game = function (game, startingLevelNum) {
         game.load.image('shadow', 'assets/art/shadow.png');
         game.load.image('checkpoint', 'assets/art/flag_red.png');
         game.load.image('checkpointActivated', 'assets/art/flag_green.png');
+        game.load.image('arrow', 'assets/art/arrow.png');
         game.load.image('groundParticle', 'assets/art/groundParticle.png');
         game.load.image('bg_stone_1', 'assets/art/bg_stone_1.png');
         game.load.image('bg_stone_2', 'assets/art/bg_stone_2.png');
@@ -244,6 +252,7 @@ let Game = function (game, startingLevelNum) {
             doDeathFallAnimation();
         }
         updatePlayerCollision();
+        doGravityPhysics();
 
         // If the player is not dead, play the death animation on contact with shockers
         // Don't allow player to change the gravity while dead
@@ -256,7 +265,6 @@ let Game = function (game, startingLevelNum) {
             doHitGroundAnimation();
             checkWallCollision();
             doJumpPhysics();
-            doGravityPhysics();
 
             previous_velocity_y = player.body.velocity.y;
 
@@ -281,6 +289,9 @@ let Game = function (game, startingLevelNum) {
                 // Adjust attraction of clicked object
                 adjustAttractorsPull();
             }
+            
+            doArrowChange();
+        
         }
     }
 
@@ -577,6 +588,19 @@ let Game = function (game, startingLevelNum) {
         obj.body.acceleration.y = -yGravCoef;
         
     }
+    
+    function doArrowChange() {
+        let xDelta = player.body.velocity.x + player.body.acceleration.x/14;
+        let yDelta = player.body.velocity.y + (player.body.acceleration.y + player.body.gravity.y)/14;
+
+        let theta = Math.atan2(yDelta, xDelta);
+
+        arrow.x = player.x + xDelta/14 + arrowDist * Math.cos(theta);
+        arrow.y = player.y + yDelta/14 + arrowDist * Math.sin(theta);
+
+        arrow.rotation = theta;
+    }
+    
 
     // Starts the death animation by setting flags. Freezes the player, pauses the game state, shakes the screen, then sets a timer to set the deathFall flag which is run in update
     function deathAnimation() {
