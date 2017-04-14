@@ -29,7 +29,7 @@ let Game = function (game, startingLevelNum) {
     let pauseBtn;
     let stopPauseAnimation;
     let notCurrentlyDying;
-    let pausedSize;
+    let pauseAnimationTick;
     let selectableGravObjects;
     let currentHighlightedObjIndex;
     let rightKeyWasPressed,
@@ -67,6 +67,7 @@ let Game = function (game, startingLevelNum) {
     const pauseAnimationSpeed = 50;
     const deathFallSpeed = 6;
     const deathAnimationTime = 300;
+    const pauseMaxTick = 30;
 
     function unpackObjects(loaderObjects) {
         player = loaderObjects.player;
@@ -113,15 +114,15 @@ let Game = function (game, startingLevelNum) {
 
                 if (! game.physics.arcade.isPaused) {
                     stopPauseAnimation = true;
-                    pausedSize = game.width;
                     game.time.events.resume();
                     selectableGravObjects.length = 0;
                     arrow.visible = false;
+                    pauseAnimationTick = pauseMaxTick;
                 } else {
-                    pausedSize = pauseAnimationSpeed;
                     game.time.events.pause();
                     handleGravObjSelection();
                     arrow.visible = true;
+                    pauseAnimationTick = 0;
         
                 }
             }
@@ -323,19 +324,22 @@ let Game = function (game, startingLevelNum) {
         });
 
         if ((game.physics.arcade.isPaused && notCurrentlyDying) || stopPauseAnimation) {
+            let pausedSize = game.width * quadraticEase(pauseAnimationTick, pauseMaxTick);
+            
             pauseGraphics.beginFill(0xa3c6ff, .5);
-            pauseGraphics.drawRect(player.x - pausedSize + player.body.velocity.x/15, player.y - pausedSize + player.body.velocity.y/15, 2 * pausedSize, 2 * pausedSize);
+            pauseGraphics.drawRect(player.x - pausedSize, player.y - pausedSize, 2 * pausedSize, 2 * pausedSize);
             pauseGraphics.endFill();
 
             if (stopPauseAnimation) {
-                if (pausedSize > pauseAnimationSpeed) {
-                    pausedSize -= pauseAnimationSpeed;
+                if (pauseAnimationTick > 0) {
+                    pauseAnimationTick -= 1.5;
                 } else {
                     stopPauseAnimation = false;
                 }
-            } else if (pausedSize < game.width) {
-                pausedSize += pauseAnimationSpeed;
+            } else if (pauseAnimationTick < pauseMaxTick) {
+                pauseAnimationTick += 1;
             }
+            
         }
         
         if (selectableGravObjects.length > 0) {
