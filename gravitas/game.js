@@ -479,7 +479,7 @@ let Game = function (game, startingLevelNum) {
         emitters.forEach(function(emitter) {
             emitter.forEachAlive(function(p) {
                 //p.alpha = p.lifespan / emitter.lifespan;
-                p.alpha = 1 - Math.pow(emitter.lifespan - p.lifespan, 2)/Math.pow(emitter.lifespan, 2);
+                p.alpha = quadraticEase(p.lifespan, emitter.lifespan);
             }, null);
         }, null);
     }
@@ -686,6 +686,9 @@ let Game = function (game, startingLevelNum) {
         }
 
         clickedObj = gravObj;
+    }
+    function quadraticEase(t, tmax) {
+        return 1 - Math.pow(tmax - t, 2)/Math.pow(tmax, 2);
     }
 
     return {
