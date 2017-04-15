@@ -14,17 +14,17 @@ $(function() {
     });
 
     let win = new Win(game, function() {
-        game.state.start('game');
+        game.state.start('game', 0);
     });
 
     let gameState = new Game(game, startingLevelNum);
-    let leveSelect = new LevelSelect(game);
+    let levelSelect = new LevelSelect(game);
     
     game.state.add('boot', {preload: startState.boot, create: startState.postBoot});
-    game.state.add('menu', {preload: menu.loadMenu, create: menu.createMenu, update: menu.onStartButtonPush});
+    game.state.add('menu', {preload: menu.loadMenu, create: menu.createMenu, update: menu.onButtonPush});
     game.state.add('win', {preload: win.loadWin, create: win.displayWinMessage, update: win.backToMenu});
     game.state.add('game', {preload: gameState.preload, create: gameState.create, update: gameState.update, render: gameState.render});
-    game.state.add('levelselect', {preload: leveSelect.preload, create: leveSelect.create});
+    game.state.add('levelselect', {preload: levelSelect.preload, create: levelSelect.create, update: levelSelect.onLevelSelected});
 
     game.state.start('boot');
 });
