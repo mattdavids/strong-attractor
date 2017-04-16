@@ -49,6 +49,8 @@ let Game = function (game, currentLevelNum) {
     let playerStartX,
         playerStartY;
 
+    //Debug
+    let skipPressed;
 
     // Constants
 
@@ -201,6 +203,7 @@ let Game = function (game, currentLevelNum) {
     }
 
     function create() {
+        console.log("Starting Game state at L"+currentLevelNum);
         game.stage.backgroundColor = '#faebd7';
         game.physics.startSystem(Phaser.Physics.ARCADE);
         game.world.enableBody = true;
@@ -256,6 +259,7 @@ let Game = function (game, currentLevelNum) {
         
         lastTwoJumpFrames = [false, false];
 
+        skipPressed = false;
     }
 
     function update() {
@@ -264,7 +268,9 @@ let Game = function (game, currentLevelNum) {
         if (deathFall) {
             doDeathFallAnimation();
         }
-        
+
+        doDebugButtons();
+
         doCollision();
         doGravityPhysics();
 
@@ -481,6 +487,19 @@ let Game = function (game, currentLevelNum) {
         if (player.body.velocity.x > 0 && player.isTouchingRight) {
             player.body.velocity.x = 0;
         }
+    }
+
+    function doDebugButtons() {
+        // Button to skip levels
+        if(game.input.keyboard.isDown(Phaser.KeyCode.NUMPAD_MULTIPLY)) {
+            if(!skipPressed) {
+                onExit();
+            }
+            skipPressed = true;
+        } else{
+            skipPressed = false;
+        }
+
     }
 
     function doHitGroundAnimation() {
