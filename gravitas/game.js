@@ -1,5 +1,6 @@
 let Game = function (game, currentLevelNum) {
 
+    // Displayables from level file
     let player,
         walls,
         shockers,
@@ -9,6 +10,7 @@ let Game = function (game, currentLevelNum) {
         emitters,
         backgrounds;
 
+    // Player collision shadows
     let playerShadowLeft,
         playerShadowRight,
         playerShadowBottom,
@@ -17,6 +19,7 @@ let Game = function (game, currentLevelNum) {
     let clickedObj;
     let arrow;
 
+    // Dynamic displayables
     let gravObjGraphics;
     let gravObjTopGraphics;
     let pauseGraphics;
@@ -37,13 +40,17 @@ let Game = function (game, currentLevelNum) {
     let deathCounter;
     let playerHasHitCheckpoint;
 
+    // Player movement
     let previous_velocity_y,
         isJumping,
         jumpCount,
         lastTwoJumpFrames;
+    // Player start position
     let playerStartX,
         playerStartY;
 
+
+    // Constants
 
 
     const jumpFrames = 10;
