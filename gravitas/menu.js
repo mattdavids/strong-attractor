@@ -44,21 +44,17 @@ let Menu = function(game, startGameFromMenuCallback, goToLevelSelectFromMenuCall
             flame2.animations.add('flicker2');
             flame2.animations.play('flicker2', 20, true); 
         },
-
-        onStartButtonPush: function() {
+        onButtonPush: function() {
             startBtn.events.onInputDown.add(function() {
                 clearLevel();                
                 startGameFromMenuCallback();
             }, null);
-        },
-        
-        onLevelSelectButtonPush: function() {
+            
             levelSelectBtn.events.onInputDown.add(function() {
                 clearLevel();
                 goToLevelSelectFromMenuCallback();
             }, null);
-        }
-        
+        }        
         
     }
 };

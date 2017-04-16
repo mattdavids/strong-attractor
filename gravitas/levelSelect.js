@@ -7,7 +7,7 @@ let LevelSelect = function (game) {
         thumbSpacing = 10,
         levelWidth = thumbWidth * thumbCols + thumbSpacing * (thumbCols - 1),
         levelHeight = thumbWidth * thumbRows + thumbSpacing * (thumbRows - 1),
-        lockedLevelsArray = [];
+        playerDataList = [];
  
     function loadLevelSelect() {
         game.load.image('lockedThumbnail', 'assets/art/locked.png', thumbHeight, thumbWidth);
@@ -15,10 +15,11 @@ let LevelSelect = function (game) {
     } 
     
     function updateFromLocalStorage() {
+        let levelList = game.cache.getText('levelList').split('\n');
         playerDataList = localStorage.getItem('user_progress');
         if (playerDataList == null) {
             playerDataList = [0];
-            for (let i = 1; i < localLevelCount; i++) {
+            for (let i = 1; i < levelList.length; i++) {
                 playerDataList[i] = 1;
             }
             localStorage.setItem('user_progress', playerDataList);
@@ -51,15 +52,18 @@ let LevelSelect = function (game) {
                     //let levelNumber = i * thumbCols + j + 1 * (thumbRows * thumbCols); // might have to change this
                     // add lock thumbnail as button
                     let levelThumb;
-                    levelThumb.levelNumber = associatedLevel;
-                    if (lockedLevelsArray[levelNumber] == 0) {
+                    
+                    if (playerDataList[associatedLevel] == 0) {
                         // level is locked
                         levelThumb = game.add.sprite(offsetX + j * (thumbWidth + thumbSpacing), offsetY + i * (thumbHeight + thumbSpacing), 'unlockedThumbnail');
+                        levelThumb.onInputDown
                     } else {
                         // level is unlocked
                         levelThumb = game.add.sprite(offsetX + j * (thumbWidth + thumbSpacing), offsetY + i * (thumbHeight + thumbSpacing), 'lockedThumbnail');
                     }
+                    levelThumb.levelNumber = associatedLevel;
                     associatedLevel++;
+                    
                 }
             } 
         }
@@ -76,7 +80,8 @@ let LevelSelect = function (game) {
     
     return {
         preload: loadLevelSelect,
-        create: createLevelSelect
+        create: createLevelSelect,
+        update: onLevelSelected
     };
     
 };
