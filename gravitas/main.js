@@ -13,11 +13,13 @@ $(function() {
         game.state.start('levelselect');
     });
 
+    let gameState = new Game(game, startingLevelNum);
+
     let win = new Win(game, function() {
-        game.state.start('game', 0);
+        gameState.setLevel(0);
+        game.state.start('game', false);
     });
 
-    let gameState = new Game(game, startingLevelNum);
     let levelSelect = new LevelSelect(game);
     
     game.state.add('boot', {preload: startState.boot, create: startState.postBoot});

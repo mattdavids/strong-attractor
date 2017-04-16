@@ -745,10 +745,15 @@ let Game = function (game, currentLevelNum) {
         return 1 - Math.pow(tmax - t, 2)/Math.pow(tmax, 2);
     }
 
+    function setLevel(lnum){
+        currentLevelNum = lnum;
+    }
+
     return {
         preload: preload,
         create: create,
         update: update,
-        render: render
+        render: render,
+        setLevel: setLevel
     };
 };
