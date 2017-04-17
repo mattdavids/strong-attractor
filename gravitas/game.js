@@ -64,6 +64,7 @@ let Game = function (game, currentLevelNum) {
     const maxHorizontalVelocity = 250;
     const jumpVelocity = 300;
     const millisecondsPerFrame = 100/6;
+    const movingObjSpeed = 30;
 
     // Display
     const blockSize = 30;
@@ -616,8 +617,10 @@ let Game = function (game, currentLevelNum) {
         if (parseInt(loc.x) === movingToX && parseInt(loc.y) === movingToY) {
             obj.movementIndex = (movementIndex + 1) % movementList.length;
         } else {
-            obj.body.velocity.x = (loc.x < movingToX) * blockSize - (loc.x > movingToX) * blockSize;
-            obj.body.velocity.y = (loc.y < movingToY) * blockSize - (loc.y > movingToY) * blockSize;
+            obj.body.velocity.x = (loc.x < movingToX) * movingObjSpeed - 
+                                  (loc.x > movingToX) * movingObjSpeed;
+            obj.body.velocity.y = (loc.y < movingToY) * movingObjSpeed - 
+                                  (loc.y > movingToY) * movingObjSpeed;
         }
     }
     
