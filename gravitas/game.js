@@ -1,4 +1,6 @@
-let Game = function (game, startingLevelNum) {
+let Game = function (game, currentLevelNum) {
+
+    // Displayables from level file
     let player,
         walls,
         shockers,
@@ -8,6 +10,7 @@ let Game = function (game, startingLevelNum) {
         emitters,
         backgrounds;
 
+    // Player collision shadows
     let playerShadowLeft,
         playerShadowRight,
         playerShadowBottom,
@@ -16,13 +19,14 @@ let Game = function (game, startingLevelNum) {
     let clickedObj;
     let arrow;
 
+    // Dynamic displayables
     let gravObjGraphics;
     let gravObjTopGraphics;
     let pauseGraphics;
     let selectedObjGraphics;
 
     let levelLoader;
-    let currentLevelNum;
+    //let currentLevelNum;
 
     let pauseBtn;
     let stopPauseAnimation;
@@ -36,13 +40,19 @@ let Game = function (game, startingLevelNum) {
     let deathCounter;
     let playerHasHitCheckpoint;
 
+    // Player movement
     let previous_velocity_y,
         isJumping,
         jumpCount,
         lastTwoJumpFrames;
+    // Player start position
     let playerStartX,
         playerStartY;
 
+    //Debug
+    let skipPressed;
+
+    // Constants
 
 
     const jumpFrames = 10;
@@ -190,10 +200,10 @@ let Game = function (game, startingLevelNum) {
 
         levelLoader = new LevelLoader(game);
         levelLoader.setup();
-        currentLevelNum = startingLevelNum;
     }
 
     function create() {
+        console.log("Starting Game state at L"+currentLevelNum);
         game.stage.backgroundColor = '#faebd7';
         game.physics.startSystem(Phaser.Physics.ARCADE);
         game.world.enableBody = true;
@@ -249,6 +259,7 @@ let Game = function (game, startingLevelNum) {
         
         lastTwoJumpFrames = [false, false];
 
+        skipPressed = false;
     }
 
     function update() {
@@ -257,7 +268,9 @@ let Game = function (game, startingLevelNum) {
         if (deathFall) {
             doDeathFallAnimation();
         }
-        
+
+        doDebugButtons();
+
         doCollision();
         doGravityPhysics();
 
@@ -479,6 +492,19 @@ let Game = function (game, startingLevelNum) {
         });
     }
     
+    function doDebugButtons() {
+        // Button to skip levels
+        if(game.input.keyboard.isDown(Phaser.KeyCode.NUMPAD_MULTIPLY)) {
+            if(!skipPressed) {
+                onExit();
+            }
+            skipPressed = true;
+        } else{
+            skipPressed = false;
+        }
+
+    }
+
     function doHitGroundAnimation() {
         if (isJumping && player.isTouchingBottom) {
             // add player.body.velocity.x / 14 so that particles appear where player *will* be next frame
@@ -726,10 +752,15 @@ let Game = function (game, startingLevelNum) {
         return 1 - Math.pow(tmax - t, 2)/Math.pow(tmax, 2);
     }
 
+    function setLevel(lnum){
+        currentLevelNum = lnum;
+    }
+
     return {
         preload: preload,
         create: create,
         update: update,
-        render: render
+        render: render,
+        setLevel: setLevel
     };
 };
