@@ -34,11 +34,23 @@ let LevelLoader = function (game) {
     function loadObject(levelObjects, objectName, objectX, objectY, playerGrav, objectInfo, playerHasHitCheckpoint, playerStartX, playerStartY, checkpoints){
         let gravObj;
         let movementList;
+        let wall;
         switch(objectName) {
             case 'wall':
-                let wall = game.add.sprite(objectX, objectY, objectName);
+                wall = game.add.sprite(objectX, objectY, objectName);
+                wall.moving = false;
                 wall.body.immovable = true;
                 wall.anchor.set(.5,.5);
+                levelObjects.walls.add(wall);
+                break;
+            case 'wall_move':
+                wall = game.add.sprite(objectX, objectY, 'wall');
+                movementList = objectInfo[3].split('-');
+                wall.moving = true;
+                wall.movementList = movementList;
+                wall.movementIndex = 0;
+                wall.body.immovable = true;
+                wall.anchor.set(.5, .5);
                 levelObjects.walls.add(wall);
                 break;
             case 'gravObj_off':

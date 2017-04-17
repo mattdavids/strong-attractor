@@ -131,7 +131,7 @@ let Game = function (game, startingLevelNum) {
         gravObjects.forEach(function(gravObj) {
             if    ((gravObj.x + 10 < game.camera.x + game.width ) && (gravObj.x - 10 > game.camera.x)
                 && (gravObj.y + 10 < game.camera.y + game.height) && (gravObj.y - 10 > game.camera.y)) {
-                if(!gravObj.flux) {
+                if(!gravObj.flux && !gravObj.moving) {
                     selectableGravObjects.push(gravObj);
                 }
             }
@@ -268,6 +268,7 @@ let Game = function (game, startingLevelNum) {
         }
         if (! game.physics.arcade.isPaused){
             doPlayerMovement();
+            doWallMovement();
             // When the player hits the ground after jumping, play a you hit the ground particle effect
             doHitGroundAnimation();
             checkWallCollision();
@@ -476,6 +477,14 @@ let Game = function (game, startingLevelNum) {
         }
     }
 
+    function doWallMovement() {
+        walls.forEach(function(wall) {
+            if (wall.moving) {
+                moveObjInPattern(wall);
+            }
+        });
+    }
+    
     function doHitGroundAnimation() {
         if (isJumping && player.isTouchingBottom) {
             // add player.body.velocity.x / 14 so that particles appear where player *will* be next frame
@@ -571,23 +580,27 @@ let Game = function (game, startingLevelNum) {
             }
 
             if (gravObj.moving) {
-                let loc = gravObj.body.position;
-                let movementList = gravObj.movementList;
-                let movementIndex = gravObj.movementIndex;
-                let movingToX = movementList[movementIndex].split('#')[0] - blockSize/2;
-                let movingToY = movementList[movementIndex].split('#')[1] - blockSize/2;
-
-                if (parseInt(loc.x) === movingToX && parseInt(loc.y) === movingToY) {
-                    gravObj.movementIndex = (movementIndex + 1) % movementList.length;
-                } else {
-                    gravObj.body.velocity.x = (loc.x < movingToX) * blockSize - (loc.x > movingToX) * blockSize;
-                    gravObj.body.velocity.y = (loc.y < movingToY) * blockSize - (loc.y > movingToY) * blockSize;
-                }
+                moveObjInPattern(gravObj);
             }
 
         });
     }
 
+    function moveObjInPattern(obj) {
+        let loc = obj.body.position;
+        let movementList = obj.movementList;
+        let movementIndex = obj.movementIndex;
+        let movingToX = movementList[movementIndex].split('#')[0] - blockSize/2;
+        let movingToY = movementList[movementIndex].split('#')[1] - blockSize/2;
+
+        if (parseInt(loc.x) === movingToX && parseInt(loc.y) === movingToY) {
+            obj.movementIndex = (movementIndex + 1) % movementList.length;
+        } else {
+            obj.body.velocity.x = (loc.x < movingToX) * blockSize - (loc.x > movingToX) * blockSize;
+            obj.body.velocity.y = (loc.y < movingToY) * blockSize - (loc.y > movingToY) * blockSize;
+        }
+    }
+    
     function gravityEffectsOnObject(obj) {
         let xGravCoef = 0;
         let yGravCoef = 0;

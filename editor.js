@@ -7,6 +7,7 @@ let game;
 let graphic;
 let bounds;
 let walls;
+let wall_moves;
 let shockers;
 let gravObj_offs;
 let gravObj_ons;
@@ -169,6 +170,7 @@ function create() {
     }
     
     walls = game.add.group();
+    wall_moves = game.add.group();
     gravObj_offs = game.add.group();
     gravObj_ons = game.add.group();
     gravObj_fluxes = game.add.group();
@@ -194,6 +196,25 @@ function create() {
                     obj = game.add.sprite(objectX, objectY, objectName);
                     walls.add(obj);
                     break;
+                case 'wall_move':
+                    obj = game.add.sprite(objectX, objectY, 'wall');
+                    obj.movementPathing = game.add.group();
+                    obj.currentNumber = 1;
+                    movementList = objectInfo[3].split('-');
+                    movementList.splice(1, movementList.length).forEach(function(ele){
+                        let loc = ele.split('#');
+                        let path = game.add.sprite(parseFloat(loc[0]), parseFloat(loc[1]), 'path');
+                        path.anchor.set(.5, .5);
+                        obj.movementPathing.add(path);
+                        path.inputEnabled = true;
+                        path.events.onInputDown.add(deleteObject, this);
+                        path.events.onInputUp.add(inputUp, this);
+                        path.input.boundsRect = bounds;
+                        let num = game.add.text(path.position.x, path.position.y + 3, obj.currentNumber, {fill: "#000", fontSize: '16px'});
+                        num.anchor.set(.5, .5);
+                        obj.currentNumber += 1;
+                        path.number = num;
+                    });
                 case 'gravObj_off':
                     obj = game.add.sprite(objectX, objectY, 'gravObj');
                     obj.gravMin = parseFloat(objectInfo[3]);
@@ -343,6 +364,15 @@ function buildLevelString(){
         let obj = walls.children[i];
         result += 'wall,' + obj.position.x + ',' + obj.position.y + '\n'
     }
+    
+    wall_moves.forEach(function(obj) {
+        result += 'wall_move,' + obj.position.x + ',' + obj.position.y + ',' + + obj.position.x + '#' + obj.position.y + '-';
+        obj.movementPathing.forEach(function(ele) {
+            result += ele.position.x + '#' + ele.position.y + '-';
+        });
+        result = result.slice(0, -1) + '\n';
+    });
+    
     for (let i = 0; i < shockers.children.length; i++) {
         let obj = shockers.children[i];
         result += 'shocker,' + obj.position.x + ',' + obj.position.y + '\n'
@@ -363,7 +393,7 @@ function buildLevelString(){
     gravObj_movers.forEach(function(obj) {
         result += 'gravObj_move,' + obj.position.x + ',' + obj.position.y + ',' + obj.gravMin + ',' + obj.gravMax + ',' + obj.position.x + '#' + obj.position.y + '-';
         obj.movementPathing.forEach(function(ele) {
-            result += ele.position.x + '#' + ele.position.y + '-'
+            result += ele.position.x + '#' + ele.position.y + '-';
         });
         result = result.slice(0, -1) + '\n';
     });
@@ -443,6 +473,14 @@ function initializeObj(objectName) {
         gravObj_fluxes.add(obj);
         obj.gravMin = parseInt($('#gravMin')[0].value);
         obj.gravMax = parseInt($('#gravMax')[0].value);
+    } else if (objectName == 'wall_move') {
+        obj = game.add.sprite(spawnPosX, spawnPosY, 'wall');
+        wall_moves.add(obj);
+        obj.movementPathing = game.add.group();
+        obj.currentNumber = 1;
+        pathing = true;
+        currentSelectedObj = 'path';
+        pathedObj = obj;
     } else if (objectName == 'gravObj_move') {
         obj = game.add.sprite(spawnPosX, spawnPosY, 'gravObj');
         obj.tint = 0x351777;
@@ -554,14 +592,16 @@ function deleteObject(obj) {
     clickedObj = obj;
     if (game.input.activePointer.rightButton.isDown) {
         
-        if (gravObj_movers.children.indexOf(obj) > -1 || gravObj_moveFluxes.children.indexOf(obj) > -1) {
-            currentSelectedObj = 'gravObj_move';
+        if (gravObj_movers.children.indexOf(obj) > -1 ||           gravObj_moveFluxes.children.indexOf(obj) > -1 ||       wall_moves.children.indexOf(obj) > -1) {
+            
+            currentSelectedObj = 'wall';
             obj.movementPathing.forEach(function(ele) {
                 ele.number.destroy();
             });
             obj.movementPathing.destroy();
         }
         walls.remove(obj);
+        wall_moves.remove(obj);
 	    shockers.remove(obj);
 	    gravObj_ons.remove(obj);
         gravObj_offs.remove(obj);
