@@ -8,20 +8,22 @@ $(function() {
     let startState = new StartState(game);
 
     let menu = new Menu(game, function() {
-        game.state.start('game', startingLevelNum);
+        game.state.start('game');
     }, function() {
         game.state.start('levelselect');
     });
 
+    let gameState = new Game(game, startingLevelNum);
+
     let win = new Win(game, function() {
-        game.state.start('game', 0);
+        gameState.setLevel(0);
+        game.state.start('game', false);
     });
 
-    let gameState = new Game(game, startingLevelNum);
     let levelSelect = new LevelSelect(game);
     
     game.state.add('boot', {preload: startState.boot, create: startState.postBoot});
-    game.state.add('menu', {preload: menu.loadMenu, create: menu.createMenu, update: menu.onButtonPush});
+    game.state.add('menu', {preload: menu.loadMenu, create: menu.createMenu});
     game.state.add('win', {preload: win.loadWin, create: win.displayWinMessage, update: win.backToMenu});
     game.state.add('game', {preload: gameState.preload, create: gameState.create, update: gameState.update, render: gameState.render});
     game.state.add('levelselect', {preload: levelSelect.preload, create: levelSelect.create, update: levelSelect.onLevelSelected});
