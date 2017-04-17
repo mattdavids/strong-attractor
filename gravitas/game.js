@@ -418,12 +418,6 @@ let Game = function (game, startingLevelNum) {
     }
 
     function adjustAttractorsPull() {
-        if (game.input.activePointer.leftButton.isDown && clickedObj !== null && !clickedObj.flux) {
-            clickedObj.gravWeight = Math.min(clickedObj.gravMax, clickedObj.gravWeight + 5000)
-        }
-        if (game.input.activePointer.rightButton.isDown && clickedObj !== null && !clickedObj.flux) {
-            clickedObj.gravWeight = Math.max(clickedObj.gravMin, clickedObj.gravWeight - 5000)
-        }
 
         if (rightKeyWasPressed) {
             currentHighlightedObjIndex = (currentHighlightedObjIndex + 1) % selectableGravObjects.length;
