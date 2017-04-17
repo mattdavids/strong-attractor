@@ -18,6 +18,8 @@ let Win = function(game, returnFromWinCallback) {
         },
 
         backToMenu: function() {
+            winScreen.kill();
+            restartBtn.kill();
             restartBtn.events.onInputDown.add(returnFromWinCallback, null);
         }
     }
