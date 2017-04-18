@@ -64,6 +64,7 @@ let Game = function (game, currentLevelNum) {
     const maxHorizontalVelocity = 250;
     const jumpVelocity = 300;
     const millisecondsPerFrame = 100/6;
+    const movingObjSpeed = 30;
 
     // Display
     const blockSize = 30;
@@ -123,12 +124,20 @@ let Game = function (game, currentLevelNum) {
                     selectableGravObjects.length = 0;
                     arrow.visible = false;
                     pauseAnimationTick = pauseMaxTick;
+                    
+                    let unFreezeEffect = game.add.audio('unfreeze');
+                    unFreezeEffect.volume = 0.3;
+                    unFreezeEffect.play();
                 } else {
                     game.time.events.pause();
                     handleGravObjSelection();
                     
                     arrow.visible = true;
                     pauseAnimationTick = 0;
+                    
+                    let freezeEffect = game.add.audio('freeze');
+                    freezeEffect.volume = 0.3;
+                    freezeEffect.play();
         
                 }
             }
@@ -141,7 +150,7 @@ let Game = function (game, currentLevelNum) {
         gravObjects.forEach(function(gravObj) {
             if    ((gravObj.x + 10 < game.camera.x + game.width ) && (gravObj.x - 10 > game.camera.x)
                 && (gravObj.y + 10 < game.camera.y + game.height) && (gravObj.y - 10 > game.camera.y)) {
-                if(!gravObj.flux) {
+                if(!gravObj.flux && !gravObj.moving) {
                     selectableGravObjects.push(gravObj);
                 }
             }
@@ -176,6 +185,7 @@ let Game = function (game, currentLevelNum) {
         currentHighlightedObjIndex = currentMinObjIndex;
     }
 
+
     function preload() {
         game.load.image('player', 'assets/art/player.png');
         game.load.image('exit', 'assets/art/exit.png');
@@ -187,14 +197,24 @@ let Game = function (game, currentLevelNum) {
         game.load.image('arrow', 'assets/art/arrow.png');
         game.load.image('groundParticle', 'assets/art/groundParticle.png');
         game.load.image('gravParticle', 'assets/art/gravParticle.png');
-        game.load.image('bg_stone_1', 'assets/art/bg_stone_1.png');
-        game.load.image('bg_stone_2', 'assets/art/bg_stone_2.png');
-        game.load.image('bg_stone_3', 'assets/art/bg_stone_3.png');
-        game.load.image('bg_stone_4', 'assets/art/bg_stone_4.png');
-        game.load.image('bg_large_stone_1', 'assets/art/bg_large_stone_1.png');
+
+        for(let i=1; i<=7; i++){
+            game.load.image("bg_debug_"+i, "assets/art/bg_debug_"+i+".png");
+        }
+        for(let i=1; i<=7; i++){
+            game.load.image("bg_large_stone_"+i, "assets/art/bg_large_stone_"+i+".png");
+        }
 
 
         game.load.audio('death', ['assets/audio/death.mp3', 'assets/audio/death.ogg']);
+        game.load.audio('freeze', 'assets/audio/Freeze.mp3');
+        game.load.audio('unfreeze', 'assets/audio/Unfreeze.mp3');
+        game.load.audio('jump1', 'assets/audio/Jump.mp3');
+        game.load.audio('jump2', 'assets/audio/Jump2.mp3');
+        game.load.audio('jump3', 'assets/audio/Jump3.mp3');
+        game.load.audio('jump4', 'assets/audio/Jump4.mp3');
+        game.load.audio('landing', 'assets/audio/Landing.mp3');
+        game.load.audio('checkpointHit', 'assets/audio/checkpoint.mp3');
 
         game.load.spritesheet('shocker', 'assets/art/electricity_sprites.png', 30, 30, 3);
 
@@ -281,6 +301,7 @@ let Game = function (game, currentLevelNum) {
         }
         if (! game.physics.arcade.isPaused){
             doPlayerMovement();
+            doWallMovement();
             // When the player hits the ground after jumping, play a you hit the ground particle effect
             doHitGroundAnimation();
             checkWallCollision();
@@ -430,12 +451,6 @@ let Game = function (game, currentLevelNum) {
     }
 
     function adjustAttractorsPull() {
-        if (game.input.activePointer.leftButton.isDown && clickedObj !== null && !clickedObj.flux) {
-            clickedObj.gravWeight = Math.min(clickedObj.gravMax, clickedObj.gravWeight + 5000)
-        }
-        if (game.input.activePointer.rightButton.isDown && clickedObj !== null && !clickedObj.flux) {
-            clickedObj.gravWeight = Math.max(clickedObj.gravMin, clickedObj.gravWeight - 5000)
-        }
 
         if (rightKeyWasPressed) {
             currentHighlightedObjIndex = (currentHighlightedObjIndex + 1) % selectableGravObjects.length;
@@ -489,6 +504,14 @@ let Game = function (game, currentLevelNum) {
         }
     }
 
+    function doWallMovement() {
+        walls.forEach(function(wall) {
+            if (wall.moving) {
+                moveObjInPattern(wall);
+            }
+        });
+    }
+    
     function doDebugButtons() {
         // Button to skip levels
         if(game.input.keyboard.isDown(Phaser.KeyCode.NUMPAD_MULTIPLY)) {
@@ -517,6 +540,14 @@ let Game = function (game, currentLevelNum) {
                 emitter.destroy(true);
             }, null);
             emitters.add(emitter);
+            
+            if (!game.input.keyboard.isDown(Phaser.KeyCode.W)) {
+                let hitGroundSound = game.add.audio('landing');
+                hitGroundSound.volume = 0.1;
+                hitGroundSound.allowMultiple = false;
+                hitGroundSound.play();
+            }
+            
         }
 
         // Fade out the particles over their lifespan
@@ -550,6 +581,19 @@ let Game = function (game, currentLevelNum) {
             player.body.velocity.y = -jumpVelocity;
             jumpCount = 0;
             isJumping = true;
+            // If you're trying to go in a direction opposite the one you're going,
+            //      you kick off the ground to change direction quickly
+            if(game.input.keyboard.isDown(Phaser.KeyCode.A) && player.body.velocity.x > 0){
+                    player.body.velocity.x *=-0.5;
+            }
+            if(game.input.keyboard.isDown(Phaser.KeyCode.D) && player.body.velocity.x < 0){
+                player.body.velocity.x *=-0.5;
+            }
+            
+            let jumpSound = game.add.audio('jump4');
+            jumpSound.volume = 0.1;
+            jumpSound.play();
+
         }
         //Let user jump higher if they hold the button down
         if (jumpCount < jumpFrames) {
@@ -597,23 +641,29 @@ let Game = function (game, currentLevelNum) {
             }
 
             if (gravObj.moving) {
-                let loc = gravObj.body.position;
-                let movementList = gravObj.movementList;
-                let movementIndex = gravObj.movementIndex;
-                let movingToX = movementList[movementIndex].split('#')[0] - blockSize/2;
-                let movingToY = movementList[movementIndex].split('#')[1] - blockSize/2;
-
-                if (parseInt(loc.x) === movingToX && parseInt(loc.y) === movingToY) {
-                    gravObj.movementIndex = (movementIndex + 1) % movementList.length;
-                } else {
-                    gravObj.body.velocity.x = (loc.x < movingToX) * blockSize - (loc.x > movingToX) * blockSize;
-                    gravObj.body.velocity.y = (loc.y < movingToY) * blockSize - (loc.y > movingToY) * blockSize;
-                }
+                moveObjInPattern(gravObj);
             }
 
         });
     }
 
+    function moveObjInPattern(obj) {
+        let loc = obj.body.position;
+        let movementList = obj.movementList;
+        let movementIndex = obj.movementIndex;
+        let movingToX = movementList[movementIndex].split('#')[0] - blockSize/2;
+        let movingToY = movementList[movementIndex].split('#')[1] - blockSize/2;
+
+        if (parseInt(loc.x) === movingToX && parseInt(loc.y) === movingToY) {
+            obj.movementIndex = (movementIndex + 1) % movementList.length;
+        } else {
+            obj.body.velocity.x = (loc.x < movingToX) * movingObjSpeed - 
+                                  (loc.x > movingToX) * movingObjSpeed;
+            obj.body.velocity.y = (loc.y < movingToY) * movingObjSpeed - 
+                                  (loc.y > movingToY) * movingObjSpeed;
+        }
+    }
+    
     function gravityEffectsOnObject(obj) {
         let xGravCoef = 0;
         let yGravCoef = 0;
@@ -716,6 +766,10 @@ let Game = function (game, currentLevelNum) {
             playerStartX = checkpoint.x;
             playerStartY = checkpoint.y;
             checkpoint.loadTexture('checkpointActivated');
+            
+            let checkpointSound = game.add.audio('checkpointHit');
+            checkpointSound.volume = .1;
+            checkpointSound.play();
         }
     }
 

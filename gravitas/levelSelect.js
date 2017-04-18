@@ -1,12 +1,12 @@
 let LevelSelect = function (game) {
     
-    let thumbRows = 6,
+    let thumbRows = 3,
         thumbCols = 5,
         thumbWidth = 96,
         thumbHeight = 96,
         thumbSpacing = 10,
         levelWidth = thumbWidth * thumbCols + thumbSpacing * (thumbCols - 1),
-        levelHeight = thumbWidth * thumbRows + thumbSpacing * (thumbRows - 1),
+        levelHeight = thumbHeight * thumbRows + thumbSpacing * (thumbRows - 1),
         playerDataList = [];
  
     function loadLevelSelect() {
@@ -38,15 +38,13 @@ let LevelSelect = function (game) {
         // display icons
         
         // horizontal offset to have lock thumbnails horizontally centered in the page
-        let offsetX = (game.width - levelWidth) / 2 + game.width;
-        let offsetY = (game.height - levelHeight) / 2;
-        
-        
+        let offsetX = (game.width - levelWidth)/2;
+        let offsetY = (game.height - levelHeight)/2;
         
         let tempCount = playerDataList.length;
         let associatedLevel = 0;
-        for (let i = 0; i < thumbCols; i++) {
-            for (let j = 0; j < thumbRows; j++) {
+        for (let i = 0; i < thumbRows; i++) {
+            for (let j = 0; j < thumbCols; j++) {
                 if (tempCount > 0) {
                     tempCount--;
                     //let levelNumber = i * thumbCols + j + 1 * (thumbRows * thumbCols); // might have to change this

@@ -9,7 +9,7 @@ let GravObjMaker = function(game, x, y, gravMin, gravMax, gravOn, flux, moving, 
     }
 
     function getRandomPositionInCircle() {
-        let r = this.radius;
+        let r = this.radius - 5;
         let angle = Math.random() * 2 * Math.PI;
         let radiusAmount = Math.random() * 0.4 + 0.59;
         return new Phaser.Point(this.x + radiusAmount * r * Math.cos(angle),
@@ -17,7 +17,8 @@ let GravObjMaker = function(game, x, y, gravMin, gravMax, gravOn, flux, moving, 
     }
 
     function getNumParticles() {
-        return Math.pow(this.radius, 2) / 10000;
+        return 50 * Math.log(this.radius);
+        //return Math.pow(this.radius, 2) / 1000;
     }
 
 
@@ -25,6 +26,7 @@ let GravObjMaker = function(game, x, y, gravMin, gravMax, gravOn, flux, moving, 
     function addParticles(gravObj, numToAdd) {
         for (let i = 0; i < numToAdd; i++) {
             let p = game.add.sprite(gravObj.x, gravObj.y, 'gravParticle');
+            p.scale.setTo(.3);
             p.anchor.set(0.5, 0.5);
             p.life = particleLife + particleLife / gravObj.numParticles * (Math.random() + i);
             p.gravConstant = 0; // this will actually be set when the particle is emitted
@@ -59,10 +61,11 @@ let GravObjMaker = function(game, x, y, gravMin, gravMax, gravOn, flux, moving, 
                 p.position = this.randomPos;
                 p.body.velocity.set(0, 0);
                 p.life = particleLife * (1 + Math.random());
-                p.gravConstant = 0.1;
-                p.visible = true;
+                p.gravConstant = .03;
+                p.visible = false;
             } else {
                 p.life -= 1;
+                p.visible = true;
 
                 // Check if particle is still in the radius
                 let dx = pos.x - p.x;
