@@ -154,10 +154,6 @@ let LevelLoader = function (game) {
         let out = (3*n1 + (n2));
         out = Math.pow(out, (lnum%2)+21);
 
-        out = out%(spriteNumMax+327);
-        if((out%31 < 8 || out%71 > 58) && (out/2)%13 > 8){
-            out = 0;
-        }
 
         return (out%(spriteNumMax)) +1; // Put sprite values into correct range
     }
@@ -190,7 +186,7 @@ let LevelLoader = function (game) {
         let playerGrav = parseInt(level[1]);
 
         // Load background
-        levelObjects = buildBackground(levelObjects, bounds[0], bounds[1], levelNumber, 5, "bg_large_stone_", 90, stoneBG);
+        levelObjects = buildBackground(levelObjects, bounds[0], bounds[1], levelNumber, 7, "bg_large_stone_", 90, stoneBG);
 
         // Load level objects
         for (let i = 2; i < level.length; i++) {

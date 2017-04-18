@@ -193,7 +193,7 @@ let Game = function (game, currentLevelNum) {
         for(let i=1; i<=7; i++){
             game.load.image("bg_debug_"+i, "assets/art/bg_debug_"+i+".png");
         }
-        for(let i=1; i<=5; i++){
+        for(let i=1; i<=7; i++){
             game.load.image("bg_large_stone_"+i, "assets/art/bg_large_stone_"+i+".png");
         }
 
