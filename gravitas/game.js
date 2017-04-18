@@ -554,6 +554,15 @@ let Game = function (game, currentLevelNum) {
             player.body.velocity.y = -jumpVelocity;
             jumpCount = 0;
             isJumping = true;
+            // If you're trying to go in a direction opposite the one you're going,
+            //      you kick off the ground to change direction quickly
+            if(game.input.keyboard.isDown(Phaser.KeyCode.A) && player.body.velocity.x > 0){
+                    player.body.velocity.x *=-0.5;
+            }
+            if(game.input.keyboard.isDown(Phaser.KeyCode.D) && player.body.velocity.x < 0){
+                player.body.velocity.x *=-0.5;
+            }
+
         }
         //Let user jump higher if they hold the button down
         if (jumpCount < jumpFrames) {
