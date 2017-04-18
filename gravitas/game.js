@@ -188,10 +188,6 @@ let Game = function (game, currentLevelNum) {
         game.load.image('arrow', 'assets/art/arrow.png');
         game.load.image('groundParticle', 'assets/art/groundParticle.png');
         game.load.image('gravParticle', 'assets/art/gravParticle.png');
-        game.load.image('bg_stone_1', 'assets/art/bg_stone_1.png');
-        game.load.image('bg_stone_2', 'assets/art/bg_stone_2.png');
-        game.load.image('bg_stone_3', 'assets/art/bg_stone_3.png');
-        game.load.image('bg_stone_4', 'assets/art/bg_stone_4.png');
         game.load.image('bg_large_stone_1', 'assets/art/bg_large_stone_1.png');
 
 
