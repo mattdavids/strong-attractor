@@ -185,6 +185,7 @@ let Game = function (game, currentLevelNum) {
         currentHighlightedObjIndex = currentMinObjIndex;
     }
 
+
     function preload() {
         game.load.image('player', 'assets/art/player.png');
         game.load.image('exit', 'assets/art/exit.png');
@@ -196,11 +197,13 @@ let Game = function (game, currentLevelNum) {
         game.load.image('arrow', 'assets/art/arrow.png');
         game.load.image('groundParticle', 'assets/art/groundParticle.png');
         game.load.image('gravParticle', 'assets/art/gravParticle.png');
-        game.load.image('bg_stone_1', 'assets/art/bg_stone_1.png');
-        game.load.image('bg_stone_2', 'assets/art/bg_stone_2.png');
-        game.load.image('bg_stone_3', 'assets/art/bg_stone_3.png');
-        game.load.image('bg_stone_4', 'assets/art/bg_stone_4.png');
-        game.load.image('bg_large_stone_1', 'assets/art/bg_large_stone_1.png');
+
+        for(let i=1; i<=7; i++){
+            game.load.image("bg_debug_"+i, "assets/art/bg_debug_"+i+".png");
+        }
+        for(let i=1; i<=7; i++){
+            game.load.image("bg_large_stone_"+i, "assets/art/bg_large_stone_"+i+".png");
+        }
 
 
         game.load.audio('death', ['assets/audio/death.mp3', 'assets/audio/death.ogg']);
