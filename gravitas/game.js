@@ -124,12 +124,20 @@ let Game = function (game, currentLevelNum) {
                     selectableGravObjects.length = 0;
                     arrow.visible = false;
                     pauseAnimationTick = pauseMaxTick;
+                    
+                    let unFreezeEffect = game.add.audio('unfreeze');
+                    unFreezeEffect.volume = 0.3;
+                    unFreezeEffect.play();
                 } else {
                     game.time.events.pause();
                     handleGravObjSelection();
                     
                     arrow.visible = true;
                     pauseAnimationTick = 0;
+                    
+                    let freezeEffect = game.add.audio('freeze');
+                    freezeEffect.volume = 0.3;
+                    freezeEffect.play();
         
                 }
             }
@@ -196,6 +204,14 @@ let Game = function (game, currentLevelNum) {
 
 
         game.load.audio('death', ['assets/audio/death.mp3', 'assets/audio/death.ogg']);
+        game.load.audio('freeze', 'assets/audio/Freeze.mp3');
+        game.load.audio('unfreeze', 'assets/audio/Unfreeze.mp3');
+        game.load.audio('jump1', 'assets/audio/Jump.mp3');
+        game.load.audio('jump2', 'assets/audio/Jump2.mp3');
+        game.load.audio('jump3', 'assets/audio/Jump3.mp3');
+        game.load.audio('jump4', 'assets/audio/Jump4.mp3');
+        game.load.audio('landing', 'assets/audio/Landing.mp3');
+        game.load.audio('checkpointHit', 'assets/audio/checkpoint.mp3');
 
         game.load.spritesheet('shocker', 'assets/art/electricity_sprites.png', 30, 30, 3);
 
@@ -521,6 +537,14 @@ let Game = function (game, currentLevelNum) {
                 emitter.destroy(true);
             }, null);
             emitters.add(emitter);
+            
+            if (!game.input.keyboard.isDown(Phaser.KeyCode.W)) {
+                let hitGroundSound = game.add.audio('landing');
+                hitGroundSound.volume = 0.1;
+                hitGroundSound.allowMultiple = false;
+                hitGroundSound.play();
+            }
+            
         }
 
         // Fade out the particles over their lifespan
@@ -562,6 +586,10 @@ let Game = function (game, currentLevelNum) {
             if(game.input.keyboard.isDown(Phaser.KeyCode.D) && player.body.velocity.x < 0){
                 player.body.velocity.x *=-0.5;
             }
+            
+            let jumpSound = game.add.audio('jump4');
+            jumpSound.volume = 0.1;
+            jumpSound.play();
 
         }
         //Let user jump higher if they hold the button down
@@ -735,6 +763,10 @@ let Game = function (game, currentLevelNum) {
             playerStartX = checkpoint.x;
             playerStartY = checkpoint.y;
             checkpoint.loadTexture('checkpointActivated');
+            
+            let checkpointSound = game.add.audio('checkpointHit');
+            checkpointSound.volume = .1;
+            checkpointSound.play();
         }
     }
 
