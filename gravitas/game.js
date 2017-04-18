@@ -189,6 +189,9 @@ let Game = function (game, currentLevelNum) {
         game.load.image('groundParticle', 'assets/art/groundParticle.png');
         game.load.image('gravParticle', 'assets/art/gravParticle.png');
         game.load.image('bg_large_stone_1', 'assets/art/bg_large_stone_1.png');
+        for(let i=1; i<=7; i++){
+            game.load.image("bg_debug_"+i, "assets/art/bg_debug_"+i+".png");
+        }
 
 
         game.load.audio('death', ['assets/audio/death.mp3', 'assets/audio/death.ogg']);
