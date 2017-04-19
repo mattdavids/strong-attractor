@@ -6,17 +6,17 @@ $(function() {
     let game = new Phaser.Game(width, height, Phaser.AUTO, 'gameWindow');
 
     let startState = new StartState(game);
-
+    let gameState = new Game(game);
+    
     let menu = new Menu(game, function() {
+        gameState.setLevel(startingLevelNum);
         game.state.start('game');
     }, function() {
         game.state.start('levelselect');
     });
 
-    let gameState = new Game(game, startingLevelNum);
-
     let win = new Win(game, function() {
-        gameState.setLevel(0);
+        gameState.setLevel(startingLevelNum);
         game.state.start('game', false);
     });
 

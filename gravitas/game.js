@@ -1,4 +1,4 @@
-let Game = function (game, currentLevelNum) {
+let Game = function (game) {
 
     // Displayables from level file
     let player,
@@ -26,7 +26,7 @@ let Game = function (game, currentLevelNum) {
     let gravCirclesBottom;
 
     let levelLoader;
-    //let currentLevelNum;
+    let currentLevelNum;
 
     let pauseBtn;
     let stopPauseAnimation;
@@ -47,7 +47,8 @@ let Game = function (game, currentLevelNum) {
         lastTwoJumpFrames;
     // Player start position
     let playerStartX,
-        playerStartY;
+        playerStartY,
+        playerGrav;
 
     //Debug
     let skipPressed;
@@ -86,14 +87,12 @@ let Game = function (game, currentLevelNum) {
         emitters = loaderObjects.emitters;
         playerStartX = loaderObjects.playerStartX;
         playerStartY = loaderObjects.playerStartY;
+        playerGrav = loaderObjects.playerGrav;
         backgrounds = loaderObjects.backgrounds;
     }
 
     function loadLevel() {
-        let levelObjects = levelLoader.loadLevel(currentLevelNum, playerHasHitCheckpoint, playerStartX, playerStartY, checkpoints);
-        if(checkpoints) {
-            checkpoints.destroy();
-        }
+        let levelObjects = levelLoader.loadLevel(currentLevelNum);
         unpackObjects(levelObjects);
         setupGravityObjects();
 
@@ -345,28 +344,32 @@ let Game = function (game, currentLevelNum) {
             // these are heuristic constants which look okay
             const subAmount = 50;
             let diameter = 2 * gravObj.radius;
+            let currentAlpha = alpha;
             
             while (diameter > 0) {
                 let circle = game.add.sprite(gravObj.x, gravObj.y, 'circle');
                 circle.anchor.set(.5, .5);
-                circle.alpha = alpha;
+                circle.alpha = currentAlpha;
                 circle.width = diameter;
                 circle.height = diameter;
                 circleGroup.add(circle);
+                gravObj.gravCircles.add(circle);
                 diameter -= subAmount;
+                currentAlpha -= currentAlpha/14;
             }
         };
 
         pauseGraphics.clear();
-        selectedObjGraphics.clear();   
-        gravCirclesBottom.removeAll(true);
-        gravCirclesTop.removeAll(true);
-        
+        selectedObjGraphics.clear();    
         
         // TODO: this is super processor intensive
         gravObjects.children.forEach(function(gravObj) {
-            drawGravObjCircle(gravCirclesBottom, gravObj, .04);
-            drawGravObjCircle(gravCirclesTop, gravObj, .04);
+            if(gravObj.weightHasBeenChanged || gravObj.flux || gravObj.moving) {
+                gravObj.gravCircles.removeAll(true);
+                drawGravObjCircle(gravCirclesBottom, gravObj, .04);
+                drawGravObjCircle(gravCirclesTop, gravObj, .04);
+                gravObj.weightHasBeenChanged = false;
+            }
         });
 
         if ((game.physics.arcade.isPaused && notCurrentlyDying) || stopPauseAnimation) {
@@ -402,6 +405,18 @@ let Game = function (game, currentLevelNum) {
         }
     }
 
+    function resetLevel() {
+        
+        player.kill();
+        player = levelLoader.makePlayer(playerStartX, playerStartY, playerGrav);
+        
+        gravObjects.children.forEach(function(gravObj) {
+            gravObj.resetWeight();
+            gravObj.weightHasBeenChanged = true;
+        });
+        
+    }
+    
     function clearLevel() {
         player.kill();
         walls.destroy();
@@ -410,14 +425,13 @@ let Game = function (game, currentLevelNum) {
             if (gravObj.gravParticles !== undefined) {
                 gravObj.gravParticles.destroy();
             }
+            gravObj.gravCircles.destroy();
         }, null);
         gravObjects.destroy();
         exits.destroy();
         backgrounds.destroy();
         arrow.kill();
-        if (!playerHasHitCheckpoint) {
-            checkpoints.destroy();
-        }
+        checkpoints.destroy();
     }
 
     function doCollision() {
@@ -475,12 +489,14 @@ let Game = function (game, currentLevelNum) {
             let obj = selectableGravObjects[currentHighlightedObjIndex];
             if (obj) {
                 obj.gravWeight = Math.min(obj.gravMax, obj.gravWeight + 5000);
+                obj.weightHasBeenChanged = true;
             }
         }
         if (game.input.keyboard.isDown(Phaser.KeyCode.DOWN)) {
             let obj = selectableGravObjects[currentHighlightedObjIndex];
             if (obj) {
                 obj.gravWeight = Math.max(obj.gravMin, obj.gravWeight - 5000);
+                obj.weightHasBeenChanged = true;
             }
         }
     }
@@ -752,8 +768,13 @@ let Game = function (game, currentLevelNum) {
     }
 
     function onPlayerDeath() {
-        clearLevel();
-        loadLevel();
+        if(playerHasHitCheckpoint) {
+            resetLevel();
+        } else {
+            clearLevel();
+            loadLevel();
+        }
+
     }
 
     function onExit() {

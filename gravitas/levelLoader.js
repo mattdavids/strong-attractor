@@ -31,7 +31,7 @@ let LevelLoader = function (game) {
         return player;
     }
 
-    function loadObject(levelObjects, objectName, objectX, objectY, playerGrav, objectInfo, playerHasHitCheckpoint, playerStartX, playerStartY, checkpoints){
+    function loadObject(levelObjects, objectName, objectX, objectY, playerGrav, objectInfo){
         let gravObj;
         let movementList;
         let wall;
@@ -90,28 +90,11 @@ let LevelLoader = function (game) {
                 levelObjects.shockers.add(shocker);
                 break;
             case 'checkpoint':
-                if(!playerHasHitCheckpoint) {
-                    let checkpoint = game.add.sprite(objectX, objectY, objectName);
-                    checkpoint.anchor.set(.5, .5);
-                    //checkpoint.body.immovable = true;
-                    checkpoint.hasBeenHitBefore = false;
-                    levelObjects.checkpoints.add(checkpoint);
-                } else {
-                    let obj;
-                    checkpoints.forEach(function(checkpoint) {
-                        if (checkpoint.x == objectX && checkpoint.y == objectY) {
-                            if (checkpoint.hasBeenHitBefore) {
-                                obj = game.add.sprite(objectX, objectY, 'checkpointActivated');
-                                obj.hasBeenHitBefore = true;
-                            } else {
-                                obj = game.add.sprite(objectX, objectY, objectName);
-                                obj.hasBeenHitBefore = false;
-                            }
-                            obj.anchor.set(.5, .5);
-                            levelObjects.checkpoints.add(obj);
-                        }
-                    });
-                }
+                let checkpoint = game.add.sprite(objectX, objectY, objectName);
+                checkpoint.anchor.set(.5, .5);
+                //checkpoint.body.immovable = true;
+                checkpoint.hasBeenHitBefore = false;
+                levelObjects.checkpoints.add(checkpoint);
                 break;
             case 'exit':
                 let exit = game.add.sprite(objectX, objectY, objectName);
@@ -120,11 +103,7 @@ let LevelLoader = function (game) {
                 levelObjects.exits.add(exit);
                 break;
             case 'player':
-                if (!playerHasHitCheckpoint) {
-                    levelObjects.player = makePlayer(objectX, objectY, playerGrav);
-                } else {
-                    levelObjects.player = makePlayer(playerStartX, playerStartY, playerGrav);
-                }
+                levelObjects.player = makePlayer(objectX, objectY, playerGrav);
                 break;
             default:
                 break;
@@ -133,7 +112,7 @@ let LevelLoader = function (game) {
         return levelObjects;
     }
 
-    function initializeLevelObjects(playerHasHitCheckpoint, checkpoints){
+    function initializeLevelObjects(){
         let levelObjects = {};
         levelObjects.player = makePlayer(0,0,0);
         levelObjects.backgrounds = game.add.group();
@@ -174,9 +153,9 @@ let LevelLoader = function (game) {
         return levelObjects;
     }
 
-    function loadLevel(levelNumber, playerHasHitCheckpoint, playerStartX, playerStartY, checkpoints) {
+    function loadLevel(levelNumber) {
         let level = levels[levelNumber];
-        let levelObjects = initializeLevelObjects(playerHasHitCheckpoint, checkpoints);
+        let levelObjects = initializeLevelObjects();
 
         // Get bounds
         let bounds = level[0].split(',');
@@ -196,15 +175,16 @@ let LevelLoader = function (game) {
             let objectX = parseFloat(objectInfo[1]);
             let objectY = parseFloat(objectInfo[2]);
 
-            levelObjects = loadObject(levelObjects, objectName, objectX, objectY, playerGrav, objectInfo, playerHasHitCheckpoint, playerStartX, playerStartY, checkpoints);
+            levelObjects = loadObject(levelObjects, objectName, objectX, objectY, playerGrav, objectInfo);
 
         }
 
         console.log("Loaded "+level.length + " level objects");
         
         // Add player start location
-        levelObjects.playerStartX = playerStartX;
-        levelObjects.playerStartY = playerStartY;
+        levelObjects.playerStartX = levelObjects.player.x;
+        levelObjects.playerStartY = levelObjects.player.y;
+        levelObjects.playerGrav = levelObjects.player.body.gravity.y;
 
         return levelObjects;
     }
@@ -212,6 +192,7 @@ let LevelLoader = function (game) {
     return {
         setup: setup,
         getLevelCount: getLevelCount,
-        loadLevel: loadLevel
+        loadLevel: loadLevel,
+        makePlayer: makePlayer,
     }
 };
