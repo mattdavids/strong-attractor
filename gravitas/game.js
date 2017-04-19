@@ -90,10 +90,7 @@ let Game = function (game, currentLevelNum) {
     }
 
     function loadLevel() {
-        let levelObjects = levelLoader.loadLevel(currentLevelNum, playerHasHitCheckpoint, playerStartX, playerStartY, checkpoints);
-        if(checkpoints) {
-            checkpoints.destroy();
-        }
+        let levelObjects = levelLoader.loadLevel(currentLevelNum);
         unpackObjects(levelObjects);
         setupGravityObjects();
 
@@ -402,6 +399,18 @@ let Game = function (game, currentLevelNum) {
         }
     }
 
+    function resetLevel() {
+        
+        player.kill();
+        player = levelLoader.makePlayer(playerStartX, playerStartY, 2500);
+        
+        gravObjects.children.forEach(function(gravObj) {
+            gravObj.resetWeight();
+            gravObj.weightHasBeenChanged = true;
+        });
+        
+    }
+    
     function clearLevel() {
         player.kill();
         walls.destroy();
@@ -415,9 +424,7 @@ let Game = function (game, currentLevelNum) {
         exits.destroy();
         backgrounds.destroy();
         arrow.kill();
-        if (!playerHasHitCheckpoint) {
-            checkpoints.destroy();
-        }
+        checkpoints.destroy();
     }
 
     function doCollision() {
@@ -752,8 +759,13 @@ let Game = function (game, currentLevelNum) {
     }
 
     function onPlayerDeath() {
-        clearLevel();
-        loadLevel();
+        if(playerHasHitCheckpoint) {
+            resetLevel();
+        } else {
+            clearLevel();
+            loadLevel();
+        }
+
     }
 
     function onExit() {
