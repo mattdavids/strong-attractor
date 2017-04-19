@@ -355,15 +355,16 @@ let Game = function (game, currentLevelNum) {
         };
 
         pauseGraphics.clear();
-        selectedObjGraphics.clear();   
-        gravCirclesBottom.removeAll(true);
-        gravCirclesTop.removeAll(true);
-        
+        selectedObjGraphics.clear();    
         
         // TODO: this is super processor intensive
         gravObjects.children.forEach(function(gravObj) {
-            drawGravObjCircle(gravCirclesBottom, gravObj, .04);
-            drawGravObjCircle(gravCirclesTop, gravObj, .04);
+            if(gravObj.weightHasBeenChanged || gravObj.flux || gravObj.moving) {
+                gravObj.gravCircles.removeAll(true);
+                drawGravObjCircle(gravCirclesBottom, gravObj, .04);
+                drawGravObjCircle(gravCirclesTop, gravObj, .04);
+                gravObj.weightHasBeenChanged = false;
+            }
         });
 
         if ((game.physics.arcade.isPaused && notCurrentlyDying) || stopPauseAnimation) {
@@ -419,6 +420,7 @@ let Game = function (game, currentLevelNum) {
             if (gravObj.gravParticles !== undefined) {
                 gravObj.gravParticles.destroy();
             }
+            gravObj.gravCircles.destroy();
         }, null);
         gravObjects.destroy();
         exits.destroy();
@@ -482,12 +484,14 @@ let Game = function (game, currentLevelNum) {
             let obj = selectableGravObjects[currentHighlightedObjIndex];
             if (obj) {
                 obj.gravWeight = Math.min(obj.gravMax, obj.gravWeight + 5000);
+                obj.weightHasBeenChanged = true;
             }
         }
         if (game.input.keyboard.isDown(Phaser.KeyCode.DOWN)) {
             let obj = selectableGravObjects[currentHighlightedObjIndex];
             if (obj) {
                 obj.gravWeight = Math.max(obj.gravMin, obj.gravWeight - 5000);
+                obj.weightHasBeenChanged = true;
             }
         }
     }

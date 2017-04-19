@@ -77,10 +77,15 @@ let GravObjMaker = function(game, x, y, gravMin, gravMax, gravOn, flux, moving, 
             }
         }, this);
     }
+    
+    function resetWeight() {
+        this.gravWeight = ((this.gravMin + this.gravMax)/2) * this.gravOn * !this.flux;
+    }
 
     let gravObj = game.add.sprite(x, y, 'gravObj');
     gravObj.anchor.set(.5, .5);
     gravObj.gravWeight = ((gravMin + gravMax)/2) * gravOn * !flux;
+    gravObj.gravOn = gravOn;
     gravObj.gravMin = gravMin;
     gravObj.gravMax = gravMax;
     gravObj.body.immovable = true;
@@ -89,6 +94,8 @@ let GravObjMaker = function(game, x, y, gravMin, gravMax, gravOn, flux, moving, 
     gravObj.moving = moving;
     gravObj.movementList = movementList;
     gravObj.movementIndex = 0;
+    gravObj.weightHasBeenChanged = true;
+    gravObj.gravCircles = game.add.group();
     if (flux) {
         gravObj.fluxConst = 1;
     }
@@ -106,6 +113,7 @@ let GravObjMaker = function(game, x, y, gravMin, gravMax, gravOn, flux, moving, 
         }
     });
     gravObj.animateParticles = animateParticles;
+    gravObj.resetWeight = resetWeight;
     addParticles(gravObj, gravObj.numParticles);
 
     return gravObj;
