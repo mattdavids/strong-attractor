@@ -47,7 +47,8 @@ let Game = function (game, currentLevelNum) {
         lastTwoJumpFrames;
     // Player start position
     let playerStartX,
-        playerStartY;
+        playerStartY,
+        playerGrav;
 
     //Debug
     let skipPressed;
@@ -86,6 +87,7 @@ let Game = function (game, currentLevelNum) {
         emitters = loaderObjects.emitters;
         playerStartX = loaderObjects.playerStartX;
         playerStartY = loaderObjects.playerStartY;
+        playerGrav = loaderObjects.playerGrav;
         backgrounds = loaderObjects.backgrounds;
     }
 
@@ -406,7 +408,7 @@ let Game = function (game, currentLevelNum) {
     function resetLevel() {
         
         player.kill();
-        player = levelLoader.makePlayer(playerStartX, playerStartY, 2500);
+        player = levelLoader.makePlayer(playerStartX, playerStartY, playerGrav);
         
         gravObjects.children.forEach(function(gravObj) {
             gravObj.resetWeight();

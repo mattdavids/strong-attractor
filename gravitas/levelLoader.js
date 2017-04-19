@@ -184,6 +184,7 @@ let LevelLoader = function (game) {
         // Add player start location
         levelObjects.playerStartX = levelObjects.player.x;
         levelObjects.playerStartY = levelObjects.player.y;
+        levelObjects.playerGrav = levelObjects.player.body.gravity.y;
 
         return levelObjects;
     }
