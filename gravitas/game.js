@@ -342,15 +342,18 @@ let Game = function (game, currentLevelNum) {
             // these are heuristic constants which look okay
             const subAmount = 50;
             let diameter = 2 * gravObj.radius;
+            let currentAlpha = alpha;
             
             while (diameter > 0) {
                 let circle = game.add.sprite(gravObj.x, gravObj.y, 'circle');
                 circle.anchor.set(.5, .5);
-                circle.alpha = alpha;
+                circle.alpha = currentAlpha;
                 circle.width = diameter;
                 circle.height = diameter;
                 circleGroup.add(circle);
+                gravObj.gravCircles.add(circle);
                 diameter -= subAmount;
+                currentAlpha -= currentAlpha/14;
             }
         };
 
