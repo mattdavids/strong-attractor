@@ -20,10 +20,10 @@ let Game = function (game, currentLevelNum) {
     let arrow;
 
     // Dynamic displayables
-    let gravObjGraphics;
-    let gravObjTopGraphics;
     let pauseGraphics;
     let selectedObjGraphics;
+    let gravCirclesTop;
+    let gravCirclesBottom;
 
     let levelLoader;
     //let currentLevelNum;
@@ -98,9 +98,9 @@ let Game = function (game, currentLevelNum) {
         setupGravityObjects();
 
         game.world.bringToTop(emitters);
-        game.world.sendToBack(gravObjGraphics);
+        game.world.sendToBack(gravCirclesBottom);
         game.world.sendToBack(backgrounds);
-        game.world.bringToTop(gravObjTopGraphics);
+        game.world.bringToTop(gravCirclesTop);
         game.world.bringToTop(pauseGraphics);
         game.world.bringToTop(selectedObjGraphics);
 
@@ -197,6 +197,7 @@ let Game = function (game, currentLevelNum) {
         game.load.image('arrow', 'assets/art/arrow.png');
         game.load.image('groundParticle', 'assets/art/groundParticle.png');
         game.load.image('gravParticle', 'assets/art/gravParticle.png');
+        game.load.image('circle', 'assets/art/gravCircle.png');
 
         for(let i=1; i<=7; i++){
             game.load.image("bg_debug_"+i, "assets/art/bg_debug_"+i+".png");
@@ -231,10 +232,11 @@ let Game = function (game, currentLevelNum) {
             e.preventDefault();
         };
 
-        gravObjGraphics = game.add.graphics();
-        gravObjTopGraphics = game.add.graphics();
         pauseGraphics = game.add.graphics();
         selectedObjGraphics = game.add.graphics();
+        
+        gravCirclesTop = game.add.group();
+        gravCirclesBottom = game.add.group();
 
         playerHasHitCheckpoint = false;
 
@@ -338,27 +340,33 @@ let Game = function (game, currentLevelNum) {
     }
 
     function render() {
-        let drawGravObjCircle = function(graphicsObj, gravObj, alpha) {
+        
+        let drawGravObjCircle = function(circleGroup, gravObj, alpha) {
             // these are heuristic constants which look okay
             const subAmount = 50;
             let diameter = 2 * gravObj.radius;
+            
             while (diameter > 0) {
-                graphicsObj.beginFill(0x351777, alpha);
-                graphicsObj.drawCircle(gravObj.x, gravObj.y, diameter);
-                graphicsObj.endFill();
+                let circle = game.add.sprite(gravObj.x, gravObj.y, 'circle');
+                circle.anchor.set(.5, .5);
+                circle.alpha = alpha;
+                circle.width = diameter;
+                circle.height = diameter;
+                circleGroup.add(circle);
                 diameter -= subAmount;
             }
         };
 
-        gravObjGraphics.clear();
-        gravObjTopGraphics.clear();
         pauseGraphics.clear();
-        selectedObjGraphics.clear();
+        selectedObjGraphics.clear();   
+        gravCirclesBottom.removeAll(true);
+        gravCirclesTop.removeAll(true);
+        
         
         // TODO: this is super processor intensive
         gravObjects.children.forEach(function(gravObj) {
-            drawGravObjCircle(gravObjGraphics, gravObj, .04);
-            drawGravObjCircle(gravObjTopGraphics, gravObj, .04);
+            drawGravObjCircle(gravCirclesBottom, gravObj, .04);
+            drawGravObjCircle(gravCirclesTop, gravObj, .04);
         });
 
         if ((game.physics.arcade.isPaused && notCurrentlyDying) || stopPauseAnimation) {

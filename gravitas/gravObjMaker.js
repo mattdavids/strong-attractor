@@ -17,7 +17,7 @@ let GravObjMaker = function(game, x, y, gravMin, gravMax, gravOn, flux, moving, 
     }
 
     function getNumParticles() {
-        return 50 * Math.log(this.radius);
+        return 25 * Math.log(this.radius);
         //return Math.pow(this.radius, 2) / 1000;
     }
 
