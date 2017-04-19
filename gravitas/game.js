@@ -1,4 +1,4 @@
-let Game = function (game, currentLevelNum) {
+let Game = function (game) {
 
     // Displayables from level file
     let player,
@@ -26,7 +26,7 @@ let Game = function (game, currentLevelNum) {
     let gravCirclesBottom;
 
     let levelLoader;
-    //let currentLevelNum;
+    let currentLevelNum;
 
     let pauseBtn;
     let stopPauseAnimation;
