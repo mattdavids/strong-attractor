@@ -60,7 +60,9 @@ let LevelSelect = function (game, fromMain) {
                         });
                     } else {
                         // level is locked
-                        button = game.add.button(offsetX + j * (thumbWidth + thumbSpacing), offsetY + i * (thumbHeight + thumbSpacing), 'lockedThumbnail');
+                        button = game.add.button(offsetX + j * (thumbWidth + thumbSpacing), offsetY + i * (thumbHeight + thumbSpacing), 'lockedThumbnail', function() {
+                            alert("This level is locked until completed.");
+                        });
                     }
                     associatedLevel++;
                 }
