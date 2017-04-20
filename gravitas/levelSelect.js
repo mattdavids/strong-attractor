@@ -1,17 +1,18 @@
-let LevelSelect = function (game) {
+let LevelSelect = function (game, fromMain) {
     
-    let thumbRows = 3,
-        thumbCols = 5,
+    let thumbCols = 2,
+        thumbRows = 6,
         thumbWidth = 96,
         thumbHeight = 96,
         thumbSpacing = 10,
-        levelWidth = thumbWidth * thumbCols + thumbSpacing * (thumbCols - 1),
-        levelHeight = thumbHeight * thumbRows + thumbSpacing * (thumbRows - 1),
+        levelWidth = thumbWidth * thumbRows + thumbSpacing * (thumbRows - 1),
+        levelHeight = thumbHeight * thumbCols + thumbSpacing * (thumbCols - 1),
         playerDataList = [];
  
     function loadLevelSelect() {
         game.load.image('lockedThumbnail', 'assets/art/locked.png', thumbHeight, thumbWidth);
         game.load.image('unlockedThumbnail', 'assets/art/unlocked.png', thumbHeight, thumbWidth);
+        game.load.image('levelSelectBackground', 'assets/art/LevelSelectBackground.png');
     } 
     
     function updateFromLocalStorage() {
@@ -36,50 +37,40 @@ let LevelSelect = function (game) {
     
     function renderLevelSelect() {
         // display icons
+        background = game.add.sprite(game.width/2, game.height/2, 'levelSelectBackground');
+        background.anchor.set(0.5, 0.5);
+        background.immovable = true;
         
         // horizontal offset to have lock thumbnails horizontally centered in the page
         let offsetX = (game.width - levelWidth)/2;
-        let offsetY = (game.height - levelHeight)/2;
+        let offsetY = (game.height - levelHeight)/2 + 60;
         
-        let tempCount = playerDataList.length;
         let associatedLevel = 0;
-        for (let i = 0; i < thumbRows; i++) {
-            for (let j = 0; j < thumbCols; j++) {
-                if (tempCount > 0) {
-                    tempCount--;
-                    //let levelNumber = i * thumbCols + j + 1 * (thumbRows * thumbCols); // might have to change this
+        for (let i = 0; i < thumbCols; i++) {
+            for (let j = 0; j < thumbRows; j++) {
+                if (associatedLevel != playerDataList.length) {
                     // add lock thumbnail as button
-                    let levelThumb;
+                    let button;
                     
                     if (playerDataList[associatedLevel] == 0) {
-                        // level is locked
-                        levelThumb = game.add.sprite(offsetX + j * (thumbWidth + thumbSpacing), offsetY + i * (thumbHeight + thumbSpacing), 'unlockedThumbnail');
-                        levelThumb.onInputDown
-                    } else {
                         // level is unlocked
-                        levelThumb = game.add.sprite(offsetX + j * (thumbWidth + thumbSpacing), offsetY + i * (thumbHeight + thumbSpacing), 'lockedThumbnail');
+                        button = game.add.button(offsetX + j * (thumbWidth + thumbSpacing), offsetY + i * (thumbHeight + thumbSpacing), 'unlockedThumbnail', function(){
+                            fromMain.gameState.setLevel(associatedLevel);
+                            game.state.start('game');
+                        });
+                    } else {
+                        // level is locked
+                        button = game.add.button(offsetX + j * (thumbWidth + thumbSpacing), offsetY + i * (thumbHeight + thumbSpacing), 'lockedThumbnail');
                     }
-                    levelThumb.levelNumber = associatedLevel;
                     associatedLevel++;
-                    
                 }
             } 
         }
     }
     
-    function onLevelSelected() {
-        unlockedThumbnail.events.onInputDown.add(function() {
-            // TAKE TO CORRECT LEVEL
-            game.state.start('game',unlockedThumnail.levelNumber);        
-        // MESSAGE POPUP?
-        // lockedThumbnail.events.onInputDown.add() 
-            }, null);
-    }
-    
     return {
         preload: loadLevelSelect,
-        create: createLevelSelect,
-        update: onLevelSelected
+        create: createLevelSelect
     };
     
 };

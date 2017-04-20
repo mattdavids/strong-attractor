@@ -1,4 +1,7 @@
 let Menu = function(game, startGameFromMenuCallback, goToLevelSelectFromMenuCallback) {
+    
+    //game.state.add('levelselect', {preload: levelSelect.preload, create: levelSelect.create, update: levelSelect.onLevelSelected});
+
     let startBtn, levelSelectBtn, background, flame1, flame2;
 
     function clearLevel() {
