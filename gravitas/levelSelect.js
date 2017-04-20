@@ -62,7 +62,7 @@ let LevelSelect = function (game, gameState) {
                         // level is unlocked
                         button = game.add.button(offsetX + j * (thumbWidth + thumbSpacing), offsetY + i * (thumbHeight + thumbSpacing), 'unlockedThumbnail', function(){
                             clearLevel();
-                            gameState.setLevel(associatedLevel);
+                            gameState.setLevel(button.associatedLevel);
                             game.state.start('game');
                         });
                     } else {
@@ -71,6 +71,7 @@ let LevelSelect = function (game, gameState) {
                             alert("This level is locked until completed.");
                         });
                     }
+                    button.associatedLevel = associatedLevel;
                     buttons.add(button);
                     associatedLevel++;
                 }
