@@ -2,7 +2,7 @@ let Menu = function(game, startGameFromMenuCallback, goToLevelSelectFromMenuCall
     
     //game.state.add('levelselect', {preload: levelSelect.preload, create: levelSelect.create, update: levelSelect.onLevelSelected});
 
-    let startBtn, levelSelectBtn, background, flame1, flame2;
+    let startBtn, levelSelectBtn, background, flame1, flame2, playerDataList;
 
     function clearLevel() {
         background.kill();
@@ -44,9 +44,19 @@ let Menu = function(game, startGameFromMenuCallback, goToLevelSelectFromMenuCall
         flame2.animations.add('flicker2');
         flame2.animations.play('flicker2', 20, true);
     }
+    
+    function renewProgressLocalStorage() {
+        let levelList = game.cache.getText('levelList').split('\n');
+        playerDataList = [0];
+        for (let i = 1; i < levelList.length; i++) {
+            playerDataList[i] = 1;
+        }
+        localStorage.setItem('user_progress', playerDataList);
+    }
 
     function onStartButtonPush() {
         clearLevel();
+        renewProgressLocalStorage();
         startGameFromMenuCallback();
     }
 

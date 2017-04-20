@@ -39,6 +39,8 @@ let Game = function (game) {
     let deathFall;
     let deathCounter;
     let playerHasHitCheckpoint;
+    
+    let playerDataList = [];
 
     // Player movement
     let previous_velocity_y,
@@ -790,8 +792,26 @@ let Game = function (game) {
         }
 
     }
+    
+    function updateLocalStorage() {
+        let levelList = game.cache.getText('levelList').split('\n');
+        playerDataList = localStorage.getItem('user_progress');
+        if (playerDataList == null) {
+            playerDataList = [0];
+            for (let i = 1; i < levelList.length; i++) {
+                playerDataList[i] = 1;
+            }
+            localStorage.setItem('user_progress', playerDataList);
+        } else {
+            playerDataList = playerDataList.split(',');
+            playerDataList[currentLevelNum] = 0;
+            localStorage.setItem('user_progress', playerDataList);
+        }
+    }
 
     function onExit() {
+        updateLocalStorage();
+        
         playerHasHitCheckpoint = false;
         clearLevel();
         if (currentLevelNum + 1 === levelLoader.getLevelCount()) {

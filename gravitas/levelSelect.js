@@ -1,4 +1,4 @@
-let LevelSelect = function (game, fromMain) {
+let LevelSelect = function (game, gameState) {
     
     let thumbCols = 2,
         thumbRows = 6,
@@ -7,7 +7,8 @@ let LevelSelect = function (game, fromMain) {
         thumbSpacing = 10,
         levelWidth = thumbWidth * thumbRows + thumbSpacing * (thumbRows - 1),
         levelHeight = thumbHeight * thumbCols + thumbSpacing * (thumbCols - 1),
-        playerDataList = [];
+        playerDataList = [],
+        buttons;
  
     function loadLevelSelect() {
         game.load.image('lockedThumbnail', 'assets/art/locked.png', thumbHeight, thumbWidth);
@@ -32,14 +33,19 @@ let LevelSelect = function (game, fromMain) {
     function createLevelSelect() {
         updateFromLocalStorage();
         renderLevelSelect();
-           
+    }
+    
+    function clearLevel() {
+        background.kill();
+        buttons.destroy();
     }
     
     function renderLevelSelect() {
-        // display icons
         background = game.add.sprite(game.width/2, game.height/2, 'levelSelectBackground');
         background.anchor.set(0.5, 0.5);
         background.immovable = true;
+        
+        buttons = game.add.group();
         
         // horizontal offset to have lock thumbnails horizontally centered in the page
         let offsetX = (game.width - levelWidth)/2;
@@ -55,7 +61,8 @@ let LevelSelect = function (game, fromMain) {
                     if (playerDataList[associatedLevel] == 0) {
                         // level is unlocked
                         button = game.add.button(offsetX + j * (thumbWidth + thumbSpacing), offsetY + i * (thumbHeight + thumbSpacing), 'unlockedThumbnail', function(){
-                            fromMain.gameState.setLevel(associatedLevel);
+                            clearLevel();
+                            gameState.setLevel(associatedLevel);
                             game.state.start('game');
                         });
                     } else {
@@ -64,6 +71,7 @@ let LevelSelect = function (game, fromMain) {
                             alert("This level is locked until completed.");
                         });
                     }
+                    buttons.add(button);
                     associatedLevel++;
                 }
             } 

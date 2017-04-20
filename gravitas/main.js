@@ -7,13 +7,12 @@ $(function() {
 
     let startState = new StartState(game);
     let gameState = new Game(game);
-    
+        
     // will merge Win State
     let menu = new Menu(game, function() {
         gameState.setLevel(startingLevelNum);
         game.state.start('game');
     }, function() {
-        gameState.setLevel();
         game.state.start('levelselect');
     });
 
@@ -22,7 +21,7 @@ $(function() {
         game.state.start('game', false);
     });
 
-    let levelSelect = new LevelSelect(game);
+    let levelSelect = new LevelSelect(game, gameState);
     
     game.state.add('boot', {preload: startState.boot, create: startState.postBoot});
     game.state.add('menu', {preload: menu.loadMenu, create: menu.createMenu});
