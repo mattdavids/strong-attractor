@@ -52,6 +52,7 @@ let Game = function (game) {
 
     //Debug
     let skipPressed;
+    let lastDzoneRect;
 
     // Constants
 
@@ -546,6 +547,19 @@ let Game = function (game) {
         } else{
             skipPressed = false;
         }
+
+
+    }
+
+    function doDebugDisplay(){
+        // Draw deadzone rectangle
+        if(lastDzoneRect != null)
+            lastDzoneRect.kill();
+        let dzone = game.camera.deadzone;
+        let graphics = game.add.graphics();
+        graphics.lineStyle(4, 0x000000, 1);
+        lastDzoneRect = graphics.drawRect(dzone.x + game.camera.x, dzone.y+game.camera.y, dzone.width, dzone.height);
+        window.graphics = graphics;
 
     }
 
