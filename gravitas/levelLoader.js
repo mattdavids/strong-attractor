@@ -28,6 +28,9 @@ let LevelLoader = function (game) {
         player.body.setSize(playerSize, playerSize, 1, 1);
         player.body.gravity.y = playerGrav;
         game.camera.follow(player, Phaser.Camera.FOLLOW_PLATFORMER, 0.2);
+        let dzone = game.camera.deadzone;
+        dzone.y +=60;
+        dzone.height+=40;
         return player;
     }
 
