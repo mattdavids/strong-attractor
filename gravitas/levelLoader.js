@@ -54,7 +54,10 @@ let LevelLoader = function (game) {
                 wall.movementIndex = 0;
                 wall.body.immovable = true;
                 wall.anchor.set(.5, .5);
+                wall.startingX = objectX;
+                wall.startingY = objectY;
                 levelObjects.walls.add(wall);
+                levelObjects.movers.push(wall);
                 break;
             case 'gravObj_off':
                 // x Location, y location, gravMin, gravMax, on?, flux?, moving?
@@ -77,13 +80,19 @@ let LevelLoader = function (game) {
                 movementList = objectInfo[5].split('-');
                 gravObj = GravObjMaker(game, objectX, objectY, parseFloat(objectInfo[3]), parseFloat(objectInfo[4]),
                     true, false, true, movementList);
+                gravObj.startingX = objectX;
+                gravObj.startingY = objectY;
                 levelObjects.gravObjects.add(gravObj);
+                levelObjects.movers.push(gravObj);
                 break;
             case 'gravObj_moveFlux':
                 movementList = objectInfo[5].split('-');
                 gravObj = GravObjMaker(game, objectX, objectY, parseFloat(objectInfo[3]), parseFloat(objectInfo[4]),
                     true, true, true, movementList);
+                gravObj.startingX = objectX;
+                gravObj.startingY = objectY;
                 levelObjects.gravObjects.add(gravObj);
+                levelObjects.movers.push(gravObj);
                 break;
             case 'shocker':
                 let shocker = game.add.sprite(objectX, objectY, objectName);
@@ -125,6 +134,7 @@ let LevelLoader = function (game) {
         levelObjects.exits = game.add.group();
         levelObjects.emitters = game.add.group();
         levelObjects.checkpoints = game.add.group();
+        levelObjects.movers = [];
         
         return levelObjects;
     }

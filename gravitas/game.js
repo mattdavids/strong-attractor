@@ -8,7 +8,8 @@ let Game = function (game) {
         checkpoints,
         exits,
         emitters,
-        backgrounds;
+        backgrounds,
+        movers;
 
     // Player collision shadows
     let playerShadowLeft,
@@ -95,6 +96,7 @@ let Game = function (game) {
         playerStartY = loaderObjects.playerStartY;
         playerGrav = loaderObjects.playerGrav;
         backgrounds = loaderObjects.backgrounds;
+        movers = loaderObjects.movers;
     }
 
     function loadLevel() {
@@ -317,7 +319,7 @@ let Game = function (game) {
         }
         if (! game.physics.arcade.isPaused){
             doPlayerMovement();
-            doWallMovement();
+            doObjMovement();
             // When the player hits the ground after jumping, play a you hit the ground particle effect
             doHitGroundAnimation();
             checkWallCollision();
@@ -430,6 +432,12 @@ let Game = function (game) {
             gravObj.weightHasBeenChanged = true;
         });
         
+        movers.forEach(function(obj) {
+            obj.x = obj.startingX;
+            obj.y = obj.startingY;
+            obj.movementIndex = 0;
+        });
+        
     }
     
     function clearLevel() {
@@ -447,6 +455,7 @@ let Game = function (game) {
         backgrounds.destroy();
         arrow.kill();
         checkpoints.destroy();
+        movers.length = 0;
     }
 
     function doCollision() {
@@ -573,12 +582,10 @@ let Game = function (game) {
         }
     }
 
-    function doWallMovement() {
-        walls.forEach(function(wall) {
-            if (wall.moving) {
-                moveObjInPattern(wall);
-            }
-        });
+    function doObjMovement() {
+        movers.forEach(function(obj) {
+            moveObjInPattern(obj);
+        })
     }
     
     function doDebugButtons() {
@@ -720,10 +727,6 @@ let Game = function (game) {
                 if (gravObj.gravWeight >= gravObj.gravMax || gravObj.gravWeight <= gravObj.gravMin) {
                     gravObj.fluxConst *= -1;
                 }
-            }
-
-            if (gravObj.moving) {
-                moveObjInPattern(gravObj);
             }
 
         });
