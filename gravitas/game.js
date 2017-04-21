@@ -825,7 +825,9 @@ let Game = function (game) {
             notCurrentlyDying = true;
             diedRecently = true;
             game.physics.arcade.isPaused = false;
-            onPlayerDeath();
+            game.time.events.add(100, function() {
+                diedRecently = false;
+            });
         }
         deathCounter += 1;
     }
