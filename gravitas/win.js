@@ -1,6 +1,13 @@
 let Win = function(game, returnFromWinCallback) {
     let restartBtn;
+    let winScreen;
 
+    function backToMenu() {
+        winScreen.kill();
+        restartBtn.kill();
+        returnFromWinCallback()
+    }
+    
     return {
         loadWin: function() {
             game.load.image('winScreen', 'assets/art/winScreen.png');
@@ -8,19 +15,14 @@ let Win = function(game, returnFromWinCallback) {
         },
 
         displayWinMessage: function() {
-            let winScreen = game.add.sprite(game.width/2, game.height/2, 'winScreen');
+            
+            winScreen = game.add.sprite(game.width/2, game.height/2, 'winScreen');
             winScreen.anchor.set(0.5, 0.5);
             winScreen.immovable = true;
 
-            restartBtn = game.add.sprite(game.width/2, 1.5*game.height/2, 'restartBtn');
+            restartBtn = game.add.button(game.width/2, 1.5*game.height/2, 'restartBtn', backToMenu);
             restartBtn.anchor.set(0.5, 0.5);
-            restartBtn.inputEnabled = true;
-        },
-
-        backToMenu: function() {
-            winScreen.kill();
-            restartBtn.kill();
-            restartBtn.events.onInputDown.add(returnFromWinCallback, null);
         }
+        
     }
 };

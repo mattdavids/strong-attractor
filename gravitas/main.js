@@ -25,7 +25,7 @@ $(function() {
     
     game.state.add('boot', {preload: startState.boot, create: startState.postBoot});
     game.state.add('menu', {preload: menu.loadMenu, create: menu.createMenu});
-    game.state.add('win', {preload: win.loadWin, create: win.displayWinMessage, update: win.backToMenu});
+    game.state.add('win', {preload: win.loadWin, create: win.displayWinMessage});
     game.state.add('game', {preload: gameState.preload, create: gameState.create, update: gameState.update, render: gameState.render});
     game.state.add('levelselect', {preload: levelSelect.preload, create: levelSelect.create});
 
