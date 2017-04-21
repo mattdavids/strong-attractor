@@ -39,6 +39,7 @@ let Game = function (game) {
         leftKeyWasPressed;
     let deathFall;
     let deathCounter;
+    let diedRecently;
     let playerHasHitCheckpoint;
     let framesSincePressingDown;
     let framesSincePressingUp;
@@ -280,6 +281,7 @@ let Game = function (game) {
 
         notCurrentlyDying = true;
         deathFall = false;
+        diedRecently = false;
 
         rightKeyWasPressed = false;
         leftKeyWasPressed = false;
@@ -420,7 +422,7 @@ let Game = function (game) {
 
     function resetLevel() {
         
-        player.kill();
+        player.destroy();
         player = levelLoader.makePlayer(playerStartX, playerStartY, playerGrav);
         
         gravObjects.children.forEach(function(gravObj) {
@@ -791,20 +793,22 @@ let Game = function (game) {
 
     // Starts the death animation by setting flags. Freezes the player, pauses the game state, shakes the screen, then sets a timer to set the deathFall flag which is run in update
     function deathAnimation() {
-        notCurrentlyDying = false;
-        game.physics.arcade.isPaused = true;
-        player.body.allowGravity = false;
-        player.body.velocity = new Phaser.Point(0, 0);
-        let deathSound = game.add.audio('death');
-        deathSound.volume = 0.3;
-        deathSound.play();
-        game.time.events.add(0, function() {
-            game.camera.shake(.008, deathAnimationTime);
-        }, null);
-        game.time.events.add(deathAnimationTime + 100, function() {
-            deathFall = true;
-            deathCounter = 0;
-        }, null);
+        if (!diedRecently) {
+            notCurrentlyDying = false;
+            game.physics.arcade.isPaused = true;
+            player.body.allowGravity = false;
+            player.body.velocity = new Phaser.Point(0, 0);
+            let deathSound = game.add.audio('death');
+            deathSound.volume = 0.3;
+            deathSound.play();
+            game.time.events.add(0, function() {
+                game.camera.shake(.008, deathAnimationTime);
+            }, null);
+            game.time.events.add(deathAnimationTime + 100, function() {
+                deathFall = true;
+                deathCounter = 0;
+            }, null);
+        }
     }
 
     function doDeathFallAnimation() {
@@ -816,8 +820,10 @@ let Game = function (game) {
         }
         player.y += movement;
         if (player.y > game.world.height + 3 * blockSize) {
+            onPlayerDeath();
             deathFall = false;
             notCurrentlyDying = true;
+            diedRecently = true;
             game.physics.arcade.isPaused = false;
             onPlayerDeath();
         }
