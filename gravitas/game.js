@@ -189,6 +189,7 @@ let Game = function (game) {
 
 
     function preload() {
+        // Sprites
         game.load.image('player', 'assets/art/player.png');
         game.load.image('exit', 'assets/art/exit.png');
         game.load.image('wall', 'assets/art/bricks_gray.png');
@@ -201,6 +202,7 @@ let Game = function (game) {
         game.load.image('gravParticle', 'assets/art/gravParticle.png');
         game.load.image('circle', 'assets/art/gravCircle.png');
 
+        // Background tile sprites
         for(let i=1; i<=7; i++){
             game.load.image("bg_debug_"+i, "assets/art/bg_debug_"+i+".png");
         }
@@ -208,7 +210,7 @@ let Game = function (game) {
             game.load.image("bg_large_stone_"+i, "assets/art/bg_large_stone_"+i+".png");
         }
 
-
+        // Audio
         game.load.audio('death', ['assets/audio/death.mp3', 'assets/audio/death.ogg']);
         game.load.audio('freeze', 'assets/audio/Freeze.mp3');
         game.load.audio('unfreeze', 'assets/audio/Unfreeze.mp3');
@@ -219,6 +221,7 @@ let Game = function (game) {
         game.load.audio('landing', 'assets/audio/Landing.mp3');
         game.load.audio('checkpointHit', 'assets/audio/checkpoint.mp3');
 
+        // Animated sprites
         game.load.spritesheet('shocker', 'assets/art/electricity_sprites.png', 30, 30, 3);
 
         levelLoader = new LevelLoader(game);
