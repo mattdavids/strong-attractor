@@ -807,7 +807,7 @@ let Game = function (game) {
             localStorage.setItem('user_progress', playerDataList);
         } else {
             playerDataList = playerDataList.split(',');
-            playerDataList[currentLevelNum] = 0;
+            playerDataList[Math.min(levelList.length - 1, currentLevelNum + 1)] = 0;
             localStorage.setItem('user_progress', playerDataList);
         }
     }
