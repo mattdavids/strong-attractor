@@ -105,6 +105,7 @@ let Game = function (game) {
         setupGravityObjects();
 
         game.world.bringToTop(emitters);
+        game.world.sendToBack(shockers);
         game.world.sendToBack(gravCirclesBottom);
         game.world.sendToBack(backgrounds);
         game.world.bringToTop(gravCirclesTop);
