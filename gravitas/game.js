@@ -42,6 +42,7 @@ let Game = function (game) {
     let playerHasHitCheckpoint;
     let framesSincePressingDown;
     let framesSincePressingUp;
+    let framesHoldingR;
     
     let playerDataList = [];
 
@@ -290,6 +291,7 @@ let Game = function (game) {
         skipPressed = false;
         framesSincePressingDown = 0;
         framesSincePressingUp = 0;
+        framesHoldingR = 0;
     }
 
     function update() {
@@ -298,6 +300,8 @@ let Game = function (game) {
         if (deathFall) {
             doDeathFallAnimation();
         }
+        
+        doControlButtons();
 
         doDebugButtons();
 
@@ -522,6 +526,22 @@ let Game = function (game) {
             framesSincePressingDown = 0;
         } else {
             framesSincePressingDown++;
+        }
+    }
+    
+    function doControlButtons(){
+        if(game.input.keyboard.isDown(Phaser.KeyCode.R)){
+            framesHoldingR++;
+            console.log(framesHoldingR)
+            if(framesHoldingR > 60) {
+                onPlayerDeath();
+                framesHoldingR = -30;
+                // Immediately resetting again takes 50% longer to avoid accidental double resets
+            }
+        } else {
+            if(framesHoldingR < 0)
+                framesHoldingR++;
+            framesHoldingR = Math.max(0, framesHoldingR);
         }
     }
 
