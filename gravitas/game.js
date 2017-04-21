@@ -28,6 +28,7 @@ let Game = function (game) {
     let levelLoader;
     let currentLevelNum;
 
+    // State info
     let pauseBtn;
     let stopPauseAnimation;
     let pauseAnimationTick;
@@ -39,6 +40,8 @@ let Game = function (game) {
     let deathFall;
     let deathCounter;
     let playerHasHitCheckpoint;
+    let framesSincePressingDown;
+    let framesSincePressingUp;
     
     let playerDataList = [];
 
@@ -57,8 +60,6 @@ let Game = function (game) {
     let lastDzoneRect;
 
     // Constants
-
-
     const jumpFrames = 10;
 
     // Physics
@@ -287,6 +288,8 @@ let Game = function (game) {
         lastTwoJumpFrames = [false, false];
 
         skipPressed = false;
+        framesSincePressingDown = 0;
+        framesSincePressingUp = 0;
     }
 
     function update() {
@@ -494,16 +497,31 @@ let Game = function (game) {
         if (game.input.keyboard.isDown(Phaser.KeyCode.UP)) {
             let obj = selectableGravObjects[currentHighlightedObjIndex];
             if (obj) {
-                obj.gravWeight = Math.min(obj.gravMax, obj.gravWeight + 5000);
+                if(framesSincePressingUp < 7 && framesSincePressingUp > 0){
+                    let diff = obj.gravMax - obj.gravWeight;
+                    obj.gravWeight = Math.min(obj.gravMax, obj.gravWeight + (diff/3));
+                } else{
+                    obj.gravWeight = Math.min(obj.gravMax, obj.gravWeight + 5000);
+                }
                 obj.weightHasBeenChanged = true;
             }
+            framesSincePressingUp = 0;
+        } else {
+            framesSincePressingUp ++;
         }
         if (game.input.keyboard.isDown(Phaser.KeyCode.DOWN)) {
             let obj = selectableGravObjects[currentHighlightedObjIndex];
             if (obj) {
-                obj.gravWeight = Math.max(obj.gravMin, obj.gravWeight - 5000);
+                if(framesSincePressingDown < 7 && framesSincePressingDown > 0){
+                    obj.gravWeight = obj.gravMin;
+                } else {
+                    obj.gravWeight = Math.max(obj.gravMin, obj.gravWeight - 5000);
+                }
                 obj.weightHasBeenChanged = true;
             }
+            framesSincePressingDown = 0;
+        } else {
+            framesSincePressingDown++;
         }
     }
 
