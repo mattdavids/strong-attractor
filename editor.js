@@ -215,6 +215,7 @@ function create() {
                         obj.currentNumber += 1;
                         path.number = num;
                     });
+                    break;
                 case 'gravObj_off':
                     obj = game.add.sprite(objectX, objectY, 'gravObj');
                     obj.gravMin = parseFloat(objectInfo[3]);
