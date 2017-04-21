@@ -215,6 +215,7 @@ function create() {
                         obj.currentNumber += 1;
                         path.number = num;
                     });
+                    wall_moves.add(obj);
                     break;
                 case 'gravObj_off':
                     obj = game.add.sprite(objectX, objectY, 'gravObj');
@@ -366,14 +367,6 @@ function buildLevelString(){
         result += 'wall,' + obj.position.x + ',' + obj.position.y + '\n'
     }
     
-    wall_moves.forEach(function(obj) {
-        result += 'wall_move,' + obj.position.x + ',' + obj.position.y + ',' + + obj.position.x + '#' + obj.position.y + '-';
-        obj.movementPathing.forEach(function(ele) {
-            result += ele.position.x + '#' + ele.position.y + '-';
-        });
-        result = result.slice(0, -1) + '\n';
-    });
-    
     for (let i = 0; i < shockers.children.length; i++) {
         let obj = shockers.children[i];
         result += 'shocker,' + obj.position.x + ',' + obj.position.y + '\n'
@@ -391,6 +384,14 @@ function buildLevelString(){
         result += 'gravObj_flux,' + obj.position.x + ',' + obj.position.y + ',' + obj.gravMin + ',' + obj.gravMax + '\n'
     });
 
+    wall_moves.forEach(function(obj) {
+        result += 'wall_move,' + obj.position.x + ',' + obj.position.y + ',' + + obj.position.x + '#' + obj.position.y + '-';
+        obj.movementPathing.forEach(function(ele) {
+            result += ele.position.x + '#' + ele.position.y + '-';
+        });
+        result = result.slice(0, -1) + '\n';
+    });
+    
     gravObj_movers.forEach(function(obj) {
         result += 'gravObj_move,' + obj.position.x + ',' + obj.position.y + ',' + obj.gravMin + ',' + obj.gravMax + ',' + obj.position.x + '#' + obj.position.y + '-';
         obj.movementPathing.forEach(function(ele) {
