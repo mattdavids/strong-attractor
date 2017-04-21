@@ -3,8 +3,8 @@ $(function() {
     const height = 420;
     const startingLevelNum = 0;
 
-    let game = new Phaser.Game(width, height, Phaser.AUTO, 'gameWindow');
-
+    let game = new Phaser.Game(width, height, Phaser.AUTO, 'gameWindow', null, false, false);
+    
     let startState = new StartState(game);
     let gameState = new Game(game);
         
