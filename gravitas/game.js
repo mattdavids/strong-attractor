@@ -534,7 +534,6 @@ let Game = function (game) {
     function doControlButtons(){
         if(game.input.keyboard.isDown(Phaser.KeyCode.R)){
             framesHoldingR++;
-            console.log(framesHoldingR)
             if(framesHoldingR > 60) {
                 onPlayerDeath();
                 framesHoldingR = -30;
