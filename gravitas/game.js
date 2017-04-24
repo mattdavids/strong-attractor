@@ -127,6 +127,8 @@ let Game = function (game) {
                 game.physics.arcade.isPaused = ! game.physics.arcade.isPaused;
 
                 if (! game.physics.arcade.isPaused) {
+                    $('#mainTheme').animate({volume: 1}, 500);
+                    $('#mainTheme')[0].play();
                     stopPauseAnimation = true;
                     game.time.events.resume();
                     selectableGravObjects.length = 0;
@@ -137,6 +139,8 @@ let Game = function (game) {
                     unFreezeEffect.volume = 0.3;
                     unFreezeEffect.play();
                 } else {
+                    $('#mainTheme')[0].volume = 0;
+                    $('#mainTheme')[0].pause();
                     game.time.events.pause();
                     handleGravObjSelection();
                     

@@ -1,4 +1,5 @@
 let StartState = function(game) {
+
     return {
         boot: function() {
             // Load file lists here
@@ -15,10 +16,20 @@ let StartState = function(game) {
         },
         postBoot: function() {
             // Immediately run menu once boot-loading is finished
-            let music = game.add.audio('theme');
-            music.volume = 0.3;
-            music.loop = true;
-            music.play();
+            //music = game.add.audio('theme');
+            //music.volume = 0.3;
+            //music.loop = true;
+            //music.onDecoded.add(function() {
+            //    music.fadeIn(1000);
+            //});
+            
+            // Pause music when the window loses focus
+            $(window).focus(function() {
+                $('#mainTheme')[0].play();
+            });
+            $(window).blur(function() {
+                $('#mainTheme')[0].pause(); 
+            });
             
             game.state.start('menu');
         }
