@@ -814,7 +814,7 @@ let Game = function (game) {
             player.body.allowGravity = false;
             player.body.velocity = new Phaser.Point(0, 0);
             let deathSound = game.add.audio('death');
-            deathSound.volume = 0.3;
+            deathSound.volume = 0.01;
             deathSound.play();
             game.time.events.add(0, function() {
                 game.camera.shake(.008, deathAnimationTime);
