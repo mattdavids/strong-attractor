@@ -61,6 +61,8 @@ let Game = function (game) {
     //Debug
     let skipPressed;
     let lastDzoneRect;
+    
+    let frozenTime;
 
     // Constants
     const jumpFrames = 10;
@@ -129,6 +131,7 @@ let Game = function (game) {
                 if (! game.physics.arcade.isPaused) {
                     $('#mainTheme').animate({volume: 1}, 500);
                     $('#mainTheme')[0].play();
+                    frozenTime.fadeOut(100);
                     stopPauseAnimation = true;
                     game.time.events.resume();
                     selectableGravObjects.length = 0;
@@ -141,6 +144,7 @@ let Game = function (game) {
                 } else {
                     $('#mainTheme')[0].volume = 0;
                     $('#mainTheme')[0].pause();
+                    frozenTime.fadeIn(100);
                     game.time.events.pause();
                     handleGravObjSelection();
                     
@@ -230,6 +234,7 @@ let Game = function (game) {
         game.load.audio('jump4', 'assets/audio/Jump4.mp3');
         game.load.audio('landing', 'assets/audio/Landing.mp3');
         game.load.audio('checkpointHit', 'assets/audio/checkpoint.mp3');
+        game.load.audio('frozenTime', 'assets/audio/frozenTime.mp3');
 
         // Animated sprites
         game.load.spritesheet('shocker', 'assets/art/electricity_sprites.png', 30, 30, 3);
@@ -247,6 +252,9 @@ let Game = function (game) {
             e.preventDefault();
         };
 
+        frozenTime = game.add.audio('frozenTime');
+        frozenTime.loop = true;
+        
         pauseGraphics = game.add.graphics();
         selectedObjGraphics = game.add.graphics();
         
