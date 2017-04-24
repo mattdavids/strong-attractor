@@ -34,6 +34,7 @@ let Game = function (game) {
     let stopPauseAnimation;
     let pauseAnimationTick;
     let notCurrentlyDying;
+    let notCurrentlyExiting;
     let selectableGravObjects;
     let currentHighlightedObjIndex;
     let rightKeyWasPressed,
@@ -45,6 +46,9 @@ let Game = function (game) {
     let framesSincePressingDown;
     let framesSincePressingUp;
     let framesHoldingR;
+    let hitExit;
+    let exitAnimation;
+    let exitTick;
     
     let playerDataList = [];
 
@@ -84,6 +88,8 @@ let Game = function (game) {
     const pauseAnimationSpeed = 50;
     const deathFallSpeed = 6;
     const deathAnimationTime = 300;
+    const exitSpeedRatio = 3;
+    const exitMaxTick = 30;
     const pauseMaxTick = 30;
 
     function unpackObjects(loaderObjects) {
@@ -122,13 +128,14 @@ let Game = function (game) {
     function setupPauseButton() {
         pauseBtn = game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
         pauseBtn.onDown.add(function() {
-            if (notCurrentlyDying) {
+            if (notCurrentlyDying && notCurrentlyExiting) {
                 shockers.children.forEach(function(ele) {
                     ele.animations.paused = ! ele.animations.paused;
                 });
                 game.physics.arcade.isPaused = ! game.physics.arcade.isPaused;
-
+                
                 if (! game.physics.arcade.isPaused) {
+
                     $('#mainTheme').animate({volume: 1}, 500);
                     $('#mainTheme')[0].play();
                     frozenTime.fadeOut(100);
@@ -234,6 +241,7 @@ let Game = function (game) {
         game.load.audio('jump4', 'assets/audio/Jump4.mp3');
         game.load.audio('landing', 'assets/audio/Landing.mp3');
         game.load.audio('checkpointHit', 'assets/audio/checkpoint.mp3');
+        game.load.audio('exitSound', 'assets/audio/exit.mp3');
         game.load.audio('frozenTime', 'assets/audio/frozenTime.mp3');
 
         // Animated sprites
@@ -294,6 +302,9 @@ let Game = function (game) {
         playerShadowTop.anchor.set(.5, .5);
         playerShadowTop.body.setSize(13, 1, 0, 0);
 
+        notCurrentlyExiting = true;
+        exitTick = 0;
+        
         notCurrentlyDying = true;
         deathFall = false;
         diedRecently = false;
@@ -318,6 +329,10 @@ let Game = function (game) {
             doDeathFallAnimation();
         }
         
+        if (exitAnimation) {
+            doExitAnimation();
+        }
+        
         doControlButtons();
 
         doDebugButtons();
@@ -325,11 +340,6 @@ let Game = function (game) {
         doCollision();
         doGravityPhysics();
 
-        // If the player is not dead, play the death animation on contact with shockers
-        // Don't allow player to change the gravity while dead
-        if (notCurrentlyDying) {
-            game.physics.arcade.overlap(player, shockers, deathAnimation, null, null);
-        }
         if (! game.physics.arcade.isPaused){
             doPlayerMovement();
             doObjMovement();
@@ -358,7 +368,7 @@ let Game = function (game) {
                 }, null);
             }, null);
 
-            if (notCurrentlyDying) {
+            if (notCurrentlyDying && notCurrentlyExiting) {
                 // Adjust attraction of clicked object
                 adjustAttractorsPull();
             }
@@ -402,13 +412,13 @@ let Game = function (game) {
             }
         });
 
-        if ((game.physics.arcade.isPaused && notCurrentlyDying) || stopPauseAnimation) {
+        if ((game.physics.arcade.isPaused && notCurrentlyDying && notCurrentlyExiting) || stopPauseAnimation) {
             let pausedSize = game.width * quadraticEase(pauseAnimationTick, pauseMaxTick);
             
             pauseGraphics.beginFill(0xa3c6ff, .5);
             pauseGraphics.drawRect(player.x - pausedSize, player.y - pausedSize, 2 * pausedSize, 2 * pausedSize);
             pauseGraphics.endFill();
-
+            
             if (stopPauseAnimation) {
                 if (pauseAnimationTick > 0) {
                     pauseAnimationTick -= 1.5;
@@ -470,14 +480,13 @@ let Game = function (game) {
         checkpoints.destroy();
         movers.length = 0;
     }
-
+    
     function doCollision() {
         game.physics.arcade.collide(emitters, walls);
         game.physics.arcade.collide(player, walls);
         game.physics.arcade.collide(player, gravObjects);
 
         game.physics.arcade.overlap(player, checkpoints, onCheckpointHit, null, null);
-        game.physics.arcade.overlap(player, exits, onExit, null, null);
 
         gravObjects.forEach(function(gravObj) {
             game.physics.arcade.collide(gravObjects, gravObj.gravParticles, function(_, p) {
@@ -507,6 +516,12 @@ let Game = function (game) {
         game.physics.arcade.overlap(playerShadowTop, walls, function() {
             player.isTouchingTop = true;
         }, null, null);
+        
+        // If the player is not dead, play the death animation on contact with shockers or the exit animation on contact with an exit
+        if (notCurrentlyDying && !diedRecently && notCurrentlyExiting) {
+            game.physics.arcade.overlap(player, exits, onExit, null, null);
+            game.physics.arcade.overlap(player, shockers, deathAnimation, null, null);
+        }
     }
 
     function adjustAttractorsPull() {
@@ -605,7 +620,7 @@ let Game = function (game) {
         // Button to skip levels
         if(game.input.keyboard.isDown(Phaser.KeyCode.NUMPAD_MULTIPLY)) {
             if(!skipPressed) {
-                onExit();
+                processExit();
             }
             skipPressed = true;
         } else{
@@ -825,7 +840,7 @@ let Game = function (game) {
             }, null);
         }
     }
-
+    
     function doDeathFallAnimation() {
         let movement;
         if (Math.abs((Math.pow(deathCounter - deathFallSpeed, 2) - Math.pow(deathFallSpeed, 2))/(blockSize/2)) > blockSize) {
@@ -846,7 +861,7 @@ let Game = function (game) {
         }
         deathCounter += 1;
     }
-
+    
     function onPlayerDeath() {
         if(playerHasHitCheckpoint) {
             resetLevel();
@@ -855,6 +870,62 @@ let Game = function (game) {
             loadLevel();
         }
 
+    }
+    
+    function onExit(obj, exit) {
+        let exitSound = game.add.audio('exitSound');
+        exitSound.volume = 2;
+        exitSound.allowMultiple = false;
+        exitSound.play();
+        
+        $('#mainTheme')[0].volume = 0;
+        $('#mainTheme')[0].pause();
+        
+        exitSound.onStop.add(function() {
+            $('#mainTheme').animate({volume: 1}, 500);
+            $('#mainTheme')[0].play();
+            exitTick = 0;
+            processExit();
+        });
+        
+        game.physics.arcade.isPaused = true;
+        notCurrentlyExiting = false;
+        exitAnimation = true;
+        hitExit = exit;
+    }
+    
+    function processExit() {
+        
+        updateLocalStorage();
+
+        playerHasHitCheckpoint = false;
+        clearLevel();
+        notCurrentlyExiting = true;
+        exitAnimation = false;
+        hitExit = null;
+        game.physics.arcade.isPaused = false;
+        if (currentLevelNum + 1 === levelLoader.getLevelCount()) {
+            game.state.start('win');
+        } else {
+            currentLevelNum++;
+            loadLevel();
+        }
+    }
+    
+    function doExitAnimation() {
+        player.x += (hitExit.x > player.x)/exitSpeedRatio - (hitExit.x < player.x)/exitSpeedRatio;
+        player.y += (hitExit.y + blockSize/2 - player.height/2> player.y)/exitSpeedRatio - (hitExit.y + blockSize/2 - player.height/2 < player.y)/exitSpeedRatio;
+        let exitBasePosition = new Phaser.Point(hitExit.x, hitExit.y + blockSize/2 - player.height/2);
+        let diff = Phaser.Point.subtract(player.position, exitBasePosition);
+        let r = diff.getMagnitude();
+
+        if (r < 2) {
+
+            if (exitTick < exitMaxTick) {
+                exitTick += 1;
+                player.alpha = quadraticEase(exitMaxTick - exitTick, exitMaxTick);
+            }
+        }
     }
     
     function updateLocalStorage() {
@@ -870,19 +941,6 @@ let Game = function (game) {
             playerDataList = playerDataList.split(',');
             playerDataList[Math.min(levelList.length - 1, currentLevelNum + 1)] = 0;
             localStorage.setItem('user_progress', playerDataList);
-        }
-    }
-
-    function onExit() {
-        updateLocalStorage();
-        
-        playerHasHitCheckpoint = false;
-        clearLevel();
-        if (currentLevelNum + 1 === levelLoader.getLevelCount()) {
-            game.state.start('win');
-        } else {
-            currentLevelNum++;
-            loadLevel();
         }
     }
 
