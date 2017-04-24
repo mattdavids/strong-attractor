@@ -310,6 +310,7 @@ shocker,495,195
 shocker,525,195
 shocker,825,885
 shocker,855,885
+shocker,795,735
 gravObj_off,195,165,0,300000
 gravObj_off,705,225,0,300000
 gravObj_off,225,615,0,300000
