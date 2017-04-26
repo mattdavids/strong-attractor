@@ -149,6 +149,7 @@ let Game = function (game) {
                     unFreezeEffect.volume = 0.3;
                     unFreezeEffect.play();
                 } else {
+                    mainTheme[0].volume = 0;
                     mainTheme[0].pause();
                     frozenTime.fadeIn(100);
                     game.time.events.pause();
