@@ -20,7 +20,7 @@ let LevelSelect = function (game, gameState) {
         game.load.image('levelSelectBackground', 'assets/art/LevelSelectBackground.png');
         
         // level thumbnails - would rather use spritesheet
-        for (let i = 1; i < levelCount; i++) { 
+        for (let i = 1; i <= levelCount; i++) { 
             game.load.image('thumbnail' + i, 'assets/art/levelSelectImages/thumbnail' + i + '.png', thumbHeight, thumbWidth);
         }
     } 
@@ -72,7 +72,7 @@ let LevelSelect = function (game, gameState) {
                             clearLevel();
                             gameState.setLevel(button.associatedLevel);
                             game.state.start('game');
-                        }, this, 0, 0, 0);
+                        });
                     } else {
                         // level is locked
                         button = game.add.button(offsetX + j * (thumbWidth + thumbSpacing), offsetY + i * (thumbHeight + thumbSpacing), 'lockedThumbnail', function() {
