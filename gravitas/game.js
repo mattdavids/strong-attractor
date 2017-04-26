@@ -133,11 +133,11 @@ let Game = function (game) {
                     ele.animations.paused = ! ele.animations.paused;
                 });
                 game.physics.arcade.isPaused = ! game.physics.arcade.isPaused;
-                
+                let mainTheme = $('#mainTheme');
                 if (! game.physics.arcade.isPaused) {
 
-                    $('#mainTheme').animate({volume: 1}, 500);
-                    $('#mainTheme')[0].play();
+                    mainTheme.animate({volume: 1}, 500);
+                    mainTheme[0].play();
                     frozenTime.fadeOut(100);
                     stopPauseAnimation = true;
                     game.time.events.resume();
@@ -149,8 +149,7 @@ let Game = function (game) {
                     unFreezeEffect.volume = 0.3;
                     unFreezeEffect.play();
                 } else {
-                    $('#mainTheme')[0].volume = 0;
-                    $('#mainTheme')[0].pause();
+                    mainTheme[0].pause();
                     frozenTime.fadeIn(100);
                     game.time.events.pause();
                     handleGravObjSelection();
@@ -877,13 +876,15 @@ let Game = function (game) {
         exitSound.volume = 2;
         exitSound.allowMultiple = false;
         exitSound.play();
-        
-        $('#mainTheme')[0].volume = 0;
-        $('#mainTheme')[0].pause();
+
+        let mainTheme = $('#mainTheme');
+
+        mainTheme[0].volume = 0;
+        mainTheme[0].pause();
         
         exitSound.onStop.add(function() {
-            $('#mainTheme').animate({volume: 1}, 500);
-            $('#mainTheme')[0].play();
+            mainTheme.animate({volume: 1}, 500);
+            mainTheme[0].play();
             exitTick = 0;
             processExit();
         });
