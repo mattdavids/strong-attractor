@@ -8,15 +8,17 @@ let Menu = function(game, startGameFromMenuCallback, goToLevelSelectFromMenuCall
         background.kill();
         startBtn.kill();
         levelSelectBtn.kill();
+        /*
         flame1.kill();
         flame2.kill();
+        */
     }
 
     function loadMenu() {
-        game.load.image('background', 'assets/art/MenuBackground.png');
+        game.load.image('background', 'assets/art/MenuBackground2.png');
         game.load.image('startBtn', 'assets/art/startButton.png');
         game.load.image('levelSelectBtn', 'assets/art/levelSelectButton.png');
-        game.load.spritesheet('flame', 'assets/art/fire_sprites.png', 45, 60, 12);
+        //game.load.spritesheet('flame', 'assets/art/fire_sprites.png', 45, 60, 12);
     }
 
     function createMenu() {
@@ -24,13 +26,22 @@ let Menu = function(game, startGameFromMenuCallback, goToLevelSelectFromMenuCall
         background.anchor.set(0.5, 0.5);
         background.immovable = true;
 
-        startBtn = game.add.button(game.width/2, game.height/2 + 55, 'startBtn', onStartButtonPush);
+        let horizOffset = 120;
+        let vertOffset = 10;
+        let horizSpacing = 95;
+        startBtn = game.add.button(game.width/2 - horizOffset, game.height/2 + vertOffset, 'startBtn', onStartButtonPush);
         startBtn.anchor.set(0.5, 0.5);
 
-        levelSelectBtn = game.add.button(game.width/2, game.height/2 + 135, 'levelSelectBtn', onLevelSelectButtonPush);
+        levelSelectBtn = game.add.button(game.width/2 - horizOffset, game.height/2 + vertOffset + horizSpacing, 'levelSelectBtn', onLevelSelectButtonPush);
         levelSelectBtn.anchor.set(0.5, 0.5);
 
+        game.camera.flash(0x000000, 1500);
+        let mainTheme = $('#mainTheme');
+        mainTheme.prop("volume", 0.1);
+        mainTheme.trigger("play");
+        mainTheme.animate({volume: 1}, 1500);
 
+        /*
         // THERE NEEDS TO BE A BETTER WAY TO DO THIS
         let flame_height = game.height/2 + 9;
 
@@ -43,6 +54,7 @@ let Menu = function(game, startGameFromMenuCallback, goToLevelSelectFromMenuCall
         flame2.anchor.set(.5, .5);
         flame2.animations.add('flicker2');
         flame2.animations.play('flicker2', 20, true);
+        */
     }
     
     function renewProgressLocalStorage() {
