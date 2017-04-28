@@ -27,6 +27,7 @@ let LevelLoader = function (game) {
         player.anchor.set(.5, .5);
         player.body.setSize(playerSize, playerSize, 1, 1);
         player.body.gravity.y = playerGrav;
+        player.body.collideWorldBounds = true;
         game.camera.follow(player, Phaser.Camera.FOLLOW_PLATFORMER, 0.2);
         let dzone = game.camera.deadzone;
         dzone.y +=60;
