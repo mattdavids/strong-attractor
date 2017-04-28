@@ -26,7 +26,7 @@ let Menu = function(game, startGameFromMenuCallback, goToLevelSelectFromMenuCall
         background.anchor.set(0.5, 0.5);
         background.immovable = true;
 
-        let horizOffset = 105;
+        let horizOffset = 120;
         let vertOffset = 10;
         let horizSpacing = 95;
         startBtn = game.add.button(game.width/2 - horizOffset, game.height/2 + vertOffset, 'startBtn', onStartButtonPush);

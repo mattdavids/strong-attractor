@@ -85,7 +85,7 @@ let Game = function (game) {
     const selectedObjWidth = 8;
     const arrowDist = 8;
 
-    const pauseAnimationSpeed = 50;
+    const pauseAnimationSpeed = 50; // never used
     const deathFallSpeed = 6;
     const deathAnimationTime = 300;
     const exitSpeedRatio = 3;
