@@ -114,6 +114,13 @@ let LevelLoader = function (game) {
                 exit.body.immovable = true;
                 levelObjects.exits.add(exit);
                 break;
+            case 'tutorial_movement':
+            case 'tutorial_time_freeze':
+            case 'tutorial_gravity_change':
+            case 'tutorial_gravity_select':
+                let sign = game.add.sprite(objectX, objectY, objectName);
+                levelObjects.tutorialSigns.add(sign);
+                break;
             case 'player':
                 levelObjects.player = makePlayer(objectX, objectY, playerGrav);
                 break;
@@ -134,6 +141,7 @@ let LevelLoader = function (game) {
         levelObjects.exits = game.add.group();
         levelObjects.emitters = game.add.group();
         levelObjects.checkpoints = game.add.group();
+        levelObjects.tutorialSigns = game.add.group();
         levelObjects.movers = [];
         
         return levelObjects;

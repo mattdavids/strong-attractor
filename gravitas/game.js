@@ -9,7 +9,8 @@ let Game = function (game) {
         exits,
         emitters,
         backgrounds,
-        movers;
+        movers,
+        tutorialSigns;
 
     // Player collision shadows
     let playerShadowLeft,
@@ -105,6 +106,7 @@ let Game = function (game) {
         playerGrav = loaderObjects.playerGrav;
         backgrounds = loaderObjects.backgrounds;
         movers = loaderObjects.movers;
+        tutorialSigns = loaderObjects.tutorialSigns;
     }
 
     function loadLevel() {
@@ -222,6 +224,11 @@ let Game = function (game) {
         game.load.image('groundParticle', 'assets/art/groundParticle.png');
         game.load.image('gravParticle', 'assets/art/gravParticle.png');
         game.load.image('circle', 'assets/art/gravCircle.png');
+
+        game.load.image('tutorial_movement', 'assets/art/tutorial/movement.png');
+        game.load.image('tutorial_time_freeze', 'assets/art/tutorial/time_freeze.png');
+        game.load.image('tutorial_gravity_change', 'assets/art/tutorial/gravity_change.png');
+        game.load.image('tutorial_gravity_select', 'assets/art/tutorial/gravity_select.png');
 
         // Background tile sprites
         for(let i=1; i<=7; i++){
@@ -479,6 +486,7 @@ let Game = function (game) {
         arrow.kill();
         checkpoints.destroy();
         movers.length = 0;
+        tutorialSigns.destroy();
     }
     
     function doCollision() {

@@ -1,3 +1,5 @@
+tutorial-0.txt
+tutorial-1.txt
 level0.txt
 level1.txt
 level6.txt
