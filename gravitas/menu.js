@@ -33,6 +33,11 @@ let Menu = function(game, startGameFromMenuCallback, goToLevelSelectFromMenuCall
         levelSelectBtn = game.add.button(game.width/2 + horizOffset, game.height/2 + 95, 'levelSelectBtn', onLevelSelectButtonPush);
         levelSelectBtn.anchor.set(0.5, 0.5);
 
+        game.camera.flash(0x000000, 1500);
+        let mainTheme = $('#mainTheme');
+        mainTheme.prop("volume", 0.1);
+        mainTheme.trigger("play");
+        mainTheme.animate({volume: 1}, 1500);
 
         /*
         // THERE NEEDS TO BE A BETTER WAY TO DO THIS
