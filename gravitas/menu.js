@@ -26,11 +26,13 @@ let Menu = function(game, startGameFromMenuCallback, goToLevelSelectFromMenuCall
         background.anchor.set(0.5, 0.5);
         background.immovable = true;
 
-        let horizOffset = 60;
-        startBtn = game.add.button(game.width/2 + horizOffset, game.height/2, 'startBtn', onStartButtonPush);
+        let horizOffset = 105;
+        let vertOffset = 10;
+        let horizSpacing = 95;
+        startBtn = game.add.button(game.width/2 - horizOffset, game.height/2 + vertOffset, 'startBtn', onStartButtonPush);
         startBtn.anchor.set(0.5, 0.5);
 
-        levelSelectBtn = game.add.button(game.width/2 + horizOffset, game.height/2 + 95, 'levelSelectBtn', onLevelSelectButtonPush);
+        levelSelectBtn = game.add.button(game.width/2 - horizOffset, game.height/2 + vertOffset + horizSpacing, 'levelSelectBtn', onLevelSelectButtonPush);
         levelSelectBtn.anchor.set(0.5, 0.5);
 
         game.camera.flash(0x000000, 1500);
