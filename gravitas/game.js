@@ -37,15 +37,13 @@ let Game = function (game) {
     let deathState;
     let exitState;
     let freezeState;
+    let jumpState;
     let shadowState;
     
     let playerDataList = [];
 
     // Player movement
-    let previous_velocity_y,
-        isJumping,
-        jumpCount,
-        lastTwoJumpFrames;
+    let previous_velocity_y;
     // Player start position
     let playerStartX,
         playerStartY,
@@ -56,14 +54,12 @@ let Game = function (game) {
     let lastDzoneRect;
 
     // Constants
-    const jumpFrames = 10;
 
     // Physics
     const frictionCoef = 0.5;
     const groundAcceleration = 30;
     const airAcceleration = 5;
     const maxHorizontalVelocity = 250;
-    const jumpVelocity = 300;
     const millisecondsPerFrame = 100/6;
     const movingObjSpeed = 30;
 
@@ -240,6 +236,7 @@ let Game = function (game) {
         deathState = new DeathState();
         exitState = new ExitState();
         freezeState = new FreezeState();
+        jumpState = new JumpState();
         shadowState = new ShadowState();
 
         loadLevel();
@@ -261,8 +258,6 @@ let Game = function (game) {
         leftKeyWasPressed = false;
 
         selectableGravObjects = [];
-        
-        lastTwoJumpFrames = [false, false];
 
         skipPressed = false;
         framesSincePressingDown = 0;
@@ -294,14 +289,12 @@ let Game = function (game) {
             // When the player hits the ground after jumping, play a you hit the ground particle effect
             doHitGroundAnimation();
             checkWallCollision();
-            doJumpPhysics();
+            jumpState.doJumpPhysics(game, player);
             gravObjects.forEach(function(gravObj) {
                 gravObj.animateParticles();
             }, null);
 
             previous_velocity_y = player.body.velocity.y;
-            
-            lastTwoJumpFrames = [lastTwoJumpFrames[1], isJumping];
 
             jumpState.update(player);
 
