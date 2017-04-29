@@ -26,9 +26,11 @@ let StartState = function(game) {
             // Pause music when the window loses focus
             $(window).focus(function() {
                 $('#mainTheme')[0].play();
+                $('#slowTheme')[0].play();
             });
             $(window).blur(function() {
-                $('#mainTheme')[0].pause(); 
+                $('#mainTheme')[0].pause();
+                $('#slowTheme')[0].pause();
             });
             
             game.state.start('menu');
