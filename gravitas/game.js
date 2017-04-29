@@ -31,7 +31,6 @@ let Game = function (game) {
 
     // State info
     let pauseBtn;
-    let notCurrentlyExiting;
     let selectableGravObjects;
     let currentHighlightedObjIndex;
     let rightKeyWasPressed,
@@ -40,10 +39,9 @@ let Game = function (game) {
     let framesSincePressingDown;
     let framesSincePressingUp;
     let framesHoldingR;
-    let hitExit;
-    let exitAnimation;
-    let exitTick;
+    
     let deathState;
+    let exitState;
     let freezeState;
     
     let playerDataList = [];
@@ -245,6 +243,7 @@ let Game = function (game) {
 
         playerHasHitCheckpoint = false;
         deathState = new DeathState();
+        exitState = new ExitState();
         freezeState = new FreezeState();
 
         loadLevel();
@@ -835,27 +834,7 @@ let Game = function (game) {
     }
     
     function onExit(obj, exit) {
-        let exitSound = game.add.audio('exitSound');
-        exitSound.volume = 2;
-        exitSound.allowMultiple = false;
-        exitSound.play();
-
-        let mainTheme = $('#mainTheme');
-
-        mainTheme[0].volume = 0;
-        mainTheme[0].pause();
-        
-        exitSound.onStop.add(function() {
-            mainTheme.animate({volume: 1}, 500);
-            mainTheme[0].play();
-            exitTick = 0;
-            processExit();
-        });
-        
-        game.physics.arcade.isPaused = true;
-        notCurrentlyExiting = false;
-        exitAnimation = true;
-        hitExit = exit;
+        exitState.onExit(obj, exit, game, processExit);
     }
     
     function processExit() {
@@ -864,31 +843,15 @@ let Game = function (game) {
 
         playerHasHitCheckpoint = false;
         clearLevel();
-        notCurrentlyExiting = true;
-        exitAnimation = false;
-        hitExit = null;
+        
+        exitState.reset();
+        
         game.physics.arcade.isPaused = false;
         if (currentLevelNum + 1 === levelLoader.getLevelCount()) {
             game.state.start('win');
         } else {
             currentLevelNum++;
             loadLevel();
-        }
-    }
-    
-    function doExitAnimation() {
-        player.x += (hitExit.x > player.x)/exitSpeedRatio - (hitExit.x < player.x)/exitSpeedRatio;
-        player.y += (hitExit.y + blockSize/2 - player.height/2> player.y)/exitSpeedRatio - (hitExit.y + blockSize/2 - player.height/2 < player.y)/exitSpeedRatio;
-        let exitBasePosition = new Phaser.Point(hitExit.x, hitExit.y + blockSize/2 - player.height/2);
-        let diff = Phaser.Point.subtract(player.position, exitBasePosition);
-        let r = diff.getMagnitude();
-
-        if (r < 2) {
-
-            if (exitTick < exitMaxTick) {
-                exitTick += 1;
-                player.alpha = quadraticEase(exitMaxTick - exitTick, exitMaxTick);
-            }
         }
     }
     
