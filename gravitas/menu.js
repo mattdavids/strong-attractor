@@ -40,6 +40,11 @@ let Menu = function(game, startGameFromMenuCallback, goToLevelSelectFromMenuCall
         mainTheme.prop("volume", 0.1);
         mainTheme.trigger("play");
         mainTheme.animate({volume: 1}, 1500);
+        
+        let slowTheme = $('#slowTheme');
+        slowTheme[0].playbackRate = 2;
+        slowTheme[0].volume = 0;
+        slowTheme.trigger('play');
 
         /*
         // THERE NEEDS TO BE A BETTER WAY TO DO THIS
