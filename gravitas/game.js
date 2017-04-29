@@ -31,15 +31,11 @@ let Game = function (game) {
 
     // State info
     let pauseBtn;
-    let notCurrentlyDying;
     let notCurrentlyExiting;
     let selectableGravObjects;
     let currentHighlightedObjIndex;
     let rightKeyWasPressed,
         leftKeyWasPressed;
-    let deathFall;
-    let deathCounter;
-    let diedRecently;
     let playerHasHitCheckpoint;
     let framesSincePressingDown;
     let framesSincePressingUp;
@@ -47,6 +43,7 @@ let Game = function (game) {
     let hitExit;
     let exitAnimation;
     let exitTick;
+    let deathState;
     let freezeState;
     
     let playerDataList = [];
@@ -82,8 +79,6 @@ let Game = function (game) {
     const selectedObjWidth = 8;
     const arrowDist = 8;
 
-    const deathFallSpeed = 6;
-    const deathAnimationTime = 300;
     const exitSpeedRatio = 3;
     const exitMaxTick = 30;
 
@@ -123,7 +118,7 @@ let Game = function (game) {
     function setupPauseButton() {
         pauseBtn = game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
         pauseBtn.onDown.add(function() {
-            if (notCurrentlyDying && notCurrentlyExiting) {
+            if (deathState.notCurrentlyDying && exitState.notCurrentlyExiting) {
                 shockers.children.forEach(function(ele) {
                     ele.animations.paused = ! ele.animations.paused;
                 });
@@ -249,6 +244,7 @@ let Game = function (game) {
         gravCirclesBottom = game.add.group();
 
         playerHasHitCheckpoint = false;
+        deathState = new DeathState();
         freezeState = new FreezeState();
 
         loadLevel();
@@ -305,8 +301,8 @@ let Game = function (game) {
     function update() {
         // Move the player in a parabolic death animation when dead,
         // Reset the game when the player falls below the game window
-        if (deathFall) {
-            doDeathFallAnimation();
+        if (deathState.deathFall) {
+            deathState.doDeathFallAnimation(game, player, blockSize, onPlayerDeath);
         }
         
         if (exitAnimation) {
@@ -348,7 +344,7 @@ let Game = function (game) {
                 }, null);
             }, null);
 
-            if (notCurrentlyDying && notCurrentlyExiting) {
+            if (deathState.notCurrentlyDying && exitState.notCurrentlyExiting) {
                 // Adjust attraction of clicked object
                 adjustAttractorsPull();
             }
@@ -484,9 +480,9 @@ let Game = function (game) {
         }, null, null);
         
         // If the player is not dead, play the death animation on contact with shockers or the exit animation on contact with an exit
-        if (notCurrentlyDying && !diedRecently && notCurrentlyExiting) {
+        if (deathState.notCurrentlyDying && !deathState.diedRecently && exitState.notCurrentlyExiting) {
             game.physics.arcade.overlap(player, exits, onExit, null, null);
-            game.physics.arcade.overlap(player, shockers, deathAnimation, null, null);
+            game.physics.arcade.overlap(player, shockers, function() {deathState.deathAnimation(game, player);}, null, null);
         }
     }
 
