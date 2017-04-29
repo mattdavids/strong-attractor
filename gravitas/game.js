@@ -330,7 +330,7 @@ let Game = function (game) {
             
             lastTwoJumpFrames = [lastTwoJumpFrames[1], isJumping];
 
-            isJumping = ! player.isTouchingBottom;
+            jumpState.update(player);
 
             rightKeyWasPressed = false;
             leftKeyWasPressed = false;
@@ -546,19 +546,19 @@ let Game = function (game) {
 
     function doPlayerMovement(){
         if (game.input.keyboard.isDown(Phaser.KeyCode.A)) {
-            if (player.body.touching.down && !checkLastTwoJumpFrames()) {
+            if (player.body.touching.down && !jumpState.recentlyJumped()) {
                 player.body.velocity.x = Math.max(-maxHorizontalVelocity, player.body.velocity.x - groundAcceleration);
             } else {
                 player.body.velocity.x -= airAcceleration;
             }
         } else if (game.input.keyboard.isDown(Phaser.KeyCode.D)) {
-            if (player.body.touching.down && !checkLastTwoJumpFrames()) {
+            if (player.body.touching.down && !jumpState.recentlyJumped()) {
                 player.body.velocity.x = Math.min(maxHorizontalVelocity, player.body.velocity.x + groundAcceleration);
             } else {
                 player.body.velocity.x += airAcceleration;
             }
         } else {
-            if (player.body.touching.down && !isJumping) {
+            if (player.body.touching.down && !jumpState.isJumping) {
                 player.body.velocity.x = player.body.velocity.x * frictionCoef;
             }
         }
@@ -604,7 +604,7 @@ let Game = function (game) {
     }
 
     function doHitGroundAnimation() {
-        if (isJumping && player.isTouchingBottom) {
+        if (jumpState.isJumping && player.isTouchingBottom) {
             // add player.body.velocity.x / 14 so that particles appear where player *will* be next frame
             let emitter = game.add.emitter(player.x + player.body.velocity.x/14, player.bottom + 2);
             let numParticles = Math.max(5, (previous_velocity_y - 220)/40) ;
@@ -639,51 +639,19 @@ let Game = function (game) {
 
     function checkWallCollision() {
         //If just landed on top of a block under another, get out of the wall and keep moving
-        if ((player.body.touching.down || player.isTouchingBottom) && isJumping && (player.isTouchingLeft || player.isTouchingRight)) {
+        if ((player.body.touching.down || player.isTouchingBottom) && jumpState.isJumping && (player.isTouchingLeft || player.isTouchingRight)) {
             player.body.velocity.x = player.isTouchingLeft * groundAcceleration - player.isTouchingRight * groundAcceleration;
             player.body.velocity.y = previous_velocity_y;
         }
 
         //If stuck in a wall, get out of the wall and keep moving
-        if ((player.body.touching.down || player.isTouchingBottom) && player.isTouchingTop && isJumping) {
+        if ((player.body.touching.down || player.isTouchingBottom) && player.isTouchingTop && jumpState.isJumping) {
             player.body.velocity.x = player.isTouchingLeft * groundAcceleration - player.isTouchingRight * groundAcceleration;
             player.x = player.x + player.isTouchingLeft * ((blockSize/2) - (player.body.left % (blockSize/2))) - player.isTouchingRight * (player.body.right % (blockSize/2));
             if (player.body.velocity.y === 0) {
                 player.body.velocity.y = previous_velocity_y;
             }
         }
-    }
-
-    function doJumpPhysics() {
-        if (game.input.keyboard.isDown(Phaser.KeyCode.W) && player.isTouchingBottom && player.body.touching.down && ! player.isTouchingTop && ! isJumping) {
-            player.body.velocity.y = -jumpVelocity;
-            jumpCount = 0;
-            isJumping = true;
-            // If you're trying to go in a direction opposite the one you're going,
-            //      you kick off the ground to change direction quickly
-            if(game.input.keyboard.isDown(Phaser.KeyCode.A) && player.body.velocity.x > 0){
-                    player.body.velocity.x *=-0.5;
-            }
-            if(game.input.keyboard.isDown(Phaser.KeyCode.D) && player.body.velocity.x < 0){
-                player.body.velocity.x *=-0.5;
-            }
-            
-            let jumpSound = game.add.audio('jump4');
-            jumpSound.volume = 0.1;
-            jumpSound.play();
-
-        }
-        //Let user jump higher if they hold the button down
-        if (jumpCount < jumpFrames) {
-            if (game.input.keyboard.isDown(Phaser.KeyCode.W)) {
-                player.body.velocity.y -= jumpVelocity/(jumpFrames - 3)
-            } else {
-                jumpCount = jumpFrames;
-            }
-
-        }
-
-        jumpCount += 1;
     }
 
     function setupGravityObjects() {
