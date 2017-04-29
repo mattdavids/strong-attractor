@@ -1,4 +1,9 @@
 let StartState = function(game) {
+    
+    function resizeGame() {
+        game.scale.maxWidth = window.innerWidth/(1.5);
+        game.scale.maxHeight = game.scale.maxWidth * (42/81);
+    }
 
     return {
         boot: function() {
@@ -9,8 +14,7 @@ let StartState = function(game) {
             // need .ogg if using Firefox
             
             game.stage.smoothed = false;
-            game.scale.maxWidth = window.innerWidth;
-            game.scale.maxHeight = window.innerHeight - 20;
+            resizeGame();
             game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
             
         },
@@ -32,6 +36,7 @@ let StartState = function(game) {
                 $('#mainTheme')[0].pause();
                 $('#slowTheme')[0].pause();
             });
+            $(window).resize(resizeGame);
             
             game.state.start('menu');
         }
