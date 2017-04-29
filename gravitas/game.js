@@ -12,8 +12,6 @@ let Game = function (game) {
         movers,
         tutorialSigns;
 
-    let clickedObj;
-
     // Dynamic displayables
     let pauseGraphics;
     let selectedObjGraphics;
@@ -66,10 +64,6 @@ let Game = function (game) {
     // Display
     const blockSize = 30;
     const selectedObjWidth = 8;
-    const arrowDist = 8;
-
-    const exitSpeedRatio = 3;
-    const exitMaxTick = 30;
 
     function unpackObjects(loaderObjects) {
         player = loaderObjects.player;
@@ -90,7 +84,6 @@ let Game = function (game) {
     function loadLevel() {
         let levelObjects = levelLoader.loadLevel(currentLevelNum);
         unpackObjects(levelObjects);
-        setupGravityObjects();
 
         game.world.bringToTop(emitters);
         game.world.sendToBack(shockers);
@@ -202,9 +195,6 @@ let Game = function (game) {
         game.load.audio('death', ['assets/audio/death.mp3', 'assets/audio/death.ogg']);
         game.load.audio('freeze', 'assets/audio/Freeze.mp3');
         game.load.audio('unfreeze', 'assets/audio/Unfreeze.mp3');
-        game.load.audio('jump1', 'assets/audio/Jump.mp3');
-        game.load.audio('jump2', 'assets/audio/Jump2.mp3');
-        game.load.audio('jump3', 'assets/audio/Jump3.mp3');
         game.load.audio('jump4', 'assets/audio/Jump4.mp3');
         game.load.audio('landing', 'assets/audio/Landing.mp3');
         game.load.audio('checkpointHit', 'assets/audio/checkpoint.mp3');
@@ -342,7 +332,6 @@ let Game = function (game) {
         pauseGraphics.clear();
         selectedObjGraphics.clear();    
         
-        // TODO: this is super processor intensive
         gravObjects.children.forEach(function(gravObj) {
             if(gravObj.weightHasBeenChanged || gravObj.flux || gravObj.moving) {
                 gravObj.gravCircles.removeAll(true);
@@ -599,15 +588,6 @@ let Game = function (game) {
         }
     }
 
-    function setupGravityObjects() {
-        gravObjects.children.forEach(function(gravObj) {
-            gravObj.events.onInputDown.add(startGravityClick);
-            gravObj.events.onInputUp.add(function() {
-                clickedObj = null;
-            }, null);
-        });
-    }
-
     function doGravityPhysics(){
 
         gravityEffectsOnObject(player);
@@ -682,60 +662,6 @@ let Game = function (game) {
 
     }
     
-    function doArrowChange() {
-        let xDelta = player.body.velocity.x + player.body.acceleration.x/14;
-        let yDelta = player.body.velocity.y + (player.body.acceleration.y + player.body.gravity.y)/14;
-
-        let theta = Math.atan2(yDelta, xDelta);
-
-        arrow.x = player.x + xDelta/14 + arrowDist * Math.cos(theta);
-        arrow.y = player.y + yDelta/14 + arrowDist * Math.sin(theta);
-
-        arrow.rotation = theta;
-    }
-    
-
-    // Starts the death animation by setting flags. Freezes the player, pauses the game state, shakes the screen, then sets a timer to set the deathFall flag which is run in update
-    function deathAnimation() {
-        if (!diedRecently) {
-            notCurrentlyDying = false;
-            game.physics.arcade.isPaused = true;
-            player.body.allowGravity = false;
-            player.body.velocity = new Phaser.Point(0, 0);
-            let deathSound = game.add.audio('death');
-            deathSound.volume = 0.01;
-            deathSound.play();
-            game.time.events.add(0, function() {
-                game.camera.shake(.008, deathAnimationTime);
-            }, null);
-            game.time.events.add(deathAnimationTime + 100, function() {
-                deathFall = true;
-                deathCounter = 0;
-            }, null);
-        }
-    }
-    
-    function doDeathFallAnimation() {
-        let movement;
-        if (Math.abs((Math.pow(deathCounter - deathFallSpeed, 2) - Math.pow(deathFallSpeed, 2))/(blockSize/2)) > blockSize) {
-            movement = blockSize;
-        } else {
-            movement = (Math.pow(deathCounter - deathFallSpeed, 2) - Math.pow(deathFallSpeed, 2))/(blockSize/2)
-        }
-        player.y += movement;
-        if (player.y > game.world.height + 3 * blockSize) {
-            onPlayerDeath();
-            deathFall = false;
-            notCurrentlyDying = true;
-            diedRecently = true;
-            game.physics.arcade.isPaused = false;
-            game.time.events.add(100, function() {
-                diedRecently = false;
-            });
-        }
-        deathCounter += 1;
-    }
-    
     function onPlayerDeath() {
         if(playerHasHitCheckpoint) {
             resetLevel();
@@ -796,28 +722,6 @@ let Game = function (game) {
             checkpointSound.volume = .1;
             checkpointSound.play();
         }
-    }
-
-    function startGravityClick(gravObj) {
-        if (game.input.activePointer.rightButton.isDown) {
-            if (! gravObj.secondClick) {
-                gravObj.secondClick = true;
-                game.time.events.add(300, function() {
-                    gravObj.secondClick = false;
-                }, null);
-
-            } else {
-                if (game.physics.arcade.isPaused) {
-                    gravObj.gravWeight = 0;
-                }
-            }
-        }
-
-        clickedObj = gravObj;
-    }
-    
-    function checkLastTwoJumpFrames() {
-        return (lastTwoJumpFrames[0] || lastTwoJumpFrames[1]);
     }
     
     function quadraticEase(t, tmax) {
