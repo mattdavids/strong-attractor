@@ -85,6 +85,10 @@ let Game = function (game) {
         let levelObjects = levelLoader.loadLevel(currentLevelNum);
         unpackObjects(levelObjects);
 
+        setLayerOrder();
+    }
+    
+    function setLayerOrder() {
         game.world.bringToTop(emitters);
         game.world.sendToBack(shockers);
         game.world.sendToBack(gravCirclesBottom);
@@ -376,6 +380,7 @@ let Game = function (game) {
             obj.movementIndex = 0;
         });
         
+        setLayerOrder();
     }
     
     function clearLevel() {
