@@ -350,17 +350,31 @@ let Game = function (game) {
         }
 
         if (selectableGravObjects.length > 0) {
-
-            let selectedObj = selectableGravObjects[currentHighlightedObjIndex];
-            selectedObjGraphics.beginFill(0xffffff, 1);
-            
-            selectedObjGraphics.drawRect(selectedObj.x - 15, selectedObj.y - 15, selectedObjWidth, 30);
-            selectedObjGraphics.drawRect(selectedObj.x - 15, selectedObj.y - 15, 30, selectedObjWidth);
-            selectedObjGraphics.drawRect(selectedObj.x - 15, selectedObj.y + 15 - selectedObjWidth, 30, selectedObjWidth);
-            selectedObjGraphics.drawRect(selectedObj.x + 15 - selectedObjWidth, selectedObj.y - 15, selectedObjWidth, 30);
-            
-            selectedObjGraphics.endFill();
+            drawSelectedObjBox();
         }
+    }
+    
+    function drawSelectedObjBox() {
+        let selectedObj = selectableGravObjects[currentHighlightedObjIndex];
+        selectedObjGraphics.beginFill(0xffffff, 1);
+
+        selectedObjGraphics.drawRect(
+            selectedObj.x - 15,
+            selectedObj.y - 15,
+            selectedObjWidth, 30);
+        selectedObjGraphics.drawRect(
+            selectedObj.x - 15,
+            selectedObj.y - 15,
+            30, selectedObjWidth);
+        selectedObjGraphics.drawRect(
+            selectedObj.x - 15, 
+            selectedObj.y + 15 - selectedObjWidth,
+            30, selectedObjWidth);
+        selectedObjGraphics.drawRect(
+            selectedObj.x + 15 - selectedObjWidth, selectedObj.y - 15, 
+            selectedObjWidth, 30);
+
+        selectedObjGraphics.endFill();
     }
 
     function resetLevel() {
