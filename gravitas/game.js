@@ -237,6 +237,7 @@ let Game = function (game) {
         for(let i=1; i<=7; i++){
             game.load.image("bg_large_stone_"+i, "assets/art/bg/bg_large_stone_"+i+".png");
         }
+        game.load.image("bg_sky_1", "assets/art/bg/bg_sky_1.png");
 
         // Audio
         game.load.audio('death', ['assets/audio/death.mp3', 'assets/audio/death.ogg']);

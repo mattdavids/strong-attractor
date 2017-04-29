@@ -187,7 +187,12 @@ let LevelLoader = function (game) {
         let playerGrav = parseInt(level[1]);
 
         // Load background
-        levelObjects = buildBackground(levelObjects, bounds[0], bounds[1], levelNumber, 7, "bg_large_stone_", 90, stoneBG);
+        if(levelNumber == 0){
+            function skyBG(){ return 1;};
+            levelObjects = buildBackground(levelObjects, bounds[0], bounds[1], levelNumber, 1, "bg_sky_", 90, skyBG);
+        } else {
+            levelObjects = buildBackground(levelObjects, bounds[0], bounds[1], levelNumber, 7, "bg_large_stone_", 90, stoneBG);
+        }
 
         // Load level objects
         for (let i = 2; i < level.length; i++) {
