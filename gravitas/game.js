@@ -715,7 +715,7 @@ let Game = function (game) {
             checkpoint.hasBeenHitBefore = true;
             playerHasHitCheckpoint = true;
             playerStartX = checkpoint.x;
-            playerStartY = checkpoint.y;
+            playerStartY = checkpoint.y - 15;
             checkpoint.loadTexture('checkpointActivated');
             
             let checkpointSound = game.add.audio('checkpointHit');
