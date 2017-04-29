@@ -114,10 +114,6 @@ let Game = function (game) {
                     freezeState.endFreeze(game);
                     
                 } else {
-                    mainTheme[0].volume = 0;
-                    mainTheme[0].pause();
-                    frozenTime.fadeIn(100);
-                    game.time.events.pause();
                     handleGravObjSelection();
                     freezeState.startFreeze(game);
                 }
