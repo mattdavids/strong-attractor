@@ -19,7 +19,6 @@ let Game = function (game) {
         playerShadowTop;
 
     let clickedObj;
-    let arrow;
 
     // Dynamic displayables
     let pauseGraphics;
@@ -32,8 +31,6 @@ let Game = function (game) {
 
     // State info
     let pauseBtn;
-    let stopPauseAnimation;
-    let pauseAnimationTick;
     let notCurrentlyDying;
     let notCurrentlyExiting;
     let selectableGravObjects;
@@ -50,6 +47,7 @@ let Game = function (game) {
     let hitExit;
     let exitAnimation;
     let exitTick;
+    let freezeState;
     
     let playerDataList = [];
 
@@ -66,8 +64,6 @@ let Game = function (game) {
     //Debug
     let skipPressed;
     let lastDzoneRect;
-    
-    let frozenTime;
 
     // Constants
     const jumpFrames = 10;
@@ -86,12 +82,10 @@ let Game = function (game) {
     const selectedObjWidth = 8;
     const arrowDist = 8;
 
-    const pauseAnimationSpeed = 50; // never used
     const deathFallSpeed = 6;
     const deathAnimationTime = 300;
     const exitSpeedRatio = 3;
     const exitMaxTick = 30;
-    const pauseMaxTick = 30;
 
     function unpackObjects(loaderObjects) {
         player = loaderObjects.player;
@@ -122,9 +116,8 @@ let Game = function (game) {
         game.world.bringToTop(pauseGraphics);
         game.world.bringToTop(selectedObjGraphics);
 
-        arrow = game.add.sprite(player.x, player.y, 'arrow');
-        arrow.anchor.set(.5, .5);
-        arrow.visible = false;
+        freezeState.addArrow(game, player);
+        
     }
 
     function setupPauseButton() {
@@ -135,35 +128,17 @@ let Game = function (game) {
                     ele.animations.paused = ! ele.animations.paused;
                 });
                 game.physics.arcade.isPaused = ! game.physics.arcade.isPaused;
-                let mainTheme = $('#mainTheme');
                 if (! game.physics.arcade.isPaused) {
-
-                    mainTheme.animate({volume: 1}, 500);
-                    mainTheme[0].play();
-                    frozenTime.fadeOut(100);
-                    stopPauseAnimation = true;
-                    game.time.events.resume();
                     selectableGravObjects.length = 0;
-                    arrow.visible = false;
-                    pauseAnimationTick = pauseMaxTick;
+                    freezeState.endFreeze(game);
                     
-                    let unFreezeEffect = game.add.audio('unfreeze');
-                    unFreezeEffect.volume = 0.3;
-                    unFreezeEffect.play();
                 } else {
                     mainTheme[0].volume = 0;
                     mainTheme[0].pause();
                     frozenTime.fadeIn(100);
                     game.time.events.pause();
                     handleGravObjSelection();
-                    
-                    arrow.visible = true;
-                    pauseAnimationTick = 0;
-                    
-                    let freezeEffect = game.add.audio('freeze');
-                    freezeEffect.volume = 0.3;
-                    freezeEffect.play();
-        
+                    freezeState.startFreeze(game);
                 }
             }
 
@@ -205,8 +180,7 @@ let Game = function (game) {
                 currentMinObjIndex = i;
             }
         }
-
-
+        
         currentHighlightedObjIndex = currentMinObjIndex;
     }
 
@@ -251,7 +225,6 @@ let Game = function (game) {
         game.load.audio('landing', 'assets/audio/Landing.mp3');
         game.load.audio('checkpointHit', 'assets/audio/checkpoint.mp3');
         game.load.audio('exitSound', 'assets/audio/exit.mp3');
-        game.load.audio('frozenTime', 'assets/audio/frozenTime.mp3');
 
         // Animated sprites
         game.load.spritesheet('shocker', 'assets/art/electricity_sprites.png', 30, 30, 3);
@@ -268,9 +241,6 @@ let Game = function (game) {
         game.canvas.oncontextmenu = function (e) {
             e.preventDefault();
         };
-
-        frozenTime = game.add.audio('frozenTime');
-        frozenTime.loop = true;
         
         pauseGraphics = game.add.graphics();
         selectedObjGraphics = game.add.graphics();
@@ -279,6 +249,7 @@ let Game = function (game) {
         gravCirclesBottom = game.add.group();
 
         playerHasHitCheckpoint = false;
+        freezeState = new FreezeState();
 
         loadLevel();
 
@@ -382,8 +353,7 @@ let Game = function (game) {
                 adjustAttractorsPull();
             }
             
-            doArrowChange();
-        
+            freezeState.doArrowChange(player);
         }
     }
 
@@ -421,23 +391,8 @@ let Game = function (game) {
             }
         });
 
-        if ((game.physics.arcade.isPaused && notCurrentlyDying && notCurrentlyExiting) || stopPauseAnimation) {
-            let pausedSize = game.width * quadraticEase(pauseAnimationTick, pauseMaxTick);
-            
-            pauseGraphics.beginFill(0xa3c6ff, .5);
-            pauseGraphics.drawRect(player.x - pausedSize, player.y - pausedSize, 2 * pausedSize, 2 * pausedSize);
-            pauseGraphics.endFill();
-            
-            if (stopPauseAnimation) {
-                if (pauseAnimationTick > 0) {
-                    pauseAnimationTick -= 1.5;
-                } else {
-                    stopPauseAnimation = false;
-                }
-            } else if (pauseAnimationTick < pauseMaxTick) {
-                pauseAnimationTick += 1;
-            }
-            
+        if ((game.physics.arcade.isPaused && deathState.notCurrentlyDying && exitState.notCurrentlyExiting) || freezeState.stopPauseAnimation) {
+            freezeState.doPauseGraphics(game, pauseGraphics, player, quadraticEase);
         }
 
         if (selectableGravObjects.length > 0) {
@@ -457,6 +412,7 @@ let Game = function (game) {
     function resetLevel() {
         
         player.destroy();
+        freezeState.killArrow();
         player = levelLoader.makePlayer(playerStartX, playerStartY, playerGrav);
         
         gravObjects.children.forEach(function(gravObj) {
@@ -485,7 +441,7 @@ let Game = function (game) {
         gravObjects.destroy();
         exits.destroy();
         backgrounds.destroy();
-        arrow.kill();
+        freezeState.killArrow();
         checkpoints.destroy();
         movers.length = 0;
         tutorialSigns.destroy();
