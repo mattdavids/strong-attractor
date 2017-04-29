@@ -216,6 +216,7 @@ let Game = function (game) {
         game.load.image('player', 'assets/art/player.png');
         game.load.image('exit', 'assets/art/exit.png');
         game.load.image('wall', 'assets/art/bricks_gray.png');
+        game.load.image('grass', 'assets/art/grass.png');
         game.load.image('gravObj', 'assets/art/gravObj.png');
         game.load.image('shadow', 'assets/art/shadow.png');
         game.load.image('checkpoint', 'assets/art/flag_red.png');

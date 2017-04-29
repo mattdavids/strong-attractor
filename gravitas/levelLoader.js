@@ -60,6 +60,13 @@ let LevelLoader = function (game) {
                 levelObjects.walls.add(wall);
                 levelObjects.movers.push(wall);
                 break;
+            case 'grass':
+                wall = game.add.sprite(objectX, objectY, objectName);
+                wall.moving = false;
+                wall.body.immovable = true;
+                wall.anchor.set(.5,.5);
+                levelObjects.walls.add(wall);
+                break;
             case 'gravObj_off':
                 // x Location, y location, gravMin, gravMax, on?, flux?, moving?
                 gravObj = GravObjMaker(game, objectX, objectY, parseFloat(objectInfo[3]), parseFloat(objectInfo[4]),
