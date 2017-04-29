@@ -262,8 +262,8 @@ let Game = function (game) {
             deathState.doDeathFallAnimation(game, player, blockSize, onPlayerDeath);
         }
         
-        if (exitAnimation) {
-            doExitAnimation();
+        if (exitState.inExitAnimation) {
+            exitState.doExitAnimation(player, blockSize, quadraticEase);
         }
         
         doControlButtons();
