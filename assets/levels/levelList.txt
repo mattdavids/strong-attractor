@@ -1,11 +1,9 @@
-tutorial-0.txt
-tutorial-1.txt
-level0.txt
-level1.txt
+tutorial-outside.txt
+tutorial-inside.txt
 level6.txt
 level3.txt
 level5.txt
-level4.txt
-level8.txt
-level7.txt
-level9.txt
+long-jump.txt
+vertical-chase-2.txt
+vertical-chase-1.txt
+moving-platforms.txt
