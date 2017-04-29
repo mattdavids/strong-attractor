@@ -232,10 +232,10 @@ let Game = function (game) {
 
         // Background tile sprites
         for(let i=1; i<=7; i++){
-            game.load.image("bg_debug_"+i, "assets/art/bg_debug_"+i+".png");
+            game.load.image("bg_debug_"+i, "assets/art/bg/bg_debug_"+i+".png");
         }
         for(let i=1; i<=7; i++){
-            game.load.image("bg_large_stone_"+i, "assets/art/bg_large_stone_"+i+".png");
+            game.load.image("bg_large_stone_"+i, "assets/art/bg/bg_large_stone_"+i+".png");
         }
 
         // Audio
