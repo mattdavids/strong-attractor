@@ -141,7 +141,7 @@ let LevelLoader = function (game) {
 
     function initializeLevelObjects(){
         let levelObjects = {};
-        levelObjects.player = makePlayer(0,0,0);
+        //levelObjects.player = makePlayer(0,0,0);
         levelObjects.backgrounds = game.add.group();
         levelObjects.walls = game.add.group();
         levelObjects.gravObjects = game.add.group();
