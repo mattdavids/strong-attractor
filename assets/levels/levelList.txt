@@ -1,5 +1,6 @@
 tutorial-outside.txt
 tutorial-inside.txt
+tutorial-inside-2.txt
 level6.txt
 level3.txt
 level5.txt

@@ -314,18 +314,18 @@ let Game = function (game) {
             // these are heuristic constants which look okay
             const subAmount = 50;
             let diameter = 2 * gravObj.radius;
-            let currentAlpha = alpha;
+            gravObj.gravCircles.removeAll();
             
             while (diameter > 0) {
                 let circle = game.add.sprite(gravObj.x, gravObj.y, 'circle');
                 circle.anchor.set(.5, .5);
-                circle.alpha = currentAlpha;
+                circle.alpha = alpha;
                 circle.width = diameter;
                 circle.height = diameter;
                 circleGroup.add(circle);
                 gravObj.gravCircles.add(circle);
                 diameter -= subAmount;
-                currentAlpha -= currentAlpha/14;
+                alpha -= alpha / 10;
             }
         };
 
@@ -335,8 +335,8 @@ let Game = function (game) {
         gravObjects.children.forEach(function(gravObj) {
             if(gravObj.weightHasBeenChanged || gravObj.flux || gravObj.moving) {
                 gravObj.gravCircles.removeAll(true);
-                drawGravObjCircle(gravCirclesBottom, gravObj, .04);
-                drawGravObjCircle(gravCirclesTop, gravObj, .04);
+                drawGravObjCircle(gravCirclesBottom, gravObj, .1);
+                drawGravObjCircle(gravCirclesTop, gravObj, .1);
                 gravObj.weightHasBeenChanged = false;
             }
         });
