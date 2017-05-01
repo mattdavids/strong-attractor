@@ -678,6 +678,8 @@ let Game = function (game) {
     }
     
     function onPlayerDeath() {
+        game.camera.setPosition(0,0);
+
         if(playerHasHitCheckpoint) {
             resetLevel();
         } else {
