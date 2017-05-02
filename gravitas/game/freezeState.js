@@ -5,7 +5,7 @@ let FreezeState = function() {
     
     const pauseAnimationSpeed = 50; // never used
     const pauseMaxTick = 30;
-    const arrowDist = 8;
+    const arrowDist = 20;
     
     const mainTheme = $('#mainTheme');
     const slowTheme = $('#slowTheme');
@@ -65,15 +65,16 @@ let FreezeState = function() {
     }
     
     function doArrowChange(player) {
-        let xDelta = player.body.velocity.x + player.body.acceleration.x/14;
-        let yDelta = player.body.velocity.y + (player.body.acceleration.y + player.body.gravity.y)/14;
+        let xDelta = player.body.velocity.x + player.body.acceleration.x/10;
+        let yDelta = player.body.velocity.y + (player.body.acceleration.y + player.body.gravity.y)/10;
 
         let theta = Math.atan2(yDelta, xDelta);
+        let scale = Math.sqrt(Math.sqrt(xDelta*xDelta + yDelta*yDelta)) / 20;
 
-        this.arrow.x = player.x + xDelta/14 + arrowDist * Math.cos(theta);
-        this.arrow.y = player.y + yDelta/14 + arrowDist * Math.sin(theta);
-
+        this.arrow.x = player.x + arrowDist * Math.cos(theta);
+        this.arrow.y = player.y + arrowDist * Math.sin(theta);
         this.arrow.rotation = theta;
+        this.arrow.scale.setTo(scale, scale);
     }
     
     function addArrow(game, player) {
