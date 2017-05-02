@@ -9,6 +9,10 @@ let LevelSelect = function (game, gameState) {
         playerDataList,
         levelCount;
 
+    let xPos,
+        yPos,
+        heightSpacing = 100;
+
     function loadLevelSelect() {
         let levelList = game.cache.getText('levelList').split('\n');
         levelCount = levelList.length;
@@ -37,7 +41,7 @@ let LevelSelect = function (game, gameState) {
     }
 
     function renderLevelSelect() {
-        background = game.add.image(game.width/2, game.height/2, 'levelSelectBackground');
+        let background = game.add.image(game.width/2, game.height/2, 'levelSelectBackground');
         background.anchor.set(0.5, 0.5);
         background.immovable = true;
         elementGroup.add(background);
@@ -47,13 +51,12 @@ let LevelSelect = function (game, gameState) {
     }
 
     function addLevelsToTower() {
-        let xPos,
-            yPos,
-            heightSpacing = 100;
 
         for (let levelNum = 0; levelNum < levelCount; levelCount++) {
             let button;
-            getLevelPosition(levelNum);
+
+            getLevelPosition(level)
+
             if (playerDataList[levelNum] == 0) {
                 // level is unlocked
                 button = game.add.button(xPos, yPos, 'unlockedLevel', function() {
@@ -103,10 +106,10 @@ let LevelSelect = function (game, gameState) {
     function stopMap() {
 
     }
-    
+
     return {
         preload: loadLevelSelect,
         create: createLevelSelect
     };
-    
+
 };
