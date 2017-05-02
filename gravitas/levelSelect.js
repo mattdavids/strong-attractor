@@ -41,12 +41,12 @@ let LevelSelect = function (game, gameState) {
     }
 
     function renderLevelSelect() {
-        let background = game.add.image(game.width/2, game.height/2, 'levelSelectBackground');
+        elementGroup = game.add.group();
+        let background = game.add.image(game.width/2, 0, 'levelSelectBackground');
         background.anchor.set(0.5, 0.5);
         background.immovable = true;
         elementGroup.add(background);
 
-        elementGroup = game.add.group();
         addLevelsToTower();
     }
 
