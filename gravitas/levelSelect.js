@@ -4,7 +4,7 @@ let LevelSelect = function (game, gameState) {
         startX, // used to save start touch position
         startY, // used to save start touch position
         scrollSpeed = 1,
-        levelGroup,
+        elementGroup,
         selectedLevel,
         playerDataList,
         levelCount;
@@ -14,7 +14,8 @@ let LevelSelect = function (game, gameState) {
         levelCount = levelList.length;
 
         game.load.image('levelSelectBackground', 'assets/art/levelSelectImages/LevelSelectBackground.png');
-        game.load.image('level', 'assets/art/levelSelectImages/levelThumbnail');
+        game.load.image('lockedLevel', 'assets/art/levelSelectImages/lockedLevel.png');
+        game.load.image('unlockedLevel', 'assets/art/levelSelectImages/unlockedLevel.png');
     }
 
     function createLevelSelect() {
@@ -39,21 +40,68 @@ let LevelSelect = function (game, gameState) {
         background = game.add.image(game.width/2, game.height/2, 'levelSelectBackground');
         background.anchor.set(0.5, 0.5);
         background.immovable = true;
+        elementGroup.add(background);
 
-        levelGroup = game.add.group();
+        elementGroup = game.add.group();
         addLevelsToTower();
     }
 
     function addLevelsToTower() {
-        let associatedLevel = 0;
-        for (let i = 0; i < levelCount; i++) {
+        let xPos,
+            yPos,
+            heightSpacing = 100;
 
+        for (let levelNum = 0; levelNum < levelCount; levelCount++) {
+            let button;
+            getLevelPosition(levelNum);
+            if (playerDataList[levelNum] == 0) {
+                // level is unlocked
+                button = game.add.button(xPos, yPos, 'unlockedLevel', function() {
+                    clearLevel();
+                    gameState.setLevel(button.levelNum);
+                    game.state.start('game');
+                })
+            } else {
+                // level is locked
+                button = game.add.button(xPos, yPos, 'lockedLevel', function() {
+                    alert("This level is locked! :o)");
+                })
+            }
+            button.levelNum = levelNum;
+            elementGroup.add(button);
         }
+    }
+
+    function getLevelPosition(levelNum) {
+
+        // finding y-axis position
+        if (levelNum === 0) yPos = heightSpacing;
+        else yPos = heightSpacing * levelNum;
+
+        // finding x-axis position
+        if (i === 0 || i % 2 === 0) xPos = 200;
+        else xPos = 300;
     }
 
     function clearLevel() {
         background.kill();
-        levelGroup.destroy();
+        elementGroup.destroy(); // I think
+    }
+
+    function mouseOnMap() {
+        // save beginning touching position
+        startX = game.input.worldX;
+        startY = game.input.worldY;
+        elementGroup.saveX = elementGroup.x;
+        elementGroup.saveY = elementGroup.y;
+    }
+
+    function dragMap() {
+
+    }
+
+    function stopMap() {
+
     }
     
     return {
