@@ -69,24 +69,24 @@ let LevelLoader = function (game) {
                 break;
             case 'gravObj_off':
                 // x Location, y location, gravMin, gravMax, on?, flux?, moving?
-                gravObj = GravObjMaker(game, objectX, objectY, parseFloat(objectInfo[3]), parseFloat(objectInfo[4]),
+                gravObj = GravObj(game, objectX, objectY, parseFloat(objectInfo[3]), parseFloat(objectInfo[4]),
                     false, false, false);
                 levelObjects.gravObjects.add(gravObj);
                 break;
             case 'gravObj_on':
-                gravObj = GravObjMaker(game, objectX, objectY, parseFloat(objectInfo[3]), parseFloat(objectInfo[4]),
+                gravObj = GravObj(game, objectX, objectY, parseFloat(objectInfo[3]), parseFloat(objectInfo[4]),
                     true, false, false);
                 levelObjects.gravObjects.add(gravObj);
                 break;
             case 'gravObj_flux':
-                gravObj = GravObjMaker(game, objectX, objectY, parseFloat(objectInfo[3]), parseFloat(objectInfo[4]),
+                gravObj = GravObj(game, objectX, objectY, parseFloat(objectInfo[3]), parseFloat(objectInfo[4]),
                     true, true, false);
                 levelObjects.gravObjects.add(gravObj);
                 break;
             case 'gravObj_move':
                 //list in format x1#y1-x2#y2-x3#y3...
                 movementList = objectInfo[5].split('-');
-                gravObj = GravObjMaker(game, objectX, objectY, parseFloat(objectInfo[3]), parseFloat(objectInfo[4]),
+                gravObj = GravObj(game, objectX, objectY, parseFloat(objectInfo[3]), parseFloat(objectInfo[4]),
                     true, false, true, movementList);
                 gravObj.startingX = objectX;
                 gravObj.startingY = objectY;
@@ -95,7 +95,7 @@ let LevelLoader = function (game) {
                 break;
             case 'gravObj_moveFlux':
                 movementList = objectInfo[5].split('-');
-                gravObj = GravObjMaker(game, objectX, objectY, parseFloat(objectInfo[3]), parseFloat(objectInfo[4]),
+                gravObj = GravObj(game, objectX, objectY, parseFloat(objectInfo[3]), parseFloat(objectInfo[4]),
                     true, true, true, movementList);
                 gravObj.startingX = objectX;
                 gravObj.startingY = objectY;
