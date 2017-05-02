@@ -71,8 +71,8 @@ let FreezeState = function() {
         let theta = Math.atan2(yDelta, xDelta);
         let scale = Math.sqrt(Math.sqrt(xDelta*xDelta + yDelta*yDelta)) / 20;
 
-        this.arrow.x = player.x + arrowDist * Math.cos(theta);
-        this.arrow.y = player.y + arrowDist * Math.sin(theta);
+        this.arrow.x = player.x + 1.3 * scale * arrowDist * Math.cos(theta);
+        this.arrow.y = player.y + 1.3 * scale * arrowDist * Math.sin(theta);
         this.arrow.rotation = theta;
         this.arrow.scale.setTo(scale, scale);
     }
