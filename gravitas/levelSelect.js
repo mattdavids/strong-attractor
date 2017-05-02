@@ -5,9 +5,14 @@ let LevelSelect = function (game, gameState) {
         startY, // used to save start touch position
         scrollSpeed = 1,
         levelGroup,
-        selectedLevel;
+        selectedLevel,
+        playerDataList,
+        levelCount;
 
     function loadLevelSelect() {
+        let levelList = game.cache.getText('levelList').split('\n');
+        levelCount = levelList.length;
+
         game.load.image('levelSelectBackground', 'assets/art/levelSelectImages/LevelSelectBackground.png');
         game.load.image('level', 'assets/art/levelSelectImages/levelThumbnail');
     }
@@ -36,8 +41,14 @@ let LevelSelect = function (game, gameState) {
         background.immovable = true;
 
         levelGroup = game.add.group();
+        addLevelsToTower();
+    }
 
+    function addLevelsToTower() {
+        let associatedLevel = 0;
+        for (let i = 0; i < levelCount; i++) {
 
+        }
     }
 
     function clearLevel() {
