@@ -5,7 +5,7 @@ $(function() {
 
     let game = new Phaser.Game(width, height, Phaser.AUTO, 'gameWindow', null, false, false);
     
-    let startState = new StartState(game);
+    let bootState = new BootState(game);
     let gameState = new Game(game);
         
     // will merge Win State
@@ -23,7 +23,7 @@ $(function() {
 
     let levelSelect = new LevelSelect(game, gameState);
     
-    game.state.add('boot', {preload: startState.boot, create: startState.postBoot});
+    game.state.add('boot', {preload: bootState.boot, create: bootState.postBoot});
     game.state.add('menu', {preload: menu.loadMenu, create: menu.createMenu});
     game.state.add('win', {preload: win.loadWin, create: win.displayWinMessage});
     game.state.add('game', {preload: gameState.preload, create: gameState.create, update: gameState.update, render: gameState.render});
