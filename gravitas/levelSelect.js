@@ -5,7 +5,6 @@ let LevelSelect = function (game, gameState) {
         startY, // used to save start touch position
         scrollSpeed = 1,
         elementGroup,
-        selectedLevel,
         playerDataList,
         levelCount;
 
@@ -42,12 +41,15 @@ let LevelSelect = function (game, gameState) {
 
     function renderLevelSelect() {
         elementGroup = game.add.group();
-        let background = game.add.image(game.width/2, 0, 'levelSelectBackground');
-        background.anchor.set(0.5, 0.5);
-        background.immovable = true;
-        elementGroup.add(background);
+        levelSelectBackground = game.add.image(game.width/2, 0, 'levelSelectBackground');
+        levelSelectBackground.anchor.set(0.5, 0.5);
+        elementGroup.add(levelSelectBackground);
 
         addLevelsToTower();
+
+        elementGroup.x = (game.width - levelSelectBackground.width) / 2;
+        elementGroup.y = (game.height - levelSelectBackground.height) / 2;
+        game.input.onDown.add(mouseOnScreen, this);
     }
 
     function addLevelsToTower() {
@@ -55,7 +57,7 @@ let LevelSelect = function (game, gameState) {
         for (let levelNum = 0; levelNum < levelCount; levelCount++) {
             let button;
 
-            getLevelPosition(level)
+            getLevelPosition(levelNum);
 
             if (playerDataList[levelNum] == 0) {
                 // level is unlocked
@@ -71,6 +73,8 @@ let LevelSelect = function (game, gameState) {
                 })
             }
             button.levelNum = levelNum;
+            button.xPos = xPos;
+            button.yPos = yPos;
             elementGroup.add(button);
         }
     }
@@ -78,33 +82,56 @@ let LevelSelect = function (game, gameState) {
     function getLevelPosition(levelNum) {
 
         // finding y-axis position
-        if (levelNum === 0) yPos = heightSpacing;
+        if (levelNum == 0) yPos = heightSpacing;
         else yPos = heightSpacing * levelNum;
 
         // finding x-axis position
-        if (i === 0 || i % 2 === 0) xPos = 200;
-        else xPos = 300;
+        if (levelNum == 0 || levelNum % 2 == 0) xPos = 400;
+        else xPos = 500;
     }
 
     function clearLevel() {
-        background.kill();
-        elementGroup.destroy(); // I think
+        elementGroup.destroy(); // I think that's it
     }
 
-    function mouseOnMap() {
+    function mouseOnScreen() {
         // save beginning touching position
         startX = game.input.worldX;
         startY = game.input.worldY;
         elementGroup.saveX = elementGroup.x;
         elementGroup.saveY = elementGroup.y;
+
+        game.input.onDown.remove(mouseOnScreen);
+        game.input.onUp.add(userStopsTouchingScreen);
+        game.input.addMoveCallback(dragScreen, this);
     }
 
-    function dragMap() {
+    function dragScreen() {
+        let currentX = game.input.worldX,
+            currentY = game.input.worldY,
+            deltaX = startX - currentX,
+            deltaY = startY - currentY;
+        elementGroup.x = elementGroup.saveX - deltaX * scrollSpeed;
+        elementGroup.y = elementGroup.saveY - deltaY * scrollSpeed;
 
+        // to always have the background fully cover the screen
+        if (elementGroup.x < - elementGroup.width + game.width) {
+            elementGroup.x = - elementGroup.width + game.width;
+        }
+        if (elementGroup.x > 0) {
+            elementGroup.x = 0;
+        }
+        if(elementGroup.y < - levelSelectBackground.height + game.height){
+            elementGroup.y = - levelSelectBackground.height + game.height;
+        }
+        if(elementGroup.y > 0){
+            elementGroup.y = 0;
+        }
     }
 
-    function stopMap() {
-
+    function userStopsTouchingScreen() {
+        game.input.onDown.add(mouseOnScreen);
+        game.input.onUp.remove(userStopsTouchingScreen);
     }
 
     return {
