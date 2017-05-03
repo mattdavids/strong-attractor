@@ -37,10 +37,10 @@ let ExitState = function() {
             (this.hitExit.x > player.x)/exitSpeedRatio - 
             (this.hitExit.x < player.x)/exitSpeedRatio;
         player.y += 
-            (this.hitExit.y + blockSize/2 - player.height/2> player.y)/exitSpeedRatio - 
-            (this.hitExit.y + blockSize/2 - player.height/2 < player.y)/exitSpeedRatio;
+            (this.hitExit.bottom - player.height/2> player.y)/exitSpeedRatio - 
+            (this.hitExit.bottom - player.height/2 < player.y)/exitSpeedRatio;
         
-        let exitBasePosition = new Phaser.Point(this.hitExit.x, this.hitExit.y + blockSize/2 - player.height/2);
+        let exitBasePosition = new Phaser.Point(this.hitExit.x, this.hitExit.bottom - player.height/2);
         let diff = Phaser.Point.subtract(player.position, exitBasePosition);
         let r = diff.getMagnitude();
 

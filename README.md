@@ -2,6 +2,8 @@
 
 Gravitas is a platformer that aims to provide an intuitive sense of gravitational dynamics. The main functionality is to allow the player to move and jump, while also manipulating the gravitational pull of objects to traverse the environment.
 
+Our app can be found [here](https://mattdavids.github.io/strong-attractor/). It currently supports Chrome and Firefox.
+
 ## Getting Started
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
@@ -19,12 +21,6 @@ Cloning this repository should give you the necessary software to begin developm
 
 ```
 $ git clone https://github.com/mattdavids/strong-attractor gravitas
-```
-
-To run the site locally:
-
-```
-$ I'm not sure...
 ```
 
 ## Built With

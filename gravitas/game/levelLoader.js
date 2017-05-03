@@ -116,6 +116,12 @@ let LevelLoader = function (game) {
                 checkpoint.hasBeenHitBefore = false;
                 levelObjects.checkpoints.add(checkpoint);
                 break;
+            case 'door':
+                let door = game.add.sprite(objectX, objectY, objectName);
+                door.anchor.set(.5, .5);
+                door.body.immovable = true;
+                levelObjects.exits.add(door);
+                break;
             case 'exit':
                 let exit = game.add.sprite(objectX, objectY, objectName);
                 exit.anchor.set(.5, .5);

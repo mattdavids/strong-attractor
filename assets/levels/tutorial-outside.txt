@@ -1,4 +1,4 @@
-﻿990,600
+990,600
 2500
 grass,15,585
 grass,45,585
@@ -91,8 +91,6 @@ wall,945,45
 shocker,465,585
 shocker,495,585
 shocker,525,585
-exit,975,495
-exit,975,525
-exit,975,555
+door,975,525
 tutorial_movement,90,450
 player,52.5,562.5
