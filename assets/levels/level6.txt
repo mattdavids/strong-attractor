@@ -274,4 +274,5 @@ gravObj_off,645,255,0,300000
 checkpoint,165,435
 exit,525,15
 exit,555,15
+tutorial_restart,120,780
 player,37.5,847.5

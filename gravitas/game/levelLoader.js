@@ -126,6 +126,7 @@ let LevelLoader = function (game) {
             case 'tutorial_time_freeze':
             case 'tutorial_gravity_change':
             case 'tutorial_gravity_select':
+            case 'tutorial_restart':
                 let sign = game.add.sprite(objectX, objectY, objectName);
                 levelObjects.tutorialSigns.add(sign);
                 break;

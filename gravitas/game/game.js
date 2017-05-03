@@ -181,6 +181,7 @@ let Game = function (game) {
         game.load.image('tutorial_time_freeze', 'assets/art/tutorial/time_freeze_overlay.png');
         game.load.image('tutorial_gravity_change', 'assets/art/tutorial/gravity_change_overlay.png');
         game.load.image('tutorial_gravity_select', 'assets/art/tutorial/gravity_select_overlay.png');
+        game.load.image('tutorial_restart', 'assets/art/tutorial/restart.png');
 
         // Background tile sprites
         for(let i=1; i<=7; i++){
