@@ -23,6 +23,10 @@ let LevelSelect = function (game, gameState) {
         for (let i = 1; i <= levelCount; i++) { 
             game.load.image('thumbnail' + i, 'assets/art/levelSelectImages/thumbnail' + i + '.png', thumbHeight, thumbWidth);
         }
+        
+        for (let i = 1; i <= levelCount; i ++) {
+            game.load.image('icon' + i, 'assets/art/levelSelectImages/icon' + i + '.png', thumbHeight, thumbWidth);
+        }
     } 
     
     function updateFromLocalStorage() {
@@ -46,6 +50,7 @@ let LevelSelect = function (game, gameState) {
     function clearLevel() {
         background.kill();
         buttons.destroy();
+        texts.destroy();
     }
     
     function renderLevelSelect() {
@@ -54,6 +59,7 @@ let LevelSelect = function (game, gameState) {
         background.immovable = true;
         
         buttons = game.add.group();
+        texts = game.add.group();
         
         // horizontal offset to have lock thumbnails horizontally centered in the page
         let offsetX = (game.width - levelWidth)/2;
@@ -68,11 +74,13 @@ let LevelSelect = function (game, gameState) {
                     
                     if (playerDataList[associatedLevel] == 0) {
                         // level is unlocked
-                        button = game.add.button(offsetX + j * (thumbWidth + thumbSpacing), offsetY + i * (thumbHeight + thumbSpacing), 'thumbnail' + (associatedLevel + 1), function(){
+                        button = game.add.button(offsetX + j * (thumbWidth + thumbSpacing), offsetY + i * (thumbHeight + thumbSpacing), 'icon' + (associatedLevel + 1), function(){
                             clearLevel();
                             gameState.setLevel(button.associatedLevel);
                             game.state.start('game');
                         });
+                        let text = game.add.text(offsetX + j * (thumbWidth + thumbSpacing) + 25 - 20 * (associatedLevel + 1> 9), offsetY + i * (thumbHeight + thumbSpacing), associatedLevel + 1, {fill: "#000", fontSize: '70px'});
+                        texts.add(text);
                     } else {
                         // level is locked
                         button = game.add.button(offsetX + j * (thumbWidth + thumbSpacing), offsetY + i * (thumbHeight + thumbSpacing), 'lockedThumbnail', function() {
