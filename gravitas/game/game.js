@@ -166,6 +166,7 @@ let Game = function (game) {
         // Sprites
         game.load.image('player', 'assets/art/player.png');
         game.load.image('exit', 'assets/art/exit.png');
+        game.load.image('door', 'assets/art/door.png');
         game.load.image('wall', 'assets/art/bricks_gray.png');
         game.load.image('grass', 'assets/art/grass.png');
         game.load.image('gravObj', 'assets/art/gravObj.png');
