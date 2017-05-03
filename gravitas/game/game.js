@@ -166,6 +166,7 @@ let Game = function (game) {
         // Sprites
         game.load.image('player', 'assets/art/player.png');
         game.load.image('exit', 'assets/art/exit.png');
+        game.load.image('door', 'assets/art/door.png');
         game.load.image('wall', 'assets/art/bricks_gray.png');
         game.load.image('grass', 'assets/art/grass.png');
         game.load.image('gravObj', 'assets/art/gravObj.png');
@@ -181,6 +182,7 @@ let Game = function (game) {
         game.load.image('tutorial_time_freeze', 'assets/art/tutorial/time_freeze_overlay.png');
         game.load.image('tutorial_gravity_change', 'assets/art/tutorial/gravity_change_overlay.png');
         game.load.image('tutorial_gravity_select', 'assets/art/tutorial/gravity_select_overlay.png');
+        game.load.image('tutorial_restart', 'assets/art/tutorial/restart.png');
 
         // Background tile sprites
         for(let i=1; i<=7; i++){
