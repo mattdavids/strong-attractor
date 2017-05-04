@@ -179,6 +179,7 @@ let Game = function (game) {
         game.load.image('circle', 'assets/art/gravCircle.png');
 
         game.load.image('tutorial_movement', 'assets/art/tutorial/movement.png');
+        game.load.image('tutorial_esc_pause', 'assets/art/tutorial/esc_pause.png');
         game.load.image('tutorial_time_freeze', 'assets/art/tutorial/time_freeze_overlay.png');
         game.load.image('tutorial_gravity_change', 'assets/art/tutorial/gravity_change_overlay.png');
         game.load.image('tutorial_gravity_select', 'assets/art/tutorial/gravity_select_overlay.png');

@@ -129,6 +129,7 @@ let LevelLoader = function (game) {
                 levelObjects.exits.add(exit);
                 break;
             case 'tutorial_movement':
+            case 'tutorial_esc_pause':
             case 'tutorial_time_freeze':
             case 'tutorial_gravity_change':
             case 'tutorial_gravity_select':
