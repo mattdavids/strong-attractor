@@ -9,6 +9,21 @@
             html, body {
                 overflow-y: hidden;
                 overflow-x: hidden;
+                width: 100%;
+                height: 100%;
+                background-color: #444;
+            }
+            #gameWindow{
+                width: 100%;
+                height: 100%;
+            }
+            canvas{
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -60%);
+                border: 4px solid #666;
+                border-radius: 5px;
             }
         </style>
 
@@ -17,6 +32,7 @@
         <script type="text/javascript" src="gravitas/win.js"></script>
         <script type="text/javascript" src="gravitas/game/gravObj.js"></script>
         <script type="text/javascript" src="gravitas/game/levelLoader.js"></script>
+        <script type="text/javascript" src="gravitas/game/pauseHandler.js"></script>
         <script type="text/javascript" src="gravitas/game/deathHandler.js"></script>
         <script type="text/javascript" src="gravitas/game/exitHandler.js"></script>
         <script type="text/javascript" src="gravitas/game/freezeHandler.js"></script>

@@ -32,6 +32,7 @@ let Game = function (game) {
     let framesSincePressingUp;
     let framesHoldingR;
     
+    let pauseHandler;
     let deathHandler;
     let exitHandler;
     let freezeHandler;
@@ -184,6 +185,8 @@ let Game = function (game) {
         game.load.image('tutorial_gravity_change', 'assets/art/tutorial/gravity_change_overlay.png');
         game.load.image('tutorial_gravity_select', 'assets/art/tutorial/gravity_select_overlay.png');
         game.load.image('tutorial_restart', 'assets/art/tutorial/restart.png');
+        game.load.image('resumeButton', 'assets/art/restartButton.png')
+        game.load.image('menuButton', 'assets/art/menuButton.png');
 
         // Background tile sprites
         for(let i=1; i<=7; i++){
@@ -226,6 +229,8 @@ let Game = function (game) {
         gravCirclesBottom = game.add.group();
 
         playerHasHitCheckpoint = false;
+
+        pauseHandler = new PauseHandler(game);
         deathHandler = new DeathHandler();
         exitHandler = new ExitHandler();
         freezeHandler = new FreezeHandler();
@@ -272,6 +277,10 @@ let Game = function (game) {
         doControlButtons();
 
         doDebugButtons();
+        
+        if(game.input.keyboard.isDown(Phaser.KeyCode.ESC)) {
+            pauseHandler.startPauseMenu();
+        }
 
         doCollision();
         doGravityPhysics();
@@ -344,7 +353,7 @@ let Game = function (game) {
             }
         });
 
-        if ((game.physics.arcade.isPaused && deathHandler.notCurrentlyDying && exitHandler.notCurrentlyExiting) || freezeHandler.stopPauseAnimation) {
+        if ((freezeHandler.pauseAnimation && deathHandler.notCurrentlyDying && exitHandler.notCurrentlyExiting) || freezeHandler.stopPauseAnimation) {
             freezeHandler.doPauseGraphics(game, pauseGraphics, player, quadraticEase);
         }
 
