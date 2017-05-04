@@ -32,11 +32,11 @@ let Game = function (game) {
     let framesSincePressingUp;
     let framesHoldingR;
     
-    let deathState;
-    let exitState;
-    let freezeState;
-    let jumpState;
-    let shadowState;
+    let deathHandler;
+    let exitHandler;
+    let freezeHandler;
+    let jumpHandler;
+    let shadowHandler;
     
     let playerDataList = [];
 
@@ -97,25 +97,25 @@ let Game = function (game) {
         game.world.bringToTop(pauseGraphics);
         game.world.bringToTop(selectedObjGraphics);
 
-        freezeState.addArrow(game, player);
+        freezeHandler.addArrow(game, player);
         
     }
 
     function setupPauseButton() {
         pauseBtn = game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
         pauseBtn.onDown.add(function() {
-            if (deathState.notCurrentlyDying && exitState.notCurrentlyExiting) {
+            if (deathHandler.notCurrentlyDying && exitHandler.notCurrentlyExiting) {
                 shockers.children.forEach(function(ele) {
                     ele.animations.paused = ! ele.animations.paused;
                 });
                 game.physics.arcade.isPaused = ! game.physics.arcade.isPaused;
                 if (! game.physics.arcade.isPaused) {
                     selectableGravObjects.length = 0;
-                    freezeState.endFreeze(game);
+                    freezeHandler.endFreeze(game);
                     
                 } else {
                     handleGravObjSelection();
-                    freezeState.startFreeze(game);
+                    freezeHandler.startFreeze(game);
                 }
             }
 
@@ -225,11 +225,11 @@ let Game = function (game) {
         gravCirclesBottom = game.add.group();
 
         playerHasHitCheckpoint = false;
-        deathState = new DeathState();
-        exitState = new ExitState();
-        freezeState = new FreezeState();
-        jumpState = new JumpState();
-        shadowState = new ShadowState();
+        deathHandler = new DeathHandler();
+        exitHandler = new ExitState();
+        freezeHandler = new FreezeState();
+        jumpHandler = new JumpState();
+        shadowHandler = new ShadowState();
 
         loadLevel();
 
@@ -244,7 +244,7 @@ let Game = function (game) {
             }
         };
 
-        shadowState.setUp(game, player);
+        shadowHandler.setUp(game, player);
 
         rightKeyWasPressed = false;
         leftKeyWasPressed = false;
@@ -260,12 +260,12 @@ let Game = function (game) {
     function update() {
         // Move the player in a parabolic death animation when dead,
         // Reset the game when the player falls below the game window
-        if (deathState.deathFall) {
-            deathState.doDeathFallAnimation(game, player, blockSize, onPlayerDeath);
+        if (deathHandler.deathFall) {
+            deathHandler.doDeathFallAnimation(game, player, blockSize, onPlayerDeath);
         }
         
-        if (exitState.inExitAnimation) {
-            exitState.doExitAnimation(player, blockSize, quadraticEase);
+        if (exitHandler.inExitAnimation) {
+            exitHandler.doExitAnimation(player, blockSize, quadraticEase);
         }
         
         doControlButtons();
@@ -281,14 +281,14 @@ let Game = function (game) {
             // When the player hits the ground after jumping, play a you hit the ground particle effect
             doHitGroundAnimation();
             checkWallCollision();
-            jumpState.doJumpPhysics(game, player);
+            jumpHandler.doJumpPhysics(game, player);
             gravObjects.forEach(function(gravObj) {
                 gravObj.animateParticles();
             }, null);
 
             previous_velocity_y = player.body.velocity.y;
 
-            jumpState.update(player);
+            jumpHandler.update(player);
 
             rightKeyWasPressed = false;
             leftKeyWasPressed = false;
@@ -301,12 +301,12 @@ let Game = function (game) {
                 }, null);
             }, null);
 
-            if (deathState.notCurrentlyDying && exitState.notCurrentlyExiting) {
+            if (deathHandler.notCurrentlyDying && exitHandler.notCurrentlyExiting) {
                 // Adjust attraction of clicked object
                 adjustAttractorsPull();
             }
             
-            freezeState.doArrowChange(player);
+            freezeHandler.doArrowChange(player);
         }
     }
 
@@ -343,8 +343,8 @@ let Game = function (game) {
             }
         });
 
-        if ((game.physics.arcade.isPaused && deathState.notCurrentlyDying && exitState.notCurrentlyExiting) || freezeState.stopPauseAnimation) {
-            freezeState.doPauseGraphics(game, pauseGraphics, player, quadraticEase);
+        if ((game.physics.arcade.isPaused && deathHandler.notCurrentlyDying && exitHandler.notCurrentlyExiting) || freezeHandler.stopPauseAnimation) {
+            freezeHandler.doPauseGraphics(game, pauseGraphics, player, quadraticEase);
         }
 
         if (selectableGravObjects.length > 0) {
@@ -378,7 +378,7 @@ let Game = function (game) {
     function resetLevel() {
         
         player.destroy();
-        freezeState.killArrow();
+        freezeHandler.killArrow();
         player = levelLoader.makePlayer(playerStartX, playerStartY, playerGrav);
         
         gravObjects.children.forEach(function(gravObj) {
@@ -408,7 +408,7 @@ let Game = function (game) {
         gravObjects.destroy();
         exits.destroy();
         backgrounds.destroy();
-        freezeState.killArrow();
+        freezeHandler.killArrow();
         checkpoints.destroy();
         movers.length = 0;
         tutorialSigns.destroy();
@@ -427,12 +427,12 @@ let Game = function (game) {
             }, null, null);
         }, null);
         
-        shadowState.update(game, player, walls);
+        shadowHandler.update(game, player, walls);
         
         // If the player is not dead, play the death animation on contact with shockers or the exit animation on contact with an exit
-        if (deathState.notCurrentlyDying && !deathState.diedRecently && exitState.notCurrentlyExiting) {
+        if (deathHandler.notCurrentlyDying && !deathHandler.diedRecently && exitHandler.notCurrentlyExiting) {
             game.physics.arcade.overlap(player, exits, onExit, null, null);
-            game.physics.arcade.overlap(player, shockers, function() {deathState.deathAnimation(game, player);}, null, null);
+            game.physics.arcade.overlap(player, shockers, function() {deathHandler.deathAnimation(game, player);}, null, null);
         }
     }
 
@@ -497,19 +497,19 @@ let Game = function (game) {
 
     function doPlayerMovement(){
         if (game.input.keyboard.isDown(Phaser.KeyCode.A)) {
-            if (player.body.touching.down && !jumpState.recentlyJumped()) {
+            if (player.body.touching.down && !jumpHandler.recentlyJumped()) {
                 player.body.velocity.x = Math.max(-maxHorizontalVelocity, player.body.velocity.x - groundAcceleration);
             } else {
                 player.body.velocity.x -= airAcceleration;
             }
         } else if (game.input.keyboard.isDown(Phaser.KeyCode.D)) {
-            if (player.body.touching.down && !jumpState.recentlyJumped()) {
+            if (player.body.touching.down && !jumpHandler.recentlyJumped()) {
                 player.body.velocity.x = Math.min(maxHorizontalVelocity, player.body.velocity.x + groundAcceleration);
             } else {
                 player.body.velocity.x += airAcceleration;
             }
         } else {
-            if (player.body.touching.down && !jumpState.isJumping) {
+            if (player.body.touching.down && !jumpHandler.isJumping) {
                 player.body.velocity.x = player.body.velocity.x * frictionCoef;
             }
         }
@@ -555,7 +555,7 @@ let Game = function (game) {
     }
 
     function doHitGroundAnimation() {
-        if (jumpState.isJumping && player.isTouchingBottom) {
+        if (jumpHandler.isJumping && player.isTouchingBottom) {
             // add player.body.velocity.x / 14 so that particles appear where player *will* be next frame
             let emitter = game.add.emitter(player.x + player.body.velocity.x/14, player.bottom + 2);
             let numParticles = Math.max(5, (previous_velocity_y - 220)/40) ;
@@ -590,13 +590,13 @@ let Game = function (game) {
 
     function checkWallCollision() {
         //If just landed on top of a block under another, get out of the wall and keep moving
-        if ((player.body.touching.down || player.isTouchingBottom) && jumpState.isJumping && (player.isTouchingLeft || player.isTouchingRight)) {
+        if ((player.body.touching.down || player.isTouchingBottom) && jumpHandler.isJumping && (player.isTouchingLeft || player.isTouchingRight)) {
             player.body.velocity.x = player.isTouchingLeft * groundAcceleration - player.isTouchingRight * groundAcceleration;
             player.body.velocity.y = previous_velocity_y;
         }
 
         //If stuck in a wall, get out of the wall and keep moving
-        if ((player.body.touching.down || player.isTouchingBottom) && player.isTouchingTop && jumpState.isJumping) {
+        if ((player.body.touching.down || player.isTouchingBottom) && player.isTouchingTop && jumpHandler.isJumping) {
             player.body.velocity.x = player.isTouchingLeft * groundAcceleration - player.isTouchingRight * groundAcceleration;
             player.x = player.x + player.isTouchingLeft * ((blockSize/2) - (player.body.left % (blockSize/2))) - player.isTouchingRight * (player.body.right % (blockSize/2));
             if (player.body.velocity.y === 0) {
@@ -692,7 +692,7 @@ let Game = function (game) {
     }
     
     function onExit(obj, exit) {
-        exitState.onExit(obj, exit, game, processExit);
+        exitHandler.onExit(obj, exit, game, processExit);
     }
     
     function processExit() {
@@ -702,7 +702,7 @@ let Game = function (game) {
         playerHasHitCheckpoint = false;
         clearLevel();
         
-        exitState.reset();
+        exitHandler.reset();
         
         game.physics.arcade.isPaused = false;
         if (currentLevelNum + 1 === levelLoader.getLevelCount()) {
