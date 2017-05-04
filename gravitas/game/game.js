@@ -181,11 +181,11 @@ let Game = function (game) {
 
         game.load.image('tutorial_movement', 'assets/art/tutorial/movement.png');
         game.load.image('tutorial_esc_pause', 'assets/art/tutorial/esc_pause.png');
-        game.load.image('tutorial_time_freeze', 'assets/art/tutorial/time_freeze_overlay.png');
-        game.load.image('tutorial_gravity_change', 'assets/art/tutorial/gravity_change_overlay.png');
-        game.load.image('tutorial_gravity_select', 'assets/art/tutorial/gravity_select_overlay.png');
+        game.load.image('tutorial_time_freeze', 'assets/art/tutorial/time_freeze.png');
+        game.load.image('tutorial_gravity_change', 'assets/art/tutorial/gravity_change.png');
+        game.load.image('tutorial_gravity_select', 'assets/art/tutorial/gravity_select.png');
         game.load.image('tutorial_restart', 'assets/art/tutorial/restart.png');
-        game.load.image('resumeButton', 'assets/art/restartButton.png')
+        game.load.image('resumeButton', 'assets/art/restartButton.png');
         game.load.image('menuButton', 'assets/art/menuButton.png');
 
         // Background tile sprites
