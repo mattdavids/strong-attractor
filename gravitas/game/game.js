@@ -185,7 +185,7 @@ let Game = function (game) {
         game.load.image('tutorial_gravity_change', 'assets/art/tutorial/gravity_change_overlay.png');
         game.load.image('tutorial_gravity_select', 'assets/art/tutorial/gravity_select_overlay.png');
         game.load.image('tutorial_restart', 'assets/art/tutorial/restart.png');
-        game.load.image('resumeButton', 'assets/art/restartButton.png')
+        game.load.image('resumeButton', 'assets/art/resumeButton.png')
         game.load.image('menuButton', 'assets/art/menuButton.png');
 
         // Background tile sprites
