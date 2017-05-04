@@ -16,16 +16,13 @@ $(function() {
         game.state.start('levelselect');
     });
 
-    let win = new Win(game, function() {
-        gameState.setLevel(startingLevelNum);
-        game.state.start('menu');
-    });
+    let win = new Win(game);
 
     let levelSelect = new LevelSelect(game, gameState);
     
     game.state.add('boot', {preload: bootState.boot, create: bootState.postBoot});
     game.state.add('menu', {preload: menu.loadMenu, create: menu.createMenu});
-    game.state.add('win', {preload: win.loadWin, create: win.displayWinMessage});
+    game.state.add('win', {preload: win.loadWin, create: win.displayWinMessage, update: win.update});
     game.state.add('game', {preload: gameState.preload, create: gameState.create, update: gameState.update, render: gameState.render});
     game.state.add('levelselect', {preload: levelSelect.preload, create: levelSelect.create});
 
