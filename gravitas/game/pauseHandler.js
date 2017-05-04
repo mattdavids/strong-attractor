@@ -11,11 +11,16 @@ let PauseHandler = function(game) {
     menuButton.visible = false;
         
     function startPauseMenu() {
-        game.world.bringToTop(buttons);
         game.physics.arcade.isPaused = true;
         game.time.events.pause();
+        game.world.bringToTop(buttons);
+        let centerX = game.camera.view.centerX;
+        let centerY = game.camera.view.centerY;
+        resumeButton.position.setTo(centerX, centerY - 100);
+        menuButton.position.setTo(centerX, centerY);
         resumeButton.visible = true;
         menuButton.visible = true;
+        pauseMenuUp = true;
     }
     
     function resumeGame() {
@@ -23,6 +28,7 @@ let PauseHandler = function(game) {
         game.time.events.resume();
         resumeButton.visible = false;
         menuButton.visible = false;
+        pauseMenuUp = false;
     }
     
     function returnToMenu() {
@@ -32,5 +38,8 @@ let PauseHandler = function(game) {
     
     return {
         startPauseMenu: startPauseMenu,
+        isPauseMenuUp: function () {
+            return pauseMenuUp;
+        }
     }
 };

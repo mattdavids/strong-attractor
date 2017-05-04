@@ -3,8 +3,7 @@ let FreezeHandler = function() {
     let pauseAnimation = false;
     let pauseAnimationTick = 0;
     let arrow;
-    
-    const pauseAnimationSpeed = 50; // never used
+
     const pauseMaxTick = 30;
     const arrowDist = 7;
     
@@ -96,6 +95,7 @@ let FreezeHandler = function() {
     return {
         stopPauseAnimation: stopPauseAnimation,
         pauseAnimationTick: pauseAnimationTick,
+        pauseAnimation: pauseAnimation,
         startFreeze: startFreeze,
         endFreeze: endFreeze,
         addArrow: addArrow,

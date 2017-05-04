@@ -105,7 +105,7 @@ let Game = function (game) {
     function setupPauseButton() {
         pauseBtn = game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
         pauseBtn.onDown.add(function() {
-            if (deathHandler.notCurrentlyDying && exitHandler.notCurrentlyExiting) {
+            if (!pauseHandler.isPauseMenuUp() && deathHandler.notCurrentlyDying && exitHandler.notCurrentlyExiting) {
                 shockers.children.forEach(function(ele) {
                     ele.animations.paused = ! ele.animations.paused;
                 });
@@ -248,6 +248,9 @@ let Game = function (game) {
             if (event.keyCode === Phaser.Keyboard.LEFT) {
                 leftKeyWasPressed = true;
             }
+            if (event.keyCode === Phaser.KeyCode.ESC && !game.physics.arcade.isPaused) {
+                pauseHandler.startPauseMenu();
+            }
         };
 
         shadowHandler.setUp(game, player);
@@ -277,10 +280,6 @@ let Game = function (game) {
         doControlButtons();
 
         doDebugButtons();
-        
-        if(game.input.keyboard.isDown(Phaser.KeyCode.ESC)) {
-            pauseHandler.startPauseMenu();
-        }
 
         doCollision();
         doGravityPhysics();
