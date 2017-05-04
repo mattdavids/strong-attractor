@@ -163,6 +163,7 @@ let LevelLoader = function (game) {
         return levelObjects;
     }
 
+    // Function to determine which tile to use for backgrounds
     function stoneBG(x, y, lnum, spriteNumMax){
         let n1 = x+(lnum+3);
         let n2 = y;
@@ -171,7 +172,18 @@ let LevelLoader = function (game) {
         out = Math.pow(out, (lnum%2)+21);
 
 
-        return (out%(spriteNumMax)) +1; // Put sprite values into correct range
+        return (out%spriteNumMax) +1; // Put sprite values into correct range
+    }
+
+    // Function to determine which starry night tile to use
+    // The stoneBG function always returns 1 when there's 4 sprites, so we need a different one for the starry sky
+    function skyBG(x, y, lnum, spriteNumMax){
+        let h = x%2;
+        let v = y;
+        if(x%4<2)
+            v++;
+        let out = 1 + h + 2*(v%2);
+        return (out%spriteNumMax) + 1;
     }
 
     function buildBackground(levelObjects, width, height, levelNumber, spriteNumMax, spritePrefix = "bg_large_stone_", blockSize = 30, tileFunction = stoneBG){
@@ -203,8 +215,7 @@ let LevelLoader = function (game) {
 
         // Load background
         if(levelNumber == 0){
-            function skyBG(){ return 1;};
-            levelObjects = buildBackground(levelObjects, bounds[0], bounds[1], levelNumber, 1, "bg_sky_", 90, skyBG);
+            levelObjects = buildBackground(levelObjects, bounds[0], bounds[1], levelNumber, 1, "bg_sky_solid_", 90, skyBG);
         } else {
             levelObjects = buildBackground(levelObjects, bounds[0], bounds[1], levelNumber, 7, "bg_large_stone_", 90, stoneBG);
         }
