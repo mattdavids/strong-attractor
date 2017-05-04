@@ -174,6 +174,14 @@ let LevelLoader = function (game) {
         return (out%(spriteNumMax)) +1; // Put sprite values into correct range
     }
 
+    function skyBG(x, y){
+        let h = x%2;
+        let v = y;
+        if(x%4<2)
+            v++;
+        return 1 + h + 2*(v%2);
+    }
+
     function buildBackground(levelObjects, width, height, levelNumber, spriteNumMax, spritePrefix = "bg_large_stone_", blockSize = 30, tileFunction = stoneBG){
         let xMax = parseInt(width) + blockSize;
         let yMax = parseInt(height) + blockSize;
@@ -203,8 +211,7 @@ let LevelLoader = function (game) {
 
         // Load background
         if(levelNumber == 0){
-            function skyBG(){ return 1;};
-            levelObjects = buildBackground(levelObjects, bounds[0], bounds[1], levelNumber, 1, "bg_sky_", 90, skyBG);
+            levelObjects = buildBackground(levelObjects, bounds[0], bounds[1], levelNumber, 1, "bg_sky_solid_", 90, stoneBG);
         } else {
             levelObjects = buildBackground(levelObjects, bounds[0], bounds[1], levelNumber, 7, "bg_large_stone_", 90, stoneBG);
         }
