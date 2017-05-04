@@ -152,10 +152,7 @@ wall,45,585
 wall,45,555
 wall,45,525
 wall,45,495
-wall,45,405
 wall,75,375
-wall,75,345
-wall,45,345
 wall,135,465
 wall,165,465
 wall,195,465
@@ -249,6 +246,10 @@ wall,615,255
 wall,675,225
 wall,675,255
 wall,675,285
+wall,45,315
+wall,75,315
+wall,75,345
+wall,45,375
 shocker,345,885
 shocker,375,885
 shocker,405,885
@@ -268,11 +269,10 @@ shocker,585,405
 shocker,615,405
 shocker,375,465
 gravObj_off,465,645,0,300000
-gravObj_off,45,375,0,300000
+gravObj_off,45,345,0,300000
 gravObj_off,315,285,0,300000
 gravObj_off,645,255,0,300000
 checkpoint,165,435
 exit,525,15
 exit,555,15
-tutorial_restart,120,780
 player,37.5,847.5
