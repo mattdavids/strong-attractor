@@ -1,6 +1,7 @@
 let LevelSelect = function (game, gameState) {
     
-    let thumbCols = 2,
+    let background,
+        thumbCols = 2,
         thumbRows = 5,
         thumbWidth = 96,
         thumbHeight = 96,
@@ -18,6 +19,7 @@ let LevelSelect = function (game, gameState) {
         
         game.load.image('lockedThumbnail', 'assets/art/levelSelectImages/locked.png', thumbHeight, thumbWidth);
         game.load.image('levelSelectBackground', 'assets/art/LevelSelectBackground.png');
+        game.load.image('backButton', 'assets/art/backButton.png');
         
         // level thumbnails - would rather use spritesheet
         for (let i = 1; i <= levelCount; i++) { 
@@ -60,6 +62,11 @@ let LevelSelect = function (game, gameState) {
         
         buttons = game.add.group();
         texts = game.add.group();
+        
+        let back = game.add.button(45, 56, 'backButton', function() {
+            game.state.start('menu');
+        });
+        buttons.add(back);
         
         // horizontal offset to have lock thumbnails horizontally centered in the page
         let offsetX = (game.width - levelWidth)/2;
