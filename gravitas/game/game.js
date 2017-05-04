@@ -202,12 +202,12 @@ let Game = function (game) {
 
         // Audio
         game.load.audio('death', ['assets/audio/death.mp3', 'assets/audio/death.ogg']);
-        game.load.audio('freeze', 'assets/audio/Freeze.mp3');
-        game.load.audio('unfreeze', 'assets/audio/Unfreeze.mp3');
-        game.load.audio('jump4', 'assets/audio/Jump4.mp3');
-        game.load.audio('landing', 'assets/audio/Landing.mp3');
-        game.load.audio('checkpointHit', 'assets/audio/checkpoint.mp3');
-        game.load.audio('exitSound', 'assets/audio/exit.mp3');
+        game.load.audio('freeze', ['assets/audio/Freeze.mp3', 'assets/audio/Freeze.ogg']);
+        game.load.audio('unfreeze', ['assets/audio/Unfreeze.mp3', 'assets/audio/Unfreeze.ogg']);
+        game.load.audio('jump4', ['assets/audio/Jump4.mp3', 'assets/audio/Jump4.ogg']);
+        game.load.audio('landing', ['assets/audio/Landing.mp3', 'assets/audio/Landing.ogg']);
+        game.load.audio('checkpointHit', ['assets/audio/checkpoint.mp3', 'assets/audio/checkpoint.ogg']);
+        game.load.audio('exitSound', ['assets/audio/exit.mp3', 'assets/audio/exit.ogg']);
 
         // Animated sprites
         game.load.spritesheet('shocker', 'assets/art/electricity_sprites.png', 30, 30, 3);
