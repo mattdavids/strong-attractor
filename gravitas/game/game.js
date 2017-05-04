@@ -286,8 +286,6 @@ let Game = function (game) {
         
         doControlButtons();
 
-        doDebugButtons();
-
         doCollision();
         doGravityPhysics();
 
@@ -542,32 +540,6 @@ let Game = function (game) {
         movers.forEach(function(obj) {
             moveObjInPattern(obj);
         })
-    }
-    
-    function doDebugButtons() {
-        // Button to skip levels
-        if(game.input.keyboard.isDown(Phaser.KeyCode.NUMPAD_MULTIPLY)) {
-            if(!skipPressed) {
-                processExit();
-            }
-            skipPressed = true;
-        } else{
-            skipPressed = false;
-        }
-
-
-    }
-
-    function doDebugDisplay(){
-        // Draw deadzone rectangle
-        if(lastDzoneRect != null)
-            lastDzoneRect.kill();
-        let dzone = game.camera.deadzone;
-        let graphics = game.add.graphics();
-        graphics.lineStyle(4, 0x000000, 1);
-        lastDzoneRect = graphics.drawRect(dzone.x + game.camera.x, dzone.y+game.camera.y, dzone.width, dzone.height);
-        window.graphics = graphics;
-
     }
 
     function doHitGroundAnimation() {
