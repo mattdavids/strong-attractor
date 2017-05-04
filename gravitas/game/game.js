@@ -248,8 +248,12 @@ let Game = function (game) {
             if (event.keyCode === Phaser.Keyboard.LEFT) {
                 leftKeyWasPressed = true;
             }
-            if (event.keyCode === Phaser.KeyCode.ESC && !game.physics.arcade.isPaused) {
-                pauseHandler.startPauseMenu();
+            if (event.keyCode === Phaser.KeyCode.ESC) {
+                if (pauseHandler.isPauseMenuUp()) {
+                    pauseHandler.resume();
+                } else if(!game.physics.arcade.isPaused) {
+                    pauseHandler.startPauseMenu();
+                }
             }
         };
 
