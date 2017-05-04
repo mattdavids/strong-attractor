@@ -1,4 +1,4 @@
-let DeathState = function() {
+let DeathHandler = function() {
     let deathFall = false;
     let deathTick = 0;
     let diedRecently = false;

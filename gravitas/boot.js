@@ -1,4 +1,4 @@
-let StartState = function(game) {
+let BootState = function(game) {
     
     function resizeGame() {
         game.scale.maxWidth = window.innerWidth/(1.5);
