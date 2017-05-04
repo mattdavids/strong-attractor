@@ -1,5 +1,6 @@
 let FreezeState = function() {
     let stopPauseAnimation = false;
+    let pauseAnimation = false;
     let pauseAnimationTick = 0;
     let arrow;
     
@@ -22,6 +23,7 @@ let FreezeState = function() {
 
         this.arrow.visible = true;
         this.pauseAnimationTick = 0;
+        this.pauseAnimation = true;
 
         let freezeEffect = game.add.audio('freeze');
         freezeEffect.volume = 0.3;
@@ -36,6 +38,7 @@ let FreezeState = function() {
         slowTheme[0].playbackRate = 2;
 
         this.stopPauseAnimation = true;
+        this.pauseAnimation = false;
         game.time.events.resume();
         
         this.arrow.visible = false;
@@ -59,8 +62,10 @@ let FreezeState = function() {
             } else {
                 this.stopPauseAnimation = false;
             }
-        } else if (this.pauseAnimationTick < pauseMaxTick) {
-            this.pauseAnimationTick += 1;
+        } else if (this.pauseAnimation) {
+            if (this.pauseAnimationTick < pauseMaxTick) {
+                this.pauseAnimationTick += 1;
+            }
         }
     }
     

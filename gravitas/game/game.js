@@ -37,6 +37,7 @@ let Game = function (game) {
     let freezeState;
     let jumpState;
     let shadowState;
+    let pauseHandler;
     
     let playerDataList = [];
 
@@ -230,6 +231,7 @@ let Game = function (game) {
         freezeState = new FreezeState();
         jumpState = new JumpState();
         shadowState = new ShadowState();
+        pauseHandler = new PauseHandler(game);
 
         loadLevel();
 
@@ -271,6 +273,10 @@ let Game = function (game) {
         doControlButtons();
 
         doDebugButtons();
+        
+        if(game.input.keyboard.isDown(Phaser.KeyCode.ESC)) {
+            pauseHandler.startPauseMenu();
+        }
 
         doCollision();
         doGravityPhysics();
@@ -343,7 +349,7 @@ let Game = function (game) {
             }
         });
 
-        if ((game.physics.arcade.isPaused && deathState.notCurrentlyDying && exitState.notCurrentlyExiting) || freezeState.stopPauseAnimation) {
+        if ((freezeState.pauseAnimation && deathState.notCurrentlyDying && exitState.notCurrentlyExiting) || freezeState.stopPauseAnimation) {
             freezeState.doPauseGraphics(game, pauseGraphics, player, quadraticEase);
         }
 
