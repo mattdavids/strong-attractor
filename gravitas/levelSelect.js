@@ -1,6 +1,7 @@
 let LevelSelect = function (game, gameState) {
     
-    let thumbCols = 2,
+    let background,
+        thumbCols = 2,
         thumbRows = 5,
         thumbWidth = 96,
         thumbHeight = 96,
