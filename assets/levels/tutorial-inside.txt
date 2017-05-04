@@ -276,6 +276,6 @@ shocker,585,165
 shocker,615,165
 gravObj_on,600,390,0,300000
 exit,585,15
-tutorial_time_freeze,420,360
-tutorial_gravity_change,690,345
+tutorial_time_freeze,420,330
+tutorial_gravity_change,660,300
 player,60,680
