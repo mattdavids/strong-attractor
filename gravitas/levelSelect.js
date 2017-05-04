@@ -21,11 +21,6 @@ let LevelSelect = function (game, gameState) {
         game.load.image('levelSelectBackground', 'assets/art/LevelSelectBackground.png');
         game.load.image('backButton', 'assets/art/backButton.png');
         
-        // level thumbnails - would rather use spritesheet
-        for (let i = 1; i <= levelCount; i++) { 
-            game.load.image('thumbnail' + i, 'assets/art/levelSelectImages/thumbnail' + i + '.png', thumbHeight, thumbWidth);
-        }
-        
         for (let i = 1; i <= levelCount; i ++) {
             game.load.image('icon' + i, 'assets/art/levelSelectImages/icon' + i + '.png', thumbHeight, thumbWidth);
         }
