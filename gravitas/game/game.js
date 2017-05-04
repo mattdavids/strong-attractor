@@ -226,10 +226,10 @@ let Game = function (game) {
 
         playerHasHitCheckpoint = false;
         deathHandler = new DeathHandler();
-        exitHandler = new ExitState();
-        freezeHandler = new FreezeState();
-        jumpHandler = new JumpState();
-        shadowHandler = new ShadowState();
+        exitHandler = new ExitHandler();
+        freezeHandler = new FreezeHandler();
+        jumpHandler = new JumpHandler();
+        shadowHandler = new ShadowHandler();
 
         loadLevel();
 

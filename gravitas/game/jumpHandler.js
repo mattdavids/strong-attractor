@@ -1,4 +1,4 @@
-let JumpState = function() {
+let JumpHandler = function() {
     let isJumping = false;
     let jumpCount = 0;
     let lastTwoJumpFrames = [false, false];

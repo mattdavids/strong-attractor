@@ -1,4 +1,4 @@
-let ExitState = function() {
+let ExitHandler = function() {
     let notCurrentlyExiting = true;
     let hitExit = null;
     let inExitAnimation = false;
