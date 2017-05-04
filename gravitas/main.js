@@ -18,7 +18,7 @@ $(function() {
 
     let win = new Win(game, function() {
         gameState.setLevel(startingLevelNum);
-        game.state.start('game', false);
+        game.state.start('menu');
     });
 
     let levelSelect = new LevelSelect(game, gameState);
