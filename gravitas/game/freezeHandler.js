@@ -1,4 +1,4 @@
-let FreezeState = function() {
+let FreezeHandler = function() {
     let stopPauseAnimation = false;
     let pauseAnimation = false;
     let pauseAnimationTick = 0;

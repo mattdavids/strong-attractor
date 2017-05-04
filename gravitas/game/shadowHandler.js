@@ -1,4 +1,4 @@
-let ShadowState = function() {
+let ShadowHandler = function() {
     let playerShadowLeft,
         playerShadowRight,
         playerShadowBottom,
