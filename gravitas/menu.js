@@ -3,6 +3,7 @@ let Menu = function(game, startGameFromMenuCallback, goToLevelSelectFromMenuCall
     //game.state.add('levelselect', {preload: levelSelect.preload, create: levelSelect.create, update: levelSelect.onLevelSelected});
 
     let startBtn, levelSelectBtn, background, flame1, flame2, playerDataList;
+    let fadeIn = true;
 
     function clearLevel() {
         background.kill();
@@ -46,6 +47,10 @@ let Menu = function(game, startGameFromMenuCallback, goToLevelSelectFromMenuCall
         slowTheme[0].volume = 0;
         slowTheme.trigger('play');
 
+        if (fadeIn) {
+            game.camera.flash(0x000000, 1500);
+            fadeIn = false;
+        }
         /*
         // THERE NEEDS TO BE A BETTER WAY TO DO THIS
         let flame_height = game.height/2 + 9;
