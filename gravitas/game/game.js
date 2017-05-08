@@ -113,6 +113,9 @@ let Game = function (game) {
                 if (! game.physics.arcade.isPaused) {
                     selectableGravObjects.length = 0;
                     freezeHandler.endFreeze(game);
+                    gravObjects.forEach(function(gravObj) {
+                        gravObj.animateParticles(true);
+                    });
                     
                 } else {
                     handleGravObjSelection();
