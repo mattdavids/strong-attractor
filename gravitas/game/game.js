@@ -1,4 +1,4 @@
-let Game = function (game) {
+let Game = function (game, optionsData) {
 
     // Displayables from level file
     let player,
@@ -38,6 +38,7 @@ let Game = function (game) {
     let freezeHandler;
     let jumpHandler;
     let shadowHandler;
+    let optionsHandler;
     
     let playerDataList = [];
 
@@ -188,9 +189,22 @@ let Game = function (game) {
         game.load.image('tutorial_gravity_change', 'assets/art/tutorial/gravity_change.png');
         game.load.image('tutorial_gravity_select', 'assets/art/tutorial/gravity_select.png');
         game.load.image('tutorial_restart', 'assets/art/tutorial/restart.png');
+        
         game.load.image('resumeButton', 'assets/art/resumeButton.png');
         game.load.image('menuButton', 'assets/art/menuButton.png');
+        game.load.image('optionsButton', 'assets/art/optionsButton.png');
         game.load.image('pauseBackground', 'assets/art/pauseBackground.png');
+        
+        game.load.image('optionsBar', 'assets/art/optionsBar.png');
+        game.load.image('addButton', 'assets/art/addButton.png');
+        game.load.image('minusButton', 'assets/art/minusButton.png');
+        game.load.image('backButton', 'assets/art/backButton.png');
+        game.load.image('coin', 'assets/art/coin.png')
+        game.load.image('blankBackground', 'assets/art/blankBackground.png');
+        game.load.image('masterAudioLabel', 'assets/art/masterAudioLabel.png');
+        game.load.image('musicAudioLabel', 'assets/art/musicAudioLabel.png');
+        game.load.image('soundFXAudioLabel', 'assets/art/soundFXAudioLabel.png');
+        game.load.image('optionsLabel', 'assets/art/optionsLabel.png');
 
         // Background tile sprites
         for(let i=1; i<=7; i++){
@@ -212,6 +226,7 @@ let Game = function (game) {
         game.load.audio('landing', ['assets/audio/Landing.mp3', 'assets/audio/Landing.ogg']);
         game.load.audio('checkpointHit', ['assets/audio/checkpoint.mp3', 'assets/audio/checkpoint.ogg']);
         game.load.audio('exitSound', ['assets/audio/exit.mp3', 'assets/audio/exit.ogg']);
+        game.load.audio('frozenTime', 'assets/audio/frozenTime.mp3');
 
         // Animated sprites
         game.load.spritesheet('shocker', 'assets/art/electricity_sprites.png', 30, 30, 3);
@@ -237,11 +252,14 @@ let Game = function (game) {
 
         playerHasHitCheckpoint = false;
 
-        pauseHandler = new PauseHandler(game);
-        deathHandler = new DeathHandler();
-        exitHandler = new ExitHandler();
-        freezeHandler = new FreezeHandler();
-        jumpHandler = new JumpHandler();
+        optionsHandler = new OptionsHandler(game, optionsData, function() {
+            pauseHandler.startPauseMenu();
+        });
+        pauseHandler = new PauseHandler(game, optionsHandler);
+        deathHandler = new DeathHandler(optionsData);
+        exitHandler = new ExitHandler(optionsData);
+        freezeHandler = new FreezeHandler(optionsData);
+        jumpHandler = new JumpHandler(optionsData);
         shadowHandler = new ShadowHandler();
 
         loadLevel();
@@ -564,7 +582,7 @@ let Game = function (game) {
             
             if (!game.input.keyboard.isDown(Phaser.KeyCode.W)) {
                 let hitGroundSound = game.add.audio('landing');
-                hitGroundSound.volume = 0.1;
+                hitGroundSound.volume = 0.1  * optionsData.master * optionsData.soundFX;
                 hitGroundSound.allowMultiple = false;
                 hitGroundSound.play();
             }
@@ -742,12 +760,12 @@ let Game = function (game) {
     function setLevel(lnum){
         currentLevelNum = lnum;
     }
-
+    
     return {
         preload: preload,
         create: create,
         update: update,
         render: render,
-        setLevel: setLevel
+        setLevel: setLevel,
     };
 };

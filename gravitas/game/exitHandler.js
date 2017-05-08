@@ -1,4 +1,4 @@
-let ExitHandler = function() {
+let ExitHandler = function(optionsData) {
     let notCurrentlyExiting = true;
     let hitExit = null;
     let inExitAnimation = false;
@@ -9,7 +9,7 @@ let ExitHandler = function() {
     
     function onExit(obj, exit, game, callback) {
         let exitSound = game.add.audio('exitSound');
-        exitSound.volume = 2;
+        exitSound.volume = 2 * optionsData.master * optionsData.music;
         exitSound.allowMultiple = false;
         exitSound.play();
 
@@ -18,7 +18,7 @@ let ExitHandler = function() {
         mainTheme[0].volume = 0;
         
         exitSound.onStop.add(function() {
-            mainTheme.animate({volume: 1}, 500);
+            mainTheme.animate({volume: 1 * optionsData.master * optionsData.music}, 500);
             this.exitTick = 0;
             if (this.inExitAnimation) {
                 callback();

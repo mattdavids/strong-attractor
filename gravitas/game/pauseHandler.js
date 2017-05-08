@@ -1,4 +1,4 @@
-let PauseHandler = function(game) {
+let PauseHandler = function(game, optionsHandler) {
     let pauseMenuUp = false;
     let pauseBackground = game.add.sprite(game.width/2, game.height, 'pauseBackground');
     pauseBackground.anchor.set(.5, .5);
@@ -7,16 +7,23 @@ let PauseHandler = function(game) {
     resumeButton.anchor.set(.5, .5);
     let menuButton = game.add.button(game.width/2, game.height, 'menuButton', returnToMenu);
     menuButton.anchor.set(.5, .5);
+    let optionsButton = game.add.button(game.width - 30, game.height - 30, 'optionsButton', gotoOptionsMenu);
+    optionsButton.anchor.set(.5, .5);
+    
     let buttons = game.add.group();
+    buttons.add(pauseBackground);
     buttons.add(resumeButton);
     buttons.add(menuButton);
+    buttons.add(optionsButton);
     pauseBackground.visible = false;
     resumeButton.visible = false;
     menuButton.visible = false;
+    optionsButton.visible = false;
         
     function startPauseMenu() {
         game.physics.arcade.isPaused = true;
         game.time.events.pause();
+        
         game.world.bringToTop(buttons);
         let centerX = game.camera.view.centerX;
         let centerY = game.camera.view.centerY;
@@ -27,17 +34,18 @@ let PauseHandler = function(game) {
         pauseBackground.visible = true;
         resumeButton.visible = true;
         menuButton.visible = true;
+        optionsButton.visible = true;
         pauseMenuUp = true;
     }
     
     function resumeGame() {
-        game.physics.arcade.isPaused = wasPaused;
-        if (!wasPaused) {
-            game.time.events.resume();
-        }
+        game.physics.arcade.isPaused = false;
+        game.time.events.resume();
+        
         pauseBackground.visible = false;
         resumeButton.visible = false;
         menuButton.visible = false;
+        optionsButton.visible = false;
         pauseMenuUp = false;
     }
     
@@ -46,6 +54,16 @@ let PauseHandler = function(game) {
         game.physics.arcade.isPaused = false;
         game.time.events.resume();
         game.state.start('menu');
+    }
+    
+    function gotoOptionsMenu() {
+        
+        pauseBackground.visible = false;
+        resumeButton.visible = false;
+        menuButton.visible = false;
+        optionsButton.visible = false;
+        
+        optionsHandler.startOptionsMenu();
     }
     
     return {

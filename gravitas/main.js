@@ -5,11 +5,13 @@ $(function() {
 
     let game = new Phaser.Game(width, height, Phaser.AUTO, 'gameWindow', null, false, false);
     
+    let optionsData = new OptionsData();
+    
     let bootState = new BootState(game);
-    let gameState = new Game(game);
+    let gameState = new Game(game, optionsData);
         
     // will merge Win State
-    let menu = new Menu(game, function() {
+    let menu = new Menu(game, optionsData, function() {
         gameState.setLevel(startingLevelNum);
         game.state.start('game');
     }, function() {

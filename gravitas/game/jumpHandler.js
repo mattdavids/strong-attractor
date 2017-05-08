@@ -1,4 +1,4 @@
-let JumpHandler = function() {
+let JumpHandler = function(optionsData) {
     let isJumping = false;
     let jumpCount = 0;
     let lastTwoJumpFrames = [false, false];
@@ -30,7 +30,7 @@ let JumpHandler = function() {
             }
             
             let jumpSound = game.add.audio('jump4');
-            jumpSound.volume = 0.1;
+            jumpSound.volume = 0.1 * optionsData.master * optionsData.soundFX;
             jumpSound.play();
 
         }

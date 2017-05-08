@@ -1,4 +1,4 @@
-let DeathHandler = function() {
+let DeathHandler = function(optionsData) {
     let deathFall = false;
     let deathTick = 0;
     let diedRecently = false;
@@ -15,7 +15,7 @@ let DeathHandler = function() {
             player.body.allowGravity = false;
             player.body.velocity = new Phaser.Point(0, 0);
             let deathSound = game.add.audio('death');
-            deathSound.volume = 0.01;
+            deathSound.volume = 0.01 * optionsData.master * optionsData.soundFX;
             deathSound.allowMultiple = false;
             deathSound.play();
             game.time.events.add(0, function() {

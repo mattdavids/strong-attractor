@@ -1,8 +1,9 @@
-let FreezeHandler = function() {
+let FreezeHandler = function(optionsData) {
     let stopPauseAnimation = false;
     let pauseAnimation = false;
     let pauseAnimationTick = 0;
     let arrow;
+    let frozenTime;
 
     const pauseMaxTick = 30;
     const arrowDist = 7;    
@@ -16,7 +17,7 @@ let FreezeHandler = function() {
         this.pauseAnimation = true;
 
         let freezeEffect = game.add.audio('freeze');
-        freezeEffect.volume = 0.3;
+        freezeEffect.volume = 0.3 * optionsData.master * optionsData.soundFX;
         freezeEffect.play();
     }
     
@@ -30,7 +31,7 @@ let FreezeHandler = function() {
         this.pauseAnimationTick = pauseMaxTick;
 
         let unFreezeEffect = game.add.audio('unfreeze');
-        unFreezeEffect.volume = 0.3;
+        unFreezeEffect.volume = 0.3 * optionsData.master * optionsData.soundFX;
         unFreezeEffect.play();
     }
     
