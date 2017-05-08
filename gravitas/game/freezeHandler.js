@@ -5,18 +5,9 @@ let FreezeHandler = function() {
     let arrow;
 
     const pauseMaxTick = 30;
-    const arrowDist = 7;
-    
-    const mainTheme = $('#mainTheme');
-    const slowTheme = $('#slowTheme');
-    
+    const arrowDist = 7;    
     
     function startFreeze(game) {
-        mainTheme[0].volume = 0;
-        slowTheme[0].volume = 1;
-
-        mainTheme[0].playbackRate = .5;
-        slowTheme[0].playbackRate = 1;
 
         game.time.events.pause();
 
@@ -30,12 +21,7 @@ let FreezeHandler = function() {
     }
     
     function endFreeze(game) {
-        mainTheme[0].volume = 1;
-        slowTheme[0].volume = 0;
-
-        mainTheme[0].playbackRate = 1;
-        slowTheme[0].playbackRate = 2;
-
+        
         this.stopPauseAnimation = true;
         this.pauseAnimation = false;
         game.time.events.resume();
