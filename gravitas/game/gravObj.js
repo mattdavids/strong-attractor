@@ -16,7 +16,7 @@ let GravObj = function(game, x, y, gravMin, gravMax, gravOn, flux, moving, movem
     }
 
     function getNumParticles() {
-        return 25 * Math.log(this.radius);
+        return Math.max(0, 25 * Math.log(this.radius));
     }
 
     function getParticleLife() {
@@ -30,7 +30,6 @@ let GravObj = function(game, x, y, gravMin, gravMax, gravOn, flux, moving, movem
             let p = game.add.sprite(gravObj.x, gravObj.y, 'gravParticle');
             p.scale.setTo(.3);
             p.anchor.set(0.5, 0.5);
-            p.life = gravObj.particleLife * Math.random();
             p.gravConstant = 0; // this needs to be 0 so that particles are not affected by gravity until they're active
             p.visible = false;
             gravObj.gravParticles.add(p);
@@ -41,11 +40,21 @@ let GravObj = function(game, x, y, gravMin, gravMax, gravOn, flux, moving, movem
         // if grav obj's weight has changed, then check if we have too many or too few particles
         let numNeeded = Math.trunc(gravObj.numParticles - gravObj.gravParticles.children.length);
         if (numNeeded < 0) {
-            gravObj.gravParticles.forEach(function (p) {
-                if (p.life <= 0 || p.life >= gravObj.particleLife) {
-                    p.destroy();
-                }
-            }, null);
+            let sorted = gravObj.gravParticles.children.sort(function(a, b) {
+                    let pos = gravObj.position;
+                    let rad = gravObj.radius;
+                    let dax = pos.x - a.x;
+                    let day = pos.y - a.y;
+                    let dbx = pos.x - b.x;
+                    let dby = pos.y - b.y
+                    let distDiffA = rad*rad - (dax*dax + day*day);
+                    let distDiffB = rad*rad - (dbx*dbx + dby*dby);
+                    return distDiffB - distDiffA;
+                });
+            for (let i = 0; i < -numNeeded; i ++) {
+                sorted[sorted.length - 1].destroy();
+            }
+
         } else if (numNeeded > 0) {
             addParticles(gravObj, numNeeded);
         }
@@ -53,36 +62,41 @@ let GravObj = function(game, x, y, gravMin, gravMax, gravOn, flux, moving, movem
 
 
     // PUBLIC
-    function animateParticles() {
-        checkParticleNumbers(this);
-        let pos = this.position;
-        let rad = this.radius;
-        let particleLife = this.particleLife;
-        this.gravParticles.forEach(function(p) {
-            // Gaussian curve for fading in and out
-            p.alpha = Math.exp(- Math.pow(p.life - particleLife/2, 2) / 5000);
-            if (p.life > particleLife) {
-                p.life -= 1;
-            } else if (p.life <= 0) {
-                p.position = getRandomPositionInCircle(this);
-                p.body.velocity.set(0, 0);
-                p.life = particleLife * (1+Math.random());
-                p.visible = false;
-                p.gravConstant = 0;
-            } else {
-                p.life -= 1;
-                p.visible = true;
-                p.gravConstant = 0.03;
+    function animateParticles(changedWeight) {
+        if (changedWeight) {
+            checkParticleNumbers(this);
+        } else {
+            let pos = this.position;
+            let rad = this.radius;
+            let particleLife = this.particleLife;
+            this.gravParticles.forEach(function(p) {
+                // Gaussian curve for fading in and out
+                p.alpha = Math.exp(- Math.pow(p.life - particleLife/2, 2) / 5000);
+                if (p.life > particleLife) {
+                    p.life -= 1;
+                    p.visible = false;
+                } else if (p.life <= 0) {
+                    p.position = getRandomPositionInCircle(this);
+                    p.body.velocity.set(0, 0);
+                    p.life = particleLife * (1+Math.random());
+                    p.visible = false;
+                    p.gravConstant = 0;
+                } else {
+                    p.life -= 1;
+                    p.visible = true;
+                    p.gravConstant = 0.03;
 
-                // Check if particle is still in the radius
-                let dx = pos.x - p.x;
-                let dy = pos.y - p.y;
-                let distDiff = rad*rad - (dx*dx + dy*dy);
-                if (distDiff < 0){
-                    p.life -= 5;
+                    // Check if particle is still in the radius
+                    let dx = pos.x - p.x;
+                    let dy = pos.y - p.y;
+                    let distDiff = rad*rad - (dx*dx + dy*dy);
+                    if (distDiff < 0){
+                        p.life -= 5;
+                        p.visible = false;
+                    }
                 }
-            }
-        }, this);
+            }, this);
+        }
     }
     
     function resetWeight() {
