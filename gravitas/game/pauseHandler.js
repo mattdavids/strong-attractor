@@ -37,6 +37,8 @@ let PauseHandler = function(game) {
     
     function returnToMenu() {
         buttons.destroy();
+        game.physics.arcade.isPaused = false;
+        game.time.events.resume();
         game.state.start('menu');
     }
     
