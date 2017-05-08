@@ -1,4 +1,4 @@
-let Win = function(game) {
+let Win = function(game, optionsData) {
     let winScreen,
         menuButton,
         flag,
@@ -32,7 +32,7 @@ let Win = function(game) {
             }, null);
             emitters.add(emitter);
             let firework = game.add.audio('firework' + currentFirework);
-            firework.volume = .02;
+            firework.volume = .02 * optionsData.master * optionsData.soundFX;
             firework.play();
             currentFirework = (currentFirework) % 3 + 1
         }

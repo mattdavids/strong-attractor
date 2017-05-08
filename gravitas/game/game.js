@@ -748,7 +748,7 @@ let Game = function (game, optionsData) {
             checkpoint.loadTexture('checkpointActivated');
             
             let checkpointSound = game.add.audio('checkpointHit');
-            checkpointSound.volume = .1;
+            checkpointSound.volume = .1 * optionsData.master * optionsData.soundFX;
             checkpointSound.play();
         }
     }
