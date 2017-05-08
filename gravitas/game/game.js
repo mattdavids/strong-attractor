@@ -187,6 +187,7 @@ let Game = function (game) {
         game.load.image('tutorial_restart', 'assets/art/tutorial/restart.png');
         game.load.image('resumeButton', 'assets/art/resumeButton.png');
         game.load.image('menuButton', 'assets/art/menuButton.png');
+        game.load.image('pauseBackground', 'assets/art/pauseBackground.png');
 
         // Background tile sprites
         for(let i=1; i<=7; i++){
