@@ -3,7 +3,8 @@ let Win = function(game) {
         menuButton,
         flag,
         displayFlag,
-        emitters;
+        emitters,
+        currentFirework;
 
     function backToMenu() {
         winScreen.kill();
@@ -30,6 +31,10 @@ let Win = function(game) {
                 emitter.destroy(true);
             }, null);
             emitters.add(emitter);
+            let firework = game.add.audio('firework' + currentFirework);
+            firework.volume = .02;
+            firework.play();
+            currentFirework = (currentFirework) % 3 + 1
         }
         
         emitters.forEach(function(emitter) {
@@ -45,6 +50,9 @@ let Win = function(game) {
             game.load.image('menuButton', 'assets/art/menuButton.png');
             game.load.image('gravParticle', 'assets/art/gravParticle.png');
             game.load.spritesheet('flag', 'assets/art/flagSpritesheet.png', 85, 152, 9);
+            game.load.audio('firework1', 'assets/audio/firework1.mp3');
+            game.load.audio('firework2', 'assets/audio/firework2.mp3');
+            game.load.audio('firework3', 'assets/audio/firework3.mp3');
         },
 
         displayWinMessage: function() {
@@ -62,6 +70,8 @@ let Win = function(game) {
             flag.animations.play('displayFlag', 10, false);
             
             emitters = game.add.group();
+            
+            currentFirework = 1;
             
         },        
         update: update,
