@@ -465,6 +465,10 @@ let Game = function (game, optionsData) {
             gravObj.weightHasBeenChanged = true;
         });
         
+        shockers.children.forEach(function(ele) {
+            ele.animations.paused = false;
+        });
+        
         movers.forEach(function(obj) {
             obj.x = obj.startingX;
             obj.y = obj.startingY;
@@ -478,6 +482,10 @@ let Game = function (game, optionsData) {
         player.kill();
         walls.destroy();
         doHoldRWhilePausedCheck()
+        
+        shockers.children.forEach(function(ele) {
+            ele.animations.paused = false;
+        });
         shockers.destroy();
         gravObjects.forEach(function(gravObj) {
             if (gravObj.gravParticles !== undefined) {
