@@ -378,11 +378,47 @@ let Game = function (game, optionsData) {
         });
     }
 
+    function render() {
+        
+        let drawOnEffect = function(ele) {
+            // If object is adjustable, draw a white box
+            let color = 0xffffff;
+            // If object is not adjustable, draw a pale red box
+            if (ele.flux || ele.moving) {
+                color = 0xfc7e9d;
+            }
+            if (ele.gravWeight > 0 || ele.flux) {
+                selectedObjGraphics.beginFill(color, 1);
+
+                let val = 20;
+                let lineWidth = 3;
+                val += lineWidth;
+
+                selectedObjGraphics.drawRect(
+                    ele.x - val,
+                    ele.y - val,
+                    lineWidth, val * 2);
+                selectedObjGraphics.drawRect(
+                    ele.x - val,
+                    ele.y - val,
+                    val * 2, lineWidth);
+                selectedObjGraphics.drawRect(
+                    ele.x - val, 
+                    ele.y + val - lineWidth,
+                    val * 2, lineWidth);
+                selectedObjGraphics.drawRect(
+                    ele.x + val - lineWidth, ele.y - val, 
+                    lineWidth, val * 2);
+
+                selectedObjGraphics.endFill();
+            }
+        }
 
         pauseGraphics.clear();
         selectedObjGraphics.clear();    
         
         gravObjects.children.forEach(function(gravObj) {
+            drawOnEffect(gravObj);
         });
 
         if ((freezeHandler.pauseAnimation && deathHandler.notCurrentlyDying && exitHandler.notCurrentlyExiting) || freezeHandler.stopPauseAnimation) {
