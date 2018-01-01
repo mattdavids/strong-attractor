@@ -6,5 +6,14 @@ level3.txt
 level5.txt
 long-jump.txt
 vertical-chase-2.txt
-vertical-chase-1.txt
 moving-platforms.txt
+holiday-1.txt
+holiday-2.txt
+holiday-3.txt
+holiday-5.txt
+holiday-9.txt
+holiday-6.txt
+holiday-7.txt
+holiday-11.txt
+holiday-8.txt
+holiday-10.txt
