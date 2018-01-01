@@ -516,6 +516,7 @@ let Game = function (game, optionsData) {
     function doCollision() {
         game.physics.arcade.collide(emitters, walls);
         game.physics.arcade.collide(player, walls);
+        game.physics.arcade.collide(walls, player);
         game.physics.arcade.collide(player, gravObjects);
 
         game.physics.arcade.overlap(player, checkpoints, onCheckpointHit, null, null);
