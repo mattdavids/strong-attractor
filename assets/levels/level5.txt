@@ -214,7 +214,7 @@ wall,615,405
 wall,585,405
 wall,555,405
 wall,525,405
-wall,435,375
+wall,435,405
 wall,405,375
 wall,405,435
 wall,675,195
@@ -302,8 +302,8 @@ shocker,675,525
 gravObj_off,225,705,0,300000
 gravObj_off,765,825,0,300000
 gravObj_off,675,405,0,300000
-gravObj_off,435,405,0,300000
-checkpoint,765,585
+gravObj_off,435,375,0,300000
+checkpoint,765,570
 exit,75,15
 exit,105,15
 player,37.5,847.5
