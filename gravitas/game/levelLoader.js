@@ -48,7 +48,7 @@ let LevelLoader = function (game) {
                 levelObjects.walls.add(wall);
                 break;
             case 'wall_move':
-                wall = game.add.sprite(objectX, objectY, 'wall');
+                wall = game.add.sprite(objectX, objectY, 'wall_red');
                 movementList = objectInfo[3].split('-');
                 wall.moving = true;
                 wall.movementList = movementList;
