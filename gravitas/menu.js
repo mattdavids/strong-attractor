@@ -2,7 +2,7 @@ let Menu = function(game, optionsData, startGameFromMenuCallback, goToLevelSelec
     
     //game.state.add('levelselect', {preload: levelSelect.preload, create: levelSelect.create, update: levelSelect.onLevelSelected});
 
-    let startBtn, levelSelectBtn, optionsButton, background, flame1, flame2, playerDataList;
+    let startBtn, levelSelectBtn, optionsButton, background, flame1, flame2, playerDataList, secretData;
     let fadeIn = true;
     let optionsHandler;
 
@@ -33,6 +33,7 @@ let Menu = function(game, optionsData, startGameFromMenuCallback, goToLevelSelec
         game.load.image('musicAudioLabel', 'assets/art/musicAudioLabel.png');
         game.load.image('soundFXAudioLabel', 'assets/art/soundFXAudioLabel.png');
         game.load.image('optionsLabel', 'assets/art/optionsLabel.png');
+        game.load.image('gravParticle', 'assets/art/gravParticle.png');
         
         game.load.audio('jump4', ['assets/audio/Jump4.mp3', 'assets/audio/Jump4.ogg']);
     }
@@ -80,6 +81,15 @@ let Menu = function(game, optionsData, startGameFromMenuCallback, goToLevelSelec
         flame2.animations.add('flicker2');
         flame2.animations.play('flicker2', 20, true);
         */
+        
+        if (localStorage.getItem('secret_progress') == null) {
+            let secretList = game.cache.getText('secretList').split('\n');
+            secretData = [];
+            for (let i = 0; i < secretList.length; i++) {
+                secretData[i] = 1;
+            }
+            localStorage.setItem('secret_progress', secretData);
+        }
     }
     
     function renewProgressLocalStorage() {

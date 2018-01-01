@@ -9,6 +9,7 @@ let BootState = function(game) {
         boot: function() {
             // Load file lists here
             game.load.text('levelList', 'assets/levels/levelList.txt');
+            game.load.text('secretList', 'assets/levels/secretList.txt');
             
             game.load.audio('theme', ['assets/audio/gravitasTheme.mp3', 'assets/audio/gravitasTheme.ogg']);
             // need .ogg if using Firefox

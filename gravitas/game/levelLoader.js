@@ -1,6 +1,6 @@
 let LevelLoader = function (game) {
     const playerSize = 14;
-    let levels;
+    let levels, secretLevels;
 
     function setup() {
         let levelList = game.cache.getText('levelList').split('\n');
@@ -10,11 +10,25 @@ let LevelLoader = function (game) {
             game.load.text("level"+i, levelNames[i]);
         }
 
+        let secretList = game.cache.getText('secretList').split('\n');
+        let secretNames = [];
+        for (let i = 0; i < secretList.length; i++) {
+            secretNames[i] = "assets/levels/" + secretList[i];
+            game.load.text('secretLevel' + i, secretNames[i]);
+        }
+        
         levels = [];
         game.load.onLoadComplete.add(function() {
             for(let i = 0; i < levelList.length; i++){
                 levels[i] = game.cache.getText("level"+i).split('\n');
             }
+        }, null);
+        
+        secretLevels = [];
+        game.load.onLoadComplete.add(function() {
+           for(let i = 0; i < secretList.length; i++) {
+               secretLevels[i] = game.cache.getText('secretLevel' + i).split('\n');
+           } 
         }, null);
     }
 
@@ -109,6 +123,25 @@ let LevelLoader = function (game) {
                 shocker.animations.play('crackle', 10, true);
                 levelObjects.shockers.add(shocker);
                 break;
+            case 'present':
+                let secretData = localStorage.getItem('secret_progress').split(',');
+                let unlockLevel = parseInt(objectInfo[3]);
+                if (secretData[unlockLevel] == 1) {
+                    let present = game.add.sprite(objectX, objectY, objectName);
+                    present.anchor.set(.5, .5);
+                    present.animations.add('open');
+                    present.unlock = unlockLevel;
+                    present.hasBeenHit = false;
+                    levelObjects.presents.add(present);
+                }
+                break;
+            case 'presentExit':
+                let presentExit = game.add.sprite(objectX, objectY, 'present');
+                presentExit.anchor.set(.5, .5);
+                presentExit.animations.add('open');
+                presentExit.hasBeenHit = false;
+                levelObjects.presentExits.add(presentExit);
+                break;
             case 'checkpoint':
                 let checkpoint = game.add.sprite(objectX, objectY, objectName);
                 checkpoint.anchor.set(.5, .5);
@@ -134,6 +167,8 @@ let LevelLoader = function (game) {
             case 'tutorial_gravity_change':
             case 'tutorial_gravity_select':
             case 'tutorial_restart':
+            case 'tutorial_momentum_1':
+            case 'tutorial_momentum_2':
                 let sign = game.add.sprite(objectX, objectY, objectName);
                 levelObjects.tutorialSigns.add(sign);
                 break;
@@ -158,6 +193,8 @@ let LevelLoader = function (game) {
         levelObjects.emitters = game.add.group();
         levelObjects.checkpoints = game.add.group();
         levelObjects.tutorialSigns = game.add.group();
+        levelObjects.presents = game.add.group();
+        levelObjects.presentExits = game.add.group();
         levelObjects.movers = [];
         
         return levelObjects;
@@ -203,7 +240,13 @@ let LevelLoader = function (game) {
     }
 
     function loadLevel(levelNumber) {
-        let level = levels[levelNumber];
+        let level;
+        if (typeof(levelNumber) == "string") {
+            level = secretLevels[parseInt(levelNumber.substring(1, levelNumber.length))];
+            levelNumber = 100;
+        } else {
+            level = levels[levelNumber];
+        }
         let levelObjects = initializeLevelObjects();
 
         // Get bounds

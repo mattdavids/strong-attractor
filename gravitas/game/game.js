@@ -10,13 +10,13 @@ let Game = function (game, optionsData) {
         emitters,
         backgrounds,
         movers,
-        tutorialSigns;
+        tutorialSigns,
+        presents,
+        presentExits;
 
     // Dynamic displayables
     let pauseGraphics;
     let selectedObjGraphics;
-    let gravCirclesTop;
-    let gravCirclesBottom;
 
     let levelLoader;
     let currentLevelNum;
@@ -81,6 +81,8 @@ let Game = function (game, optionsData) {
         backgrounds = loaderObjects.backgrounds;
         movers = loaderObjects.movers;
         tutorialSigns = loaderObjects.tutorialSigns;
+        presents = loaderObjects.presents;
+        presentExits = loaderObjects.presentExits;
     }
 
     function loadLevel() {
@@ -134,7 +136,7 @@ let Game = function (game, optionsData) {
                 }
             }
         });
-
+        
         // Sort the objects from left to right
         selectableGravObjects.sort(function(a, b) {
             if (a.x < b.x) {
@@ -187,6 +189,8 @@ let Game = function (game, optionsData) {
         game.load.image('tutorial_gravity_change', 'assets/art/tutorial/gravity_change.png');
         game.load.image('tutorial_gravity_select', 'assets/art/tutorial/gravity_select.png');
         game.load.image('tutorial_restart', 'assets/art/tutorial/restart.png');
+        game.load.image('tutorial_momentum_1', 'assets/art/tutorial/momentum_1.png');
+        game.load.image('tutorial_momentum_2', 'assets/art/tutorial/momentum_2.png');
         
         game.load.image('resumeButton', 'assets/art/resumeButton.png');
         game.load.image('menuButton', 'assets/art/menuButton.png');
@@ -225,9 +229,11 @@ let Game = function (game, optionsData) {
         game.load.audio('checkpointHit', ['assets/audio/checkpoint.mp3', 'assets/audio/checkpoint.ogg']);
         game.load.audio('exitSound', ['assets/audio/exit.mp3', 'assets/audio/exit.ogg']);
         game.load.audio('frozenTime', 'assets/audio/frozenTime.mp3');
+        game.load.audio('secretSound', 'assets/audio/secret.mp3');
 
         // Animated sprites
         game.load.spritesheet('shocker', 'assets/art/electricity_sprites.png', 30, 30, 3);
+        game.load.spritesheet('present', 'assets/art/present_sprites.png', 30, 30);
 
         levelLoader = new LevelLoader(game);
         levelLoader.setup();
@@ -432,7 +438,8 @@ let Game = function (game, optionsData) {
     
     function drawSelectedObjBox() {
         let selectedObj = selectableGravObjects[currentHighlightedObjIndex];
-        selectedObjGraphics.beginFill(0xffffff, 1);
+        let color = 0xffffff;
+        selectedObjGraphics.beginFill(color, 1);
 
         selectedObjGraphics.drawRect(
             selectedObj.x - 15,
@@ -460,8 +467,14 @@ let Game = function (game, optionsData) {
         player = levelLoader.makePlayer(playerStartX, playerStartY, playerGrav);
         
         doHoldRWhilePausedCheck()
+        deathHandler.diedRecently = true;
+        game.time.events.add(30, function() {
+                deathHandler.diedRecently = false;
+        }, this);
+        
         gravObjects.children.forEach(function(gravObj) {
             gravObj.resetWeight();
+            gravObj.gravCircles.removeAll(true);
             gravObj.weightHasBeenChanged = true;
         });
         
@@ -481,6 +494,9 @@ let Game = function (game, optionsData) {
     function clearLevel() {
         player.kill();
         walls.destroy();
+        presents.destroy();
+        presentExits.destroy();
+        
         doHoldRWhilePausedCheck()
         
         shockers.children.forEach(function(ele) {
@@ -491,9 +507,9 @@ let Game = function (game, optionsData) {
             if (gravObj.gravParticles !== undefined) {
                 gravObj.gravParticles.destroy();
             }
-            gravObj.gravCircles.destroy();
+            gravObj.gravCircles.destroy(true);
         }, null);
-        gravObjects.destroy();
+        gravObjects.destroy(true);
         exits.destroy();
         backgrounds.destroy();
         freezeHandler.killArrow();
@@ -528,6 +544,8 @@ let Game = function (game, optionsData) {
         }, null);
         
         shadowHandler.update(game, player, walls);
+        
+        doSecretCollision();
         
         // If the player is not dead, play the death animation on contact with shockers or the exit animation on contact with an exit
         if (deathHandler.notCurrentlyDying && !deathHandler.diedRecently && exitHandler.notCurrentlyExiting) {
@@ -593,6 +611,58 @@ let Game = function (game, optionsData) {
                 framesHoldingR++;
             framesHoldingR = Math.max(0, framesHoldingR);
         }
+    }
+    
+    function doSecretCollision() {
+        game.physics.arcade.overlap(player, presents, function(_, present) {
+            if (! present.hasBeenHit) {
+
+                let secretSound = game.add.audio('secretSound');
+                secretSound.volume = .3 * optionsData.master * optionsData.music;
+                secretSound.allowMultiple = false;
+                secretSound.play();
+
+                let mainTheme = $('#mainTheme');
+                mainTheme[0].volume = 0;
+                secretSound.onStop.add(function() {
+                    mainTheme.animate({volume: 1 * optionsData.master * optionsData.music}, 500);
+                });
+
+                //                       key,   fr, loop, killOnComplete
+                present.animations.play('open', 10, false, true);
+
+                let secretData = localStorage.getItem('secret_progress').split(',');
+                secretData[present.unlock] = 0;
+                localStorage.setItem('secret_progress', secretData);
+
+                present.hasBeenHit = true;
+            }
+
+        });
+        
+        game.physics.arcade.overlap(player, presentExits, function(_, presentExit) {
+            if (! presentExit.hasBeenHit) {
+                let secretSound = game.add.audio('secretSound');
+                secretSound.volume = .3 * optionsData.master * optionsData.music;
+                secretSound.allowMultiple = false;
+                secretSound.play();
+
+                let mainTheme = $('#mainTheme');
+                mainTheme[0].volume = 0;
+                secretSound.onStop.add(function() {
+                    mainTheme.animate({volume: 1 * optionsData.master * optionsData.music}, 500);
+                    clearLevel();
+                    game.camera.resetFX();
+                    game.state.start('menu');
+                });
+
+                presentExit.animations.play('open', 10, false);
+                game.camera.fade(0xffffff, 3000);
+                game.physics.arcade.isPaused = true;
+                presentExit.hasBeenHit = true;
+            }
+            
+        });
     }
 
     function doPlayerMovement(){
@@ -694,8 +764,7 @@ let Game = function (game, optionsData) {
             gravObj.gravParticles.forEachAlive(function(p) {
                 gravityEffectsOnObject(p);
             }, null);
-
-            if (gravObj.flux) {
+            if (! game.physics.arcade.isPaused && gravObj.flux){
                 gravObj.gravWeight += 2000 * gravObj.fluxConst;
                 if (gravObj.gravWeight >= gravObj.gravMax || gravObj.gravWeight <= gravObj.gravMin) {
                     gravObj.fluxConst *= -1;
