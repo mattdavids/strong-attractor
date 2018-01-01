@@ -459,6 +459,7 @@ let Game = function (game, optionsData) {
         freezeHandler.killArrow();
         player = levelLoader.makePlayer(playerStartX, playerStartY, playerGrav);
         
+        doHoldRWhilePausedCheck()
         gravObjects.children.forEach(function(gravObj) {
             gravObj.resetWeight();
             gravObj.weightHasBeenChanged = true;
@@ -476,6 +477,7 @@ let Game = function (game, optionsData) {
     function clearLevel() {
         player.kill();
         walls.destroy();
+        doHoldRWhilePausedCheck()
         shockers.destroy();
         gravObjects.forEach(function(gravObj) {
             if (gravObj.gravParticles !== undefined) {
@@ -490,6 +492,17 @@ let Game = function (game, optionsData) {
         checkpoints.destroy();
         movers.length = 0;
         tutorialSigns.destroy();
+    }
+    
+    function doHoldRWhilePausedCheck() {
+        if (game.physics.arcade.isPaused && deathHandler.notCurrentlyDying && exitHandler.notCurrentlyExiting) {
+            selectableGravObjects.length = 0;
+            game.physics.arcade.isPaused = false;
+            freezeHandler.endFreeze(game);
+            gravObjects.forEach(function(gravObj) {
+                gravObj.animateParticles(true);
+            });
+        }
     }
     
     function doCollision() {
