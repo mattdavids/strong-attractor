@@ -93,9 +93,7 @@ let Game = function (game, optionsData) {
     function setLayerOrder() {
         game.world.bringToTop(emitters);
         game.world.sendToBack(shockers);
-        game.world.sendToBack(gravCirclesBottom);
         game.world.sendToBack(backgrounds);
-        game.world.bringToTop(gravCirclesTop);
         game.world.bringToTop(pauseGraphics);
         game.world.bringToTop(selectedObjGraphics);
 
@@ -246,9 +244,6 @@ let Game = function (game, optionsData) {
         
         pauseGraphics = game.add.graphics();
         selectedObjGraphics = game.add.graphics();
-        
-        gravCirclesTop = game.add.group();
-        gravCirclesBottom = game.add.group();
 
         playerHasHitCheckpoint = false;
 
@@ -344,15 +339,17 @@ let Game = function (game, optionsData) {
             
             freezeHandler.doArrowChange(player);
         }
-    }
-
-    function render() {
         
+        renderGravCircles();
+    }
+    
+    function renderGravCircles() {
         let drawGravObjCircle = function(circleGroup, gravObj, alpha) {
             // these are heuristic constants which look okay
             const subAmount = 50;
-            let diameter = 2 * gravObj.radius;
-            gravObj.gravCircles.removeAll();
+            let diameter = 2 * gravObj.radius;            
+            
+            circleGroup.removeAll(true);
             
             while (diameter > 0) {
                 let circle = game.add.sprite(gravObj.x, gravObj.y, 'circle');
@@ -361,22 +358,31 @@ let Game = function (game, optionsData) {
                 circle.width = diameter;
                 circle.height = diameter;
                 circleGroup.add(circle);
-                gravObj.gravCircles.add(circle);
                 diameter -= subAmount;
                 alpha -= alpha / 10;
             }
         };
+        
+        let makeGravCircles = function(gravObj) {
+
+            drawGravObjCircle(gravObj.gravCircles, gravObj, .1);
+        }
+        
+        gravObjects.children.forEach(function(gravObj) {
+            if (gravObj.weightHasBeenChanged || (! game.physics.arcade.isPaused && (gravObj.flux || gravObj.moving))) {
+                makeGravCircles(gravObj);
+                if (gravObj.weightHasBeenChanged) {
+                    gravObj.weightHasBeenChanged = false;
+                }
+            }
+        });
+    }
+
 
         pauseGraphics.clear();
         selectedObjGraphics.clear();    
         
         gravObjects.children.forEach(function(gravObj) {
-            if(gravObj.weightHasBeenChanged || gravObj.flux || gravObj.moving) {
-                gravObj.gravCircles.removeAll(true);
-                drawGravObjCircle(gravCirclesBottom, gravObj, .1);
-                drawGravObjCircle(gravCirclesTop, gravObj, .1);
-                gravObj.weightHasBeenChanged = false;
-            }
         });
 
         if ((freezeHandler.pauseAnimation && deathHandler.notCurrentlyDying && exitHandler.notCurrentlyExiting) || freezeHandler.stopPauseAnimation) {
