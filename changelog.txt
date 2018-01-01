@@ -1,0 +1,49 @@
+Patch 1 - Holiday Patch
+
+level changes
+-------------
+deleted level 9 - by popular demand the second chase level has been deleted since it was a rehash of the first level and didn't add any interesting gameplay ideas
+level 5 - added checkpoint before final jump, user feedback made it clear this section was harder than anticipated
+level 7 (long jump) - added checkpoint before the long jump, user feedback made it clear that this jump took enough tries that it needed to be adjusted
+moved all checkpoint flag locations to match 
+added 12 new levels - find the secrets!
+
+menu changes
+-------------
+made the level select screen have multiple pages
+made locked icons sprites instead of buttons
+added thumbnails for the new levels to the level select screen
+added a hidden level page to the level select screen
+
+object types
+--------------
+added new object - the fluctuator, check it out on the new levels!
+
+tutorial
+------------
+adjusted tutorial text on level 2 to be more clear based on user feedback - changed space to <space> and changed gravity to attractor level
+created secondary tutorial levels for bounce mechanic
+
+graphical changes
+-----------------
+added color to the end screen fireworks
+made moving platforms different color from wall color
+added effect around on attractors
+added effect around non adjustable attractors
+made checkpoint flags taller to be easier to hit
+made options menu buttons have clearer text
+added thumbnails for new levels
+
+bug fixes
+--------------
+made shocker animation always play when game is unpaused
+fixed issue where fluctuators would break on restart occasionally
+make game unpause when restart key is held to prevent
+fixed issue where attractors on the far right of screen would not be selectable
+fixed issue where bottom gravity circles weren't appearing and then deleted them since they weren't necessary
+fixed issue where fluctuators would occasionally make gravity circles flash
+
+editor
+--------------
+changed moving platform texture to match in game
+
