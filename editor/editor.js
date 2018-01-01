@@ -126,6 +126,7 @@ function loadFromLocal(){
 
 function preload() {
     game.load.image('wall', 'assets/art/bricks_gray.png');
+    game.load.image('wall_red', 'assets/art/bricks_red.png');
     game.load.image('gravObj', 'assets/art/gravObj.png');
     game.load.spritesheet('shocker', 'assets/art/electricity_sprites.png', 30, 30, 3);
     game.load.image('checkpoint', 'assets/art/flag_green.png');
@@ -197,7 +198,7 @@ function create() {
                     walls.add(obj);
                     break;
                 case 'wall_move':
-                    obj = game.add.sprite(objectX, objectY, 'wall');
+                    obj = game.add.sprite(objectX, objectY, 'wall_red');
                     obj.movementPathing = game.add.group();
                     obj.currentNumber = 1;
                     movementList = objectInfo[3].split('-');
