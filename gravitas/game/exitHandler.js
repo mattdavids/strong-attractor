@@ -9,7 +9,7 @@ let ExitHandler = function(optionsData) {
     
     function onExit(obj, exit, game, callback) {
         let exitSound = game.add.audio('exitSound');
-        exitSound.volume = 2 * optionsData.master * optionsData.music;
+        exitSound.volume = 3 * optionsData.master * optionsData.music;
         exitSound.allowMultiple = false;
         exitSound.play();
 
