@@ -13,6 +13,17 @@ let Win = function(game, optionsData) {
         game.state.start('menu');
     }
     
+    function rainbow() {
+        let options = ['0xffffff', '0xff0000', '0xffa500', '0xffff00', '0x00ff00', '0x00ffa5'];
+        var letters = '0123456789ABCDE'.split('');
+        var color = '0x';
+        for (var i=0; i<3; i++ ) {
+            color += letters[Math.floor(Math.random() * letters.length)];
+        }
+        return options[Math.floor(Math.random() * options.length)];
+        return color;
+    }
+    
     function quadraticEase(t, tmax) {
         return 1 - Math.pow(tmax - t, 2)/Math.pow(tmax, 2);
     }
@@ -21,8 +32,12 @@ let Win = function(game, optionsData) {
         if(Math.random() > .95) {
             let emitter = game.add.emitter(Math.random() * 600 + 100, Math.random() * 100 + 45);
             let numParticles = Math.random() * 30 + 20;
+            let color = rainbow();
 
             emitter.makeParticles('gravParticle', 0, numParticles, true);
+            emitter.forEach(function(particle) {
+                particle.tint = color;
+            });
             emitter.minParticleScale = .3;
             emitter.maxParticleScale = .5;
             emitter.width = 20;
