@@ -101,6 +101,9 @@ let GravObj = function(game, x, y, gravMin, gravMax, gravOn, flux, moving, movem
     
     function resetWeight() {
         this.gravWeight = ((this.gravMin + this.gravMax)/2) * this.gravOn * !this.flux;
+        if (this.flux) {
+            this.fluxConst = 1;
+        }
     }
 
     let gravObj = game.add.sprite(x, y, 'gravObj');
